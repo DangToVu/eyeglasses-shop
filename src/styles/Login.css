@@ -1,0 +1,13 @@
+.login-page {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-page .login-form {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -1,0 +1,39 @@
+/* src/styles/ProductCard.css */
+.product-card {
+  width: 17.5rem; /* Giảm từ 18rem để vừa khít 4 thẻ */
+  margin: 0 1rem 1.5rem 0; /* Giữ margin */
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+  display: inline-block; /* Đảm bảo thẻ nằm ngang */
+  vertical-align: top; /* Căn chỉnh đỉnh */
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-img {
+  height: 200px; /* Chiều cao cố định */
+  width: 100%; /* Đảm bảo ảnh lấp đầy chiều ngang */
+  object-fit: cover; /* Giữ tỷ lệ, zoom ảnh dọc để vừa khung */
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.product-body {
+  padding: 1rem;
+}
+
+.product-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.product-text {
+  font-size: 0.95rem;
+  color: #666;
+}

@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import ProductForm from "../components/ProductForm.jsx";
+import "../styles/Admin.css"; // Import CSS
 
 function Admin() {
   const [products, setProducts] = useState([]);
@@ -68,10 +69,10 @@ function Admin() {
   return (
     <div>
       <Header />
-      <Container>
-        <h2 className="my-4">Quản lý sản phẩm</h2>
+      <Container className="admin-container">
+        <h2 className="admin-title my-4">Quản lý sản phẩm</h2>
         <ProductForm product={selectedProduct} onSave={handleSave} />
-        <Table striped bordered hover className="mt-4">
+        <Table striped bordered hover className="admin-table mt-4">
           <thead>
             <tr>
               <th>Tên</th>
@@ -93,13 +94,14 @@ function Admin() {
                 <td>
                   <Button
                     variant="warning"
-                    className="me-2"
+                    className="me-2 admin-btn"
                     onClick={() => setSelectedProduct(product)}
                   >
                     Sửa
                   </Button>
                   <Button
                     variant="danger"
+                    className="admin-btn"
                     onClick={() => handleDelete(product.id)}
                   >
                     Xóa
