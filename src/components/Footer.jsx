@@ -1,10 +1,11 @@
 import { Container } from "react-bootstrap";
+import "../styles/Footer.css"; // Import CSS
 
 function Footer() {
   return (
-    <footer className="bg-light py-3 mt-4">
+    <footer className="footer">
       <Container>
-        <p className="text-center mb-0">
+        <p className="footer-text">
           © 2025 Eyeglasses Shop. All rights reserved.
         </p>
       </Container>

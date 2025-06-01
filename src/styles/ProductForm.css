@@ -1,0 +1,35 @@
+.product-form {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-input {
+  border-radius: 5px;
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+
+.form-textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.product-form-btn {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  background-color: #28a745;
+  border: none;
+}
+
+.product-form-btn:hover {
+  background-color: #218838;
+}

@@ -1,0 +1,88 @@
+/* src/styles/Home.css */
+.home-container {
+  padding: 2rem 0;
+}
+
+.home-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+}
+
+.carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Căn giữa toàn bộ carousel */
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.products-container {
+  display: flex;
+  flex-direction: row;
+  width: 75rem; /* Tăng lên 75rem để tránh cắt mép  */
+  overflow-x: auto;
+  padding: 1rem 1rem; /* Thêm padding-right 1rem để tạo không gian đệm */
+  gap: 1rem; /* Khoảng cách giữa các thẻ sản phẩm */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch; /* Cuộn mượt trên iOS */
+  white-space: nowrap; /* Ngăn các thẻ xuống dòng */
+  scrollbar-width: none; /* Ẩn thanh cuộn trên Firefox */
+  -ms-overflow-style: none; /* Ẩn thanh cuộn trên IE/Edge */
+  scroll-snap-type: x mandatory; /* Đảm bảo dừng chính xác tại các thẻ */
+}
+
+.products-container::-webkit-scrollbar {
+  display: none; /* Ẩn thanh cuộn trên Chrome/Safari */
+}
+
+.product-item {
+  flex: 0 0 auto; /* Không co giãn, giữ kích thước cố định */
+  scroll-snap-align: start; /* Mỗi thẻ sẽ căn chỉnh ở đầu container khi cuộn */
+}
+
+.carousel-button {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  transition: background-color 0.3s ease;
+}
+
+.carousel-button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-button:disabled {
+  background-color: rgba(0, 0, 0, 0.2);
+  cursor: not-allowed;
+}
+
+.carousel-button.left {
+  left: 0;
+}
+
+.carousel-button.right {
+  right: 0;
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 767px) {
+  .products-container {
+    width: 37.5rem; /* Tăng lên 37.5rem (36.5rem + 1rem padding-right) */
+    padding: 1rem; /* Giữ padding 1rem */
+  }
+  .carousel-button {
+    font-size: 1rem;
+    padding: 0.3rem;
+  }
+}
