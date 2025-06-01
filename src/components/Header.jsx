@@ -21,7 +21,7 @@ function Header() {
     <Navbar bg="light" expand="lg" className="mb-4">
       <Container>
         <Navbar.Brand as={Link} to="/">
-          Eyeglasses Shop Đăng Tồ
+          Kính mắt Tuân Hồng
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
