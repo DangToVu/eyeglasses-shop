@@ -1,7 +1,7 @@
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import LoginForm from "../components/LoginForm.jsx";
-import "../styles/Login.css"; // Import CSS
+import "../styles/pages/Login.css"; // Import CSS
 
 function Login() {
   return (
