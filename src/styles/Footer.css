@@ -1,10 +1,8 @@
 .footer {
   background-color: #f8f9fa;
   padding: 1rem 0;
-  margin-top: 2rem;
-  position: relative;
-  bottom: 0;
   width: 100%;
+  flex-shrink: 0; /* Ngăn footer co lại khi không gian hẹp */
 }
 
 .footer-text {

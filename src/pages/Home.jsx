@@ -59,7 +59,7 @@ function Home() {
   };
 
   return (
-    <div>
+    <div className="page-wrapper">
       <Header />
       <Container className="home-container">
         <h2 className="home-title my-4">Bộ sưu tập mới nhất</h2>

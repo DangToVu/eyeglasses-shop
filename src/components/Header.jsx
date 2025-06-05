@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { BiCog } from "react-icons/bi"; // Import biểu tượng bánh răng từ react-icons
 import "../styles/Header.css"; // Import CSS
+import logo from "../../public/Logo.jpg"; // Import logo từ thư mục public
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -30,7 +31,7 @@ function Header() {
       <div className="header-container">
         <Link to="/" className="header-brand">
           <img
-            src="/src/assets/logo.jpg"
+            src={logo} // Sử dụng biến logo đã import
             alt="Kính mắt Tuân Hồng"
             className="header-logo"
           />
