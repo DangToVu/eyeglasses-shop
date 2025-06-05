@@ -1,6 +1,6 @@
 /* src/styles/ProductCard.css */
 .product-card {
-  width: 17.5rem; /* Giảm từ 18rem để vừa khít 4 thẻ */
+  width: 17.3rem; /* Giảm từ 18rem để vừa khít 4 thẻ */
   margin: 0 1rem 1.5rem 0; /* Giữ margin */
   border: 1px solid #e0e0e0;
   border-radius: 8px;

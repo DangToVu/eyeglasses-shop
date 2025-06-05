@@ -1,6 +1,13 @@
 /* src/styles/Home.css */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Đảm bảo chiều cao tối thiểu là toàn màn hình */
+}
+
 .home-container {
   padding: 2rem 0;
+  flex: 1 0 auto; /* Cho phép container chính lấp đầy không gian còn lại */
 }
 
 .home-title {
@@ -22,7 +29,7 @@
 .products-container {
   display: flex;
   flex-direction: row;
-  width: 75rem; /* Tăng lên 75rem để tránh cắt mép  */
+  width: 74rem; /* Tăng lên 74rem để tránh cắt mép */
   overflow-x: auto;
   padding: 1rem 1rem; /* Thêm padding-right 1rem để tạo không gian đệm */
   gap: 1rem; /* Khoảng cách giữa các thẻ sản phẩm */
@@ -48,7 +55,7 @@
   border: none;
   color: white;
   font-size: 1.5rem;
-  padding: 0.5rem;
+  padding: 0.8rem;
   border-radius: 50%;
   cursor: pointer;
   position: absolute;
@@ -69,10 +76,12 @@
 
 .carousel-button.left {
   left: 0;
+  margin-left: 20px;
 }
 
 .carousel-button.right {
   right: 0;
+  margin-right: 20px;
 }
 
 /* Responsive cho màn hình nhỏ */
