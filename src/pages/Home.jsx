@@ -5,7 +5,7 @@ import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa"; // Import biểu tượng mũi tên
-import "../styles/Home.css"; // Import CSS
+import "../styles/pages/Home.css"; // Import CSS
 
 function Home() {
   const [products, setProducts] = useState([]);

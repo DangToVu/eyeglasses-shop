@@ -1,20 +1,109 @@
 .login-form {
-  max-width: 500px;
-  margin: 3rem auto;
+  max-width: 450px; /* Chiều ngang trên web */
+  margin: 2rem auto;
   padding: 2rem;
   background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: center;
+  margin-top: 50px;
+  margin-bottom: 100px;
+}
+
+.login-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin-top: -50px;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.input-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #007bff;
+  font-size: 1.2rem;
+  z-index: 1; /* Đảm bảo icon hiển thị trên nền input */
 }
 
 .form-input {
-  border-radius: 5px;
-  padding: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 9rem 0.75rem 2.5rem; /* Sửa padding-right từ 9rem thành 1rem */
   font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: #007bff;
+  background-color: #fff;
+}
+
+.password-group {
+  position: relative;
+}
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 55%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #666;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+  z-index: 1; /* Đảm bảo icon mắt hiển thị trên nền input */
+}
+
+.password-toggle:hover {
+  color: #007bff;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  transform: scale(1.1);
+  margin-bottom: 1rem;
+  margin-left: 80px; /* Sửa từ -287px thành 2.5rem để thẳng hàng với nội dung input */
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #007bff;
+  margin-left: -216px;
 }
 
 .login-btn {
@@ -23,8 +112,199 @@
   font-size: 1.1rem;
   background-color: #007bff;
   border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
 }
 
 .login-btn:hover {
   background-color: #0056b3;
+}
+
+.login-btn:active {
+  background-color: #003d80;
+}
+
+/* Responsive */
+/* for desktop */
+@media (max-width: 480px) {
+  .login-form {
+    max-width: 480px; /* Giảm thêm cho màn hình rất nhỏ */
+    padding: 2rem;
+    margin-bottom: 140px;
+    margin-top: 100px;
+  }
+
+  .login-title {
+    font-size: 1.6rem;
+  }
+
+  .form-input {
+    padding: 0.5rem 3rem 0.5rem 1.8rem;
+    font-size: 0.9rem;
+  }
+
+  .icon {
+    font-size: 0.9rem;
+    left: 6px;
+  }
+
+  .password-toggle {
+    font-size: 0.9rem;
+    right: 6px;
+  }
+
+  .checkbox-group {
+    margin-left: 1.8rem;
+  }
+
+  .remember-me {
+    font-size: 0.8rem;
+    margin-left: -134px;
+  }
+
+  .login-btn {
+    font-size: 0.95rem;
+    padding: 0.5rem;
+    margin-bottom: -60px;
+  }
+}
+
+/*for tablet*/
+@media (min-width: 451px) and (max-width: 1050px) and (pointer: coarse) {
+  .login-form {
+    max-width: 800px; /* Giảm thêm cho màn hình rất nhỏ */
+    padding: 2rem;
+    margin-bottom: 280px;
+    margin-top: 190px;
+  }
+
+  .login-title {
+    font-size: 2.5rem;
+  }
+
+  .form-group label {
+    font-size: 1.5rem;
+  }
+
+  .form-input {
+    padding: 0.6rem 19rem 0.5rem 1.8rem;
+    font-size: 1.5rem;
+  }
+
+  .icon {
+    font-size: 1.3rem;
+    left: 6px;
+  }
+
+  .password-toggle {
+    font-size: 1.5rem;
+    right: 6px;
+  }
+
+  .checkbox-group {
+    margin-left: 1.8rem;
+  }
+
+  .remember-me {
+    font-size: 1.1rem;
+    margin-left: -302px;
+  }
+
+  .login-btn {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    margin-bottom: -50px;
+  }
+}
+
+/*for mobile under 450px of width*/
+@media (min-width: 380px) and (max-width: 450px) and (pointer: coarse) {
+  .login-form {
+    max-width: 450px; /* Giảm thêm cho màn hình rất nhỏ */
+    padding: 2rem;
+    margin-bottom: 200px;
+    margin-top: 150px;
+  }
+
+  .login-title {
+    font-size: 1.3rem;
+  }
+
+  .form-input {
+    padding: 0.5rem 3rem 0.5rem 1.8rem;
+    font-size: 0.9rem;
+  }
+
+  .icon {
+    font-size: 0.9rem;
+    left: 6px;
+  }
+
+  .password-toggle {
+    font-size: 0.9rem;
+    right: 6px;
+  }
+
+  .checkbox-group {
+    margin-left: 1.8rem;
+  }
+
+  .remember-me {
+    font-size: 0.8rem;
+    margin-left: -134px;
+  }
+
+  .login-btn {
+    font-size: 0.95rem;
+    padding: 0.5rem;
+    margin-bottom: -50px;
+  }
+}
+
+/*for mobile under 300px of width*/
+@media (max-width: 376px) and (pointer: coarse) {
+  .login-form {
+    max-width: 376px; /* Giảm thêm cho màn hình rất nhỏ */
+    padding: 2rem;
+    margin-bottom: 100px;
+    margin-top: 80px;
+  }
+
+  .login-title {
+    font-size: 1.3rem;
+  }
+
+  .form-input {
+    padding: 0.5rem 1rem 0.5rem 1.8rem;
+    font-size: 0.9rem;
+  }
+
+  .icon {
+    font-size: 0.9rem;
+    left: 6px;
+  }
+
+  .password-toggle {
+    font-size: 0.9rem;
+    right: 6px;
+  }
+
+  .checkbox-group {
+    margin-left: 1.8rem;
+  }
+
+  .remember-me {
+    font-size: 0.8rem;
+    margin-left: -120px;
+  }
+
+  .login-btn {
+    font-size: 0.95rem;
+    padding: 0.5rem;
+    margin-bottom: -60px;
+  }
 }

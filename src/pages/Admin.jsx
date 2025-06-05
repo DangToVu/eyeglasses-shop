@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import ProductForm from "../components/ProductForm.jsx";
-import "../styles/Admin.css"; // Import CSS
+import "../styles/pages/Admin.css"; // Import CSS
 
 function Admin() {
   const [products, setProducts] = useState([]);
