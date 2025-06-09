@@ -51,7 +51,7 @@ function LoginForm() {
         localStorage.removeItem("savedUsername");
       }
       toast.success("Đăng nhập thành công!");
-      navigate("/admin");
+      navigate("/card-management"); // Điều hướng đến CardManagement thay vì /admin
     } catch (error) {
       toast.error(
         "Đăng nhập thất bại: " +

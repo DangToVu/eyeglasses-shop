@@ -1,40 +1,56 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { BiCog } from "react-icons/bi"; // Import biểu tượng bánh răng từ react-icons
-import "../styles/Header.css"; // Import CSS
-import logo from "../../public/Logo.jpg"; // Import logo từ thư mục public
+import { BiCog } from "react-icons/bi";
+import "../styles/Header.css";
+import logo from "../../public/Logo.png";
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false); // State để toggle dropdown
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [isVisible, setIsVisible] = useState(true); // State để kiểm soát hiển thị header
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) setIsLoggedIn(true);
+
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 200) {
+        // Scroll xuống và vượt quá 200px thì ẩn header
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        // Scroll lên thì hiện header
+        setIsVisible(true);
+      }
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    // Cleanup event listener khi component unmount
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     navigate("/");
-    setShowDropdown(false); // Đóng dropdown sau khi đăng xuất
+    setShowDropdown(false);
   };
 
   const handleManage = () => {
-    navigate("/admin");
-    setShowDropdown(false); // Đóng dropdown sau khi vào trang quản lý
+    navigate("/card-management"); // Điều hướng đến trang CardManagement
+    setShowDropdown(false);
   };
 
   return (
-    <header className="header">
+    <header className={`header ${isVisible ? "visible" : "hidden"}`}>
       <div className="header-container">
         <Link to="/" className="header-brand">
-          <img
-            src={logo} // Sử dụng biến logo đã import
-            alt="Kính mắt Tuân Hồng"
-            className="header-logo"
-          />
+          <img src={logo} alt="Kính mắt Tuân Hồng" className="header-logo" />
         </Link>
         <div className="header-nav">
           <div
@@ -49,7 +65,10 @@ function Header() {
                     <div className="dropdown-item" onClick={handleManage}>
                       Quản lý
                     </div>
-                    <div className="dropdown-item" onClick={handleLogout}>
+                    <div
+                      className="dropdown-item-logout"
+                      onClick={handleLogout}
+                    >
                       Đăng xuất
                     </div>
                   </>
