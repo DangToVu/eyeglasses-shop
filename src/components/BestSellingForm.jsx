@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
-import "../styles/ProductForm.css";
+import "../styles/BestSellingForm.css"; // Sử dụng CSS riêng cho BestSellingForm
 
-function ProductForm({ product, onSave }) {
+function BestSellingForm({ product, onSave }) {
   const [name, setName] = useState(product ? product.name : "");
   const [price, setPrice] = useState(product ? product.price : "");
   const [description, setDescription] = useState(
@@ -15,14 +15,14 @@ function ProductForm({ product, onSave }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      let imageUrl = product ? product.image : "";
+      let imageUrl = product ? product.image_url : "";
       if (image) {
         const formData = new FormData();
         formData.append("file", image);
         await axios.post(
           `${
             import.meta.env.VITE_SUPABASE_URL
-          }/storage/v1/object/product-images/${image.name}`,
+          }/storage/v1/object/best-selling-images/${image.name}`,
           formData,
           {
             headers: {
@@ -33,17 +33,17 @@ function ProductForm({ product, onSave }) {
         );
         imageUrl = `${
           import.meta.env.VITE_SUPABASE_URL
-        }/storage/v1/object/public/product-images/${image.name}`;
+        }/storage/v1/object/public/best-selling-images/${image.name}`;
       }
 
       const productData = {
         name,
         price: parseFloat(price),
         description,
-        image: imageUrl,
+        image_url: imageUrl,
       };
 
-      const table = "products";
+      const table = "best_selling_glasses";
       const idField = product ? `id=eq.${product.id}` : null;
 
       if (product) {
@@ -59,7 +59,7 @@ function ProductForm({ product, onSave }) {
             },
           }
         );
-        toast.success("Cập nhật sản phẩm thành công!");
+        toast.success("Cập nhật sản phẩm bán chạy thành công!");
       } else {
         await axios.post(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}`,
@@ -73,7 +73,7 @@ function ProductForm({ product, onSave }) {
             },
           }
         );
-        toast.success("Thêm sản phẩm thành công!");
+        toast.success("Thêm sản phẩm bán chạy thành công!");
       }
       onSave();
     } catch (error) {
@@ -85,7 +85,7 @@ function ProductForm({ product, onSave }) {
     if (!product) return;
 
     try {
-      const table = "products";
+      const table = "best_selling_glasses";
       await axios.delete(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?id=eq.${
           product.id
@@ -97,7 +97,7 @@ function ProductForm({ product, onSave }) {
           },
         }
       );
-      toast.success("Xóa sản phẩm thành công!");
+      toast.success("Xóa sản phẩm bán chạy thành công!");
       onSave();
     } catch (error) {
       toast.error("Lỗi khi xóa: " + error.message);
@@ -105,7 +105,7 @@ function ProductForm({ product, onSave }) {
   };
 
   return (
-    <Form onSubmit={handleSubmit} className="product-form">
+    <Form onSubmit={handleSubmit} className="best-selling-form">
       <Form.Group className="form-group">
         <Form.Label>Tên sản phẩm</Form.Label>
         <Form.Control
@@ -144,13 +144,13 @@ function ProductForm({ product, onSave }) {
           className="form-input"
         />
       </Form.Group>
-      <Button type="submit" variant="primary" className="product-form-btn">
+      <Button type="submit" variant="primary" className="best-selling-form-btn">
         {product ? "Cập nhật" : "Thêm sản phẩm"}
       </Button>
       {product && (
         <Button
           variant="danger"
-          className="product-form-btn mt-2"
+          className="best-selling-form-btn mt-2"
           onClick={handleDelete}
         >
           Xóa
@@ -160,4 +160,4 @@ function ProductForm({ product, onSave }) {
   );
 }
 
-export default ProductForm;
+export default BestSellingForm;

@@ -5,6 +5,15 @@
   position: sticky;
   top: 0;
   z-index: 1000;
+  transition: transform 0.3s ease-in-out; /* Hiệu ứng mượt khi ẩn/hiện */
+}
+
+.header.visible {
+  transform: translateY(0); /* Hiện header */
+}
+
+.header.hidden {
+  transform: translateY(-100%); /* Ẩn header lên trên */
 }
 
 .header-container {
@@ -22,7 +31,7 @@
 }
 
 .header-logo {
-  height: 40px; /* Điều chỉnh kích thước logo */
+  height: 45px;
   width: auto;
   object-fit: contain;
 }
@@ -53,7 +62,7 @@
   right: 0;
   background-color: #ffffff;
   border: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 1px 5px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 0.5rem 0;
   min-width: 150px;
@@ -67,6 +76,17 @@
   transition: background-color 0.2s ease-in-out;
   text-decoration: none;
   display: block;
+  border-radius: 20px;
+}
+
+.dropdown-item-logout {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  color: #ff2323;
+  transition: background-color 0.2s ease-in-out;
+  text-decoration: none;
+  display: block;
+  border-radius: 20px;
 }
 
 .dropdown-item:hover {
@@ -75,5 +95,14 @@
 }
 
 .dropdown-item:active {
+  background-color: #e9ecef;
+}
+
+.dropdown-item-logout:hover {
+  background-color: #ff3737;
+  color: #ffffff;
+}
+
+.dropdown-item-logout:active {
   background-color: #e9ecef;
 }

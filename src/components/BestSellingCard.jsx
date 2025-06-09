@@ -1,12 +1,12 @@
 import { Card } from "react-bootstrap";
-import "../styles/ProductCard.css"; // Import CSS
+import "../styles/BestSellingCard.css"; // Import CSS đã cập nhật
 
-function ProductCard({ product }) {
+function BestSellingCard({ product }) {
   return (
-    <Card className="product-card">
+    <Card className="best-selling-card">
       <Card.Img
         variant="top"
-        src={product.image}
+        src={product.image_url}
         alt={product.name}
         className="product-img"
       />
@@ -15,11 +15,11 @@ function ProductCard({ product }) {
         <Card.Text className="product-text">
           Giá: {product.price} VNĐ
           <br />
-          Mô tả: {product.description}
+          Mô tả: {product.description || "-"}
         </Card.Text>
       </Card.Body>
     </Card>
   );
 }
 
-export default ProductCard;
+export default BestSellingCard;

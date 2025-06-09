@@ -1,0 +1,76 @@
+/* src/styles/BestSellingForm.css */
+.best-selling-form {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.best-selling-form-btn {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.best-selling-form-btn:hover {
+  background-color: #0056b3;
+}
+
+.best-selling-form-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .best-selling-form {
+    max-width: 100%;
+    padding: 0.5rem;
+  }
+
+  .form-input {
+    font-size: 0.9rem;
+  }
+
+  .form-textarea {
+    height: 80px;
+  }
+
+  .best-selling-form-btn {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+}

@@ -5,25 +5,35 @@ import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import ProductForm from "../components/ProductForm.jsx";
-import "../styles/pages/Admin.css"; // Import CSS
+import "../styles/pages/Admin.css";
 
 function Admin() {
   const [products, setProducts] = useState([]);
+  const [bestSellingProducts, setBestSellingProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
-          {
+        const [productsResponse, bestSellingResponse] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
             headers: {
               apikey: import.meta.env.VITE_SUPABASE_KEY,
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          }
-        );
-        setProducts(response.data);
+          }),
+          axios.get(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
+            {
+              headers: {
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          ),
+        ]);
+        setProducts(productsResponse.data);
+        setBestSellingProducts(bestSellingResponse.data);
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
       }
@@ -31,10 +41,10 @@ function Admin() {
     fetchProducts();
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, table) => {
     try {
       await axios.delete(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products?id=eq.${id}`,
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,
         {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
@@ -42,8 +52,18 @@ function Admin() {
           },
         }
       );
-      setProducts(products.filter((product) => product.id !== id));
-      toast.success("Xóa sản phẩm thành công!");
+      if (table === "products") {
+        setProducts(products.filter((product) => product.id !== id));
+      } else {
+        setBestSellingProducts(
+          bestSellingProducts.filter((product) => product.id !== id)
+        );
+      }
+      toast.success(
+        `Xóa ${
+          table === "best_selling_glasses" ? "sản phẩm bán chạy" : "sản phẩm"
+        } thành công!`
+      );
     } catch (error) {
       toast.error("Lỗi khi xóa: " + error.message);
     }
@@ -52,19 +72,37 @@ function Admin() {
   const handleSave = () => {
     setSelectedProduct(null);
     const fetchProducts = async () => {
-      const response = await axios.get(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
-        {
+      const [productsResponse, bestSellingResponse] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
-      );
-      setProducts(response.data);
+        }),
+        axios.get(
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
+          {
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        ),
+      ]);
+      setProducts(productsResponse.data);
+      setBestSellingProducts(bestSellingResponse.data);
     };
     fetchProducts();
   };
+
+  // Kết hợp cả hai danh sách sản phẩm để hiển thị
+  const allProducts = [
+    ...products.map((p) => ({ ...p, table: "products" })),
+    ...bestSellingProducts.map((p) => ({
+      ...p,
+      table: "best_selling_glasses",
+    })),
+  ];
 
   return (
     <div>
@@ -75,6 +113,7 @@ function Admin() {
         <Table striped bordered hover className="admin-table mt-4">
           <thead>
             <tr>
+              <th>Loại</th>
               <th>Tên</th>
               <th>Giá</th>
               <th>Mô tả</th>
@@ -83,13 +122,23 @@ function Admin() {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
+            {allProducts.map((product) => (
               <tr key={product.id}>
+                <td>
+                  {product.table === "best_selling_glasses"
+                    ? "Sản phẩm bán chạy"
+                    : "Sản phẩm thông thường"}
+                </td>
                 <td>{product.name}</td>
                 <td>{product.price}</td>
                 <td>{product.description}</td>
                 <td>
-                  <img src={product.image} alt={product.name} width="50" />
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    width="50"
+                    style={{ borderRadius: "4px" }}
+                  />
                 </td>
                 <td>
                   <Button
@@ -102,7 +151,7 @@ function Admin() {
                   <Button
                     variant="danger"
                     className="admin-btn"
-                    onClick={() => handleDelete(product.id)}
+                    onClick={() => handleDelete(product.id, product.table)}
                   >
                     Xóa
                   </Button>
