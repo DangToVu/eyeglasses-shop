@@ -18,8 +18,8 @@ function Header() {
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 200) {
-        // Scroll xuống và vượt quá 200px thì ẩn header
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scroll xuống và vượt quá 100px thì ẩn header
         setIsVisible(false);
       } else if (currentScrollY < lastScrollY) {
         // Scroll lên thì hiện header
