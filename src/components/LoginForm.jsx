@@ -3,16 +3,16 @@ import { Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import biểu tượng mắt từ react-icons
-import { Person, Lock } from "react-bootstrap-icons"; // Import icon từ react-bootstrap-icons
-import "../styles/LoginForm.css"; // Import CSS
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Person, Lock } from "react-bootstrap-icons";
+import "../styles/LoginForm.css";
 
 function LoginForm() {
   const [email, setEmail] = useState(
     localStorage.getItem("savedUsername") || ""
-  ); // Thay username bằng email
+  );
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // Trạng thái ẩn/hiện mật khẩu
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(
     !!localStorage.getItem("savedUsername")
   );
@@ -36,11 +36,11 @@ function LoginForm() {
         `${
           import.meta.env.VITE_SUPABASE_URL
         }/auth/v1/token?grant_type=password`,
-        { email, password }, // Sử dụng email thay vì username
+        { email, password },
         {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
-            "Content-Type": "application/json", // Đảm bảo header Content-Type
+            "Content-Type": "application/json",
           },
         }
       );
@@ -51,7 +51,7 @@ function LoginForm() {
         localStorage.removeItem("savedUsername");
       }
       toast.success("Đăng nhập thành công!");
-      navigate("/card-management"); // Điều hướng đến CardManagement thay vì /admin
+      navigate("/card-management");
     } catch (error) {
       toast.error(
         "Đăng nhập thất bại: " +
@@ -61,57 +61,59 @@ function LoginForm() {
   };
 
   return (
-    <Form onSubmit={handleSubmit} className="login-form">
-      <h3 className="login-title">Login</h3>
-      <Form.Group className="form-group">
-        <Form.Label>Email</Form.Label> {/* Thay Username thành Email */}
-        <div className="input-icon">
-          <Person className="icon user-icon" />
-          <Form.Control
-            type="email" // Thay type="text" thành type="email" để kiểm tra định dạng
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="form-input"
-            placeholder="Email"
-          />
-        </div>
-      </Form.Group>
-      <Form.Group className="form-group password-group">
-        <Form.Label>Password</Form.Label>
-        <div className="input-icon">
-          <Lock className="icon lock-icon" />
-          <div className="password-wrapper">
+    <div className="lf-container">
+      <Form onSubmit={handleSubmit} className="lf-form">
+        <h3 className="lf-title">Login</h3>
+        <Form.Group className="lf-form-group">
+          <Form.Label>Email</Form.Label>
+          <div className="lf-input-icon">
+            <Person className="lf-icon lf-user-icon" />
             <Form.Control
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              className="form-input"
-              placeholder="Password"
+              className="lf-form-input"
+              placeholder="Enter your email"
             />
-            <span
-              className="password-toggle"
-              onClick={togglePasswordVisibility}
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </span>
           </div>
-        </div>
-      </Form.Group>
-      <Form.Group className="checkbox-group">
-        <Form.Check
-          type="checkbox"
-          label="Remember me"
-          checked={rememberMe}
-          onChange={handleRememberMe}
-          className="remember-me"
-        />
-      </Form.Group>
-      <Button type="submit" variant="primary" className="login-btn">
-        LOGIN
-      </Button>
-    </Form>
+        </Form.Group>
+        <Form.Group className="lf-form-group lf-password-group">
+          <Form.Label>Password</Form.Label>
+          <div className="lf-input-icon">
+            <Lock className="lf-icon lf-lock-icon" />
+            <div className="lf-password-wrapper">
+              <Form.Control
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="lf-form-input"
+                placeholder="Enter your password"
+              />
+              <span
+                className="lf-password-toggle"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+          </div>
+        </Form.Group>
+        <Form.Group className="lf-checkbox-group">
+          <Form.Check
+            type="checkbox"
+            label="Remember me"
+            checked={rememberMe}
+            onChange={handleRememberMe}
+            className="lf-remember-me"
+          />
+        </Form.Group>
+        <Button type="submit" variant="primary" className="lf-login-btn">
+          LOGIN
+        </Button>
+      </Form>
+    </div>
   );
 }
 

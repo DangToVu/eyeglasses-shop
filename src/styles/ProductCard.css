@@ -1,13 +1,13 @@
 /* src/styles/ProductCard.css */
 .product-card {
-  width: 17.3rem; /* Giảm từ 18rem để vừa khít 4 thẻ */
-  margin: 0 1rem 1.5rem 0; /* Giữ margin */
+  width: 17.3rem;
+  margin: 0 1rem 1.5rem 0;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease-in-out;
-  display: inline-block; /* Đảm bảo thẻ nằm ngang */
-  vertical-align: top; /* Căn chỉnh đỉnh */
+  display: inline-block;
+  vertical-align: top;
 }
 
 .product-card:hover {
@@ -15,9 +15,9 @@
 }
 
 .product-img {
-  height: 200px; /* Chiều cao cố định */
-  width: 100%; /* Đảm bảo ảnh lấp đầy chiều ngang */
-  object-fit: cover; /* Giữ tỷ lệ, zoom ảnh dọc để vừa khung */
+  height: 200px;
+  width: 100%;
+  object-fit: cover;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
@@ -36,4 +36,7 @@
 .product-text {
   font-size: 0.95rem;
   color: #666;
+  overflow: hidden; /* Ngăn tràn ra ngoài */
+  text-overflow: ellipsis; /* Thêm dấu "..." khi tràn */
+  white-space: nowrap; /* Ngăn xuống dòng */
 }

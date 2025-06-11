@@ -80,7 +80,7 @@ function CardManagement() {
       : [];
 
   return (
-    <div>
+    <div className="page-wrapper">
       <Header />
       <Container className="card-management-container">
         <h2 className="card-management-title my-4">Quản lý sản phẩm</h2>

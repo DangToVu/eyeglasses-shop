@@ -1,305 +1,275 @@
-.login-form {
-  max-width: 450px;
-  margin: 5rem auto;
-  padding: 2rem calc(2rem + 0.5em) 2rem calc(2rem + 0.5em); /* Adjust padding dynamically */
-  background-color: #ffffff;
-  border: 1.5px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.lf-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f5f5f5;
+  padding: 1rem;
+  margin-top: -5.8rem;
+  margin-bottom: -3.1rem;
+}
+
+.lf-form {
+  max-width: 400px;
+  width: 100%;
+  padding: 2rem;
+  background: linear-gradient(135deg, #ffffff, #f9f9f9);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 1.5rem;
   text-align: center;
-  position: relative;
 }
 
-.login-title {
-  font-size: 2rem;
+.lf-title {
+  font-size: 2.2rem;
   font-weight: 700;
   color: #333;
-  margin-top: -40px;
+  margin: 0 0 1rem;
 }
 
-.form-group {
+.lf-form-group {
   text-align: left;
 }
 
-.form-group label {
+.lf-form-group label {
   font-weight: 500;
   color: #555;
   margin-bottom: 0.5rem;
   display: block;
 }
 
-.input-icon {
+.lf-input-icon {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.icon {
+.lf-icon {
   position: absolute;
-  left: 10px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: #007bff;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   z-index: 1;
 }
 
-.form-input {
+.lf-form-input {
   width: 100%;
-  padding: 0.75rem 10rem 0.75rem 2.5rem;
+  padding: 0.75rem 2.5rem;
   font-size: 1rem;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f9f9f9;
+  border-radius: 6px;
+  background-color: #fff;
   outline: none;
   box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.form-input:focus {
+.lf-form-input:focus {
   border-color: #007bff;
-  background-color: #fff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
 
-.password-group {
+.lf-password-group {
   position: relative;
 }
 
-.password-wrapper {
+.lf-password-wrapper {
   position: relative;
   width: 100%;
 }
 
-.password-toggle {
+.lf-password-toggle {
   position: absolute;
-  right: 10px;
-  top: 55%;
+  right: 12px;
+  top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
   color: #666;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   transition: color 0.3s ease;
   z-index: 1;
 }
 
-.password-toggle:hover {
+.lf-password-toggle:hover {
   color: #007bff;
 }
 
-.checkbox-group {
+.lf-checkbox-group {
   display: flex;
   align-items: center;
-  transform: scale(1.1);
-  margin-bottom: 1rem;
-  margin-left: 80px;
+  justify-content: flex-start; /* Di chuyển sang trái */
+  margin-bottom: 0;
+  padding-left: 0.5rem; /* Đảm bảo thẳng hàng với label */
 }
 
-.remember-me {
+.lf-remember-me {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
-  color: #007bff;
-  margin-left: -223px;
+  font-size: 0.95rem;
+  color: #333;
 }
 
-.login-btn {
+.lf-login-btn {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.9rem;
   font-size: 1.1rem;
   background-color: #007bff;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   color: #fff;
   font-weight: 600;
   text-transform: uppercase;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
   cursor: pointer;
 }
 
-.login-btn:hover {
+.lf-login-btn:hover {
   background-color: #0056b3;
+  transform: translateY(-2px);
 }
 
-.login-btn:active {
+.lf-login-btn:active {
   background-color: #003d80;
+  transform: translateY(0);
 }
 
 /* Responsive */
 @media (max-width: 480px) {
-  .login-form {
-    max-width: 480px;
-    padding: 1.5rem calc(1.5rem + 1em) 1.5rem calc(1.5rem + 1em);
-    margin-bottom: 140px;
-    margin-top: 100px;
+  .lf-form {
+    max-width: 90%;
+    padding: 1.5rem;
+    margin: 1rem 0;
   }
 
-  .login-title {
+  .lf-title {
+    font-size: 1.8rem;
+  }
+
+  .lf-form-input {
+    padding: 0.6rem 2rem;
+    font-size: 0.9rem;
+  }
+
+  .lf-icon {
+    font-size: 1rem;
+    left: 8px;
+  }
+
+  .lf-password-toggle {
+    font-size: 1rem;
+    right: 8px;
+  }
+
+  .lf-remember-me {
+    font-size: 0.85rem;
+  }
+
+  .lf-login-btn {
+    font-size: 1rem;
+    padding: 0.7rem;
+  }
+
+  .lf-checkbox-group {
+    padding-left: 0.3rem; /* Điều chỉnh cho mobile */
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .lf-form {
+    max-width: 450px;
+    padding: 1.8rem;
+  }
+
+  .lf-title {
+    font-size: 2rem;
+  }
+
+  .lf-form-input {
+    padding: 0.7rem 2.5rem;
+  }
+
+  .lf-login-btn {
+    font-size: 1.1rem;
+    padding: 0.8rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .lf-form {
+    max-width: 500px;
+    padding: 2.2rem;
+  }
+
+  .lf-title {
+    font-size: 2.3rem;
+  }
+
+  .lf-form-input {
+    padding: 0.8rem 2.5rem;
+  }
+
+  .lf-login-btn {
+    font-size: 1.2rem;
+    padding: 0.9rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .lf-form {
+    max-width: 400px;
+    padding: 2rem;
+  }
+}
+
+/* Xử lý chế độ ngang/dọc trên mobile */
+@media (max-width: 480px) and (orientation: portrait) {
+  .lf-form {
+    padding: 1rem;
+  }
+
+  .lf-title {
     font-size: 1.6rem;
   }
 
-  .form-input {
-    padding: 0.5rem 3rem 0.5rem 1.8rem;
+  .lf-form-input {
+    padding: 0.5rem 1.5rem;
+  }
+
+  .lf-login-btn {
     font-size: 0.9rem;
+    padding: 0.6rem;
   }
 
-  .icon {
-    font-size: 0.9rem;
-    left: 6px;
-  }
-
-  .password-toggle {
-    font-size: 0.9rem;
-    right: 6px;
-  }
-
-  .checkbox-group {
-    margin-left: 1.8rem;
-  }
-
-  .remember-me {
-    font-size: 0.8rem;
-    margin-left: -134px;
-  }
-
-  .login-btn {
-    font-size: 0.95rem;
-    padding: 0.5rem;
-    margin-bottom: -60px;
+  .lf-checkbox-group {
+    padding-left: 0.3rem;
   }
 }
 
-@media (min-width: 451px) and (max-width: 1050px) and (pointer: coarse) {
-  .login-form {
-    max-width: 800px;
-    padding: 2rem calc(2rem + 2em) 2rem calc(2rem + 2em);
-    margin: 13rem auto;
+@media (max-width: 480px) and (orientation: landscape) {
+  .lf-form {
+    max-width: 70%;
+    padding: 1rem;
   }
 
-  .login-title {
-    font-size: 2.5rem;
-    margin-top: -100px;
+  .lf-title {
+    font-size: 1.4rem;
   }
 
-  .form-group label {
-    font-size: 1.5rem;
+  .lf-form-input {
+    padding: 0.5rem 1.5rem;
   }
 
-  .form-input {
-    padding: 0.6rem 19rem 0.5rem 1.8rem;
-    font-size: 1.5rem;
-  }
-
-  .icon {
-    font-size: 1.3rem;
-    left: 6px;
-  }
-
-  .password-toggle {
-    font-size: 1.5rem;
-    right: 6px;
-  }
-
-  .checkbox-group {
-    margin-left: 1.8rem;
-  }
-
-  .remember-me {
-    font-size: 1.1rem;
-    margin-left: -302px;
-  }
-
-  .login-btn {
-    font-size: 1.5rem;
+  .lf-login-btn {
+    font-size: 0.85rem;
     padding: 0.5rem;
-    margin-bottom: -100px;
-  }
-}
-
-@media (min-width: 380px) and (max-width: 450px) and (pointer: coarse) {
-  .login-form {
-    max-width: 450px;
-    padding: 1.5rem calc(1.5rem + 1em) 1.5rem calc(1.5rem + 1em);
-    margin-bottom: 200px;
-    margin-top: 150px;
   }
 
-  .login-title {
-    font-size: 1.3rem;
-  }
-
-  .form-input {
-    padding: 0.5rem 3rem 0.5rem 1.8rem;
-    font-size: 0.9rem;
-  }
-
-  .icon {
-    font-size: 0.9rem;
-    left: 6px;
-  }
-
-  .password-toggle {
-    font-size: 0.9rem;
-    right: 6px;
-  }
-
-  .checkbox-group {
-    margin-left: 1.8rem;
-  }
-
-  .remember-me {
-    font-size: 0.8rem;
-    margin-left: -134px;
-  }
-
-  .login-btn {
-    font-size: 0.95rem;
-    padding: 0.5rem;
-    margin-bottom: -50px;
-  }
-}
-
-@media (max-width: 376px) and (pointer: coarse) {
-  .login-form {
-    max-width: 376px;
-    padding: 1.5rem calc(1.5rem + 1em) 1.5rem calc(1.5rem + 1em);
-    margin-bottom: 100px;
-    margin-top: 80px;
-  }
-
-  .login-title {
-    font-size: 1.3rem;
-  }
-
-  .form-input {
-    padding: 0.5rem 1rem 0.5rem 1.8rem;
-    font-size: 0.9rem;
-  }
-
-  .icon {
-    font-size: 0.9rem;
-    left: 6px;
-  }
-
-  .password-toggle {
-    font-size: 0.9rem;
-    right: 6px;
-  }
-
-  .checkbox-group {
-    margin-left: 1.8rem;
-  }
-
-  .remember-me {
-    font-size: 0.8rem;
-    margin-left: -120px;
-  }
-
-  .login-btn {
-    font-size: 0.95rem;
-    padding: 0.5rem;
-    margin-bottom: -60px;
+  .lf-checkbox-group {
+    padding-left: 0.3rem;
   }
 }

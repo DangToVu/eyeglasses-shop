@@ -1,45 +1,48 @@
 /* src/styles/BestSellingCard.css */
 .best-selling-card {
-  width: 17.3rem; /* Đồng bộ với ProductCard */
-  margin: 0 1rem 1.5rem 0; /* Đồng bộ margin với ProductCard */
-  border: 1px solid #e0e0e0; /* Đồng bộ border */
+  width: 17.3rem;
+  margin: 0 1rem 1.5rem 0;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Đồng bộ shadow */
-  transition: transform 0.2s ease-in-out; /* Đồng bộ hover effect */
-  display: inline-block; /* Hiển thị ngang, hỗ trợ scroll */
-  vertical-align: top; /* Căn chỉnh đỉnh */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+  display: inline-block;
+  vertical-align: top;
 }
 
 .best-selling-card:hover {
-  transform: translateY(-5px); /* Đồng bộ hiệu ứng nâng lên khi hover */
+  transform: translateY(-5px);
 }
 
 .product-img {
-  height: 200px; /* Đồng bộ chiều cao ảnh */
-  width: 100%; /* Đảm bảo ảnh lấp đầy chiều ngang */
-  object-fit: cover; /* Giữ tỷ lệ, zoom ảnh dọc để vừa khung */
+  height: 200px;
+  width: 100%;
+  object-fit: cover;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
 
 .product-body {
-  padding: 1rem; /* Đồng bộ padding */
+  padding: 1rem;
 }
 
 .product-title {
-  font-size: 1.2rem; /* Đồng bộ font size */
+  font-size: 1.2rem;
   font-weight: 600;
   color: #333;
   margin-bottom: 0.5rem;
 }
 
 .product-text {
-  font-size: 0.95rem; /* Đồng bộ font size */
+  font-size: 0.95rem;
   color: #666;
+  overflow: hidden; /* Ngăn tràn ra ngoài */
+  text-overflow: ellipsis; /* Thêm dấu "..." khi tràn */
+  white-space: nowrap; /* Ngăn xuống dòng */
 }
 
 .best-selling-card .btn {
-  width: 100%; /* Nút chiếm toàn bộ chiều ngang */
+  width: 100%;
   padding: 0.5rem;
   font-size: 0.9rem;
   background-color: #007bff;
@@ -61,23 +64,23 @@
 /* Responsive */
 @media (max-width: 767px) {
   .best-selling-card {
-    width: 15rem; /* Giảm kích thước trên mobile giống ProductCard */
+    width: 15rem;
     margin: 0.5rem;
   }
 
   .product-img {
-    height: 150px; /* Giảm chiều cao ảnh trên mobile */
+    height: 150px;
   }
 
   .product-title {
-    font-size: 1rem; /* Giảm font size trên mobile */
+    font-size: 1rem;
   }
 
   .product-text {
-    font-size: 0.9rem; /* Giảm font size trên mobile */
+    font-size: 0.9rem;
   }
 
   .best-selling-card .btn {
-    font-size: 0.8rem; /* Giảm font size nút trên mobile */
+    font-size: 0.8rem;
   }
 }

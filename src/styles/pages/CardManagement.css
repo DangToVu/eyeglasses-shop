@@ -63,3 +63,19 @@
   font-weight: 500;
   color: #555;
 }
+
+/* Thêm quy tắc mới để footer luôn ở cuối */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Đảm bảo chiều cao tối thiểu là 100% viewport */
+}
+
+.card-management-container {
+  flex: 1 0 auto; /* Cho phép container chính co giãn nhưng không bị ép chiều cao */
+}
+
+footer {
+  flex-shrink: 0; /* Ngăn footer co lại */
+  width: 100%; /* Đảm bảo footer chiếm toàn bộ chiều rộng */
+}
