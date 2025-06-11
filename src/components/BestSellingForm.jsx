@@ -2,11 +2,20 @@ import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
-import "../styles/BestSellingForm.css"; // Sử dụng CSS riêng cho BestSellingForm
+import "../styles/BestSellingForm.css";
+
+// Hàm định dạng số tiền với dấu chấm ngắt số ngàn
+const formatCurrency = (value) => {
+  const cleanValue = value.replace(/[^0-9]/g, "");
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(cleanValue);
+};
 
 function BestSellingForm({ product, onSave }) {
   const [name, setName] = useState(product ? product.name : "");
-  const [price, setPrice] = useState(product ? product.price : "");
+  const [price, setPrice] = useState(product ? product.price.toString() : "");
   const [description, setDescription] = useState(
     product ? product.description : ""
   );
@@ -38,7 +47,7 @@ function BestSellingForm({ product, onSave }) {
 
       const productData = {
         name,
-        price: parseFloat(price),
+        price: parseFloat(price.replace(/[^0-9]/g, "")),
         description,
         image_url: imageUrl,
       };
@@ -104,53 +113,72 @@ function BestSellingForm({ product, onSave }) {
     }
   };
 
+  const handlePriceChange = (e) => {
+    const value = e.target.value;
+    const cleanValue = value.replace(/[^0-9]/g, "");
+    setPrice(formatCurrency(cleanValue));
+  };
+
+  const handleDescriptionChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= 50) {
+      setDescription(value);
+    }
+  };
+
+  const charactersLeft = 50 - description.length;
+
   return (
-    <Form onSubmit={handleSubmit} className="best-selling-form">
-      <Form.Group className="form-group">
+    <Form onSubmit={handleSubmit} className="bsf-form">
+      <Form.Group className="bsf-form-group">
         <Form.Label>Tên sản phẩm</Form.Label>
         <Form.Control
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="form-input"
+          className="bsf-form-input"
         />
       </Form.Group>
-      <Form.Group className="form-group">
+      <Form.Group className="bsf-form-group">
         <Form.Label>Giá</Form.Label>
         <Form.Control
-          type="number"
+          type="text"
           value={price}
-          onChange={(e) => setPrice(e.target.value)}
+          onChange={handlePriceChange}
           required
-          className="form-input"
+          className="bsf-form-input"
         />
       </Form.Group>
-      <Form.Group className="form-group">
+      <Form.Group className="bsf-form-group">
         <Form.Label>Mô tả</Form.Label>
         <Form.Control
           as="textarea"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="form-input form-textarea"
+          onChange={handleDescriptionChange}
+          className="bsf-form-input bsf-form-textarea"
+          maxLength={50}
         />
+        <small className="bsf-text-muted">
+          {charactersLeft}/50 ký tự còn lại
+        </small>
       </Form.Group>
-      <Form.Group className="form-group">
+      <Form.Group className="bsf-form-group">
         <Form.Label>Ảnh sản phẩm</Form.Label>
         <Form.Control
           type="file"
           accept="image/*"
           onChange={(e) => setImage(e.target.files[0])}
-          className="form-input"
+          className="bsf-form-input"
         />
       </Form.Group>
-      <Button type="submit" variant="primary" className="best-selling-form-btn">
+      <Button type="submit" variant="primary" className="bsf-form-btn">
         {product ? "Cập nhật" : "Thêm sản phẩm"}
       </Button>
       {product && (
         <Button
           variant="danger"
-          className="best-selling-form-btn mt-2"
+          className="bsf-form-btn bsf-mt-2"
           onClick={handleDelete}
         >
           Xóa

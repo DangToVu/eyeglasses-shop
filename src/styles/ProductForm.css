@@ -1,29 +1,36 @@
-.product-form {
+.pf-form {
   max-width: 500px;
-  margin: 2rem auto;
-  padding: 1.5rem;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.form-group {
+.pf-form-group {
   margin-bottom: 1.5rem;
 }
 
-.form-input {
+.pf-form-input {
   border-radius: 5px;
-  padding: 0.75rem;
+  padding: 0.7rem 0.5rem;
   font-size: 1rem;
   width: 100%;
+  margin: 0;
+  box-sizing: border-box;
 }
 
-.form-textarea {
+.pf-form-textarea {
   height: 100px;
   resize: vertical;
+  padding: 0.5rem 0.5rem;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
 }
 
-.product-form-btn {
+.pf-form-btn {
   width: 100%;
   padding: 0.75rem;
   font-size: 1.1rem;
@@ -34,15 +41,20 @@
   transition: background-color 0.2s ease;
 }
 
-.product-form-btn:hover {
+.pf-form-btn:hover {
   background-color: #218838;
 }
 
-.product-form-btn.mt-2 {
+.pf-mt-2 {
   margin-top: 1rem;
-  background-color: #dc3545; /* Màu đỏ cho nút Xóa */
+  background-color: #dc3545;
 }
 
-.product-form-btn.mt-2:hover {
+.pf-mt-2:hover {
   background-color: #c82333;
+}
+
+.pf-text-muted {
+  color: #666;
+  font-size: 0.9rem;
 }

@@ -1,7 +1,6 @@
-/* src/styles/BestSellingForm.css */
-.best-selling-form {
+.bsf-form {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 1rem;
   border: 1px solid #e0e0e0;
@@ -9,31 +8,36 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.form-group {
+.bsf-form-group {
   margin-bottom: 1rem;
 }
 
-.form-label {
+.bsf-form-label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: #333;
 }
 
-.form-input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.bsf-form-input {
+  border-radius: 5px;
+  padding: 0.7rem 0.5rem;
   font-size: 1rem;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
 }
 
-.form-textarea {
+.bsf-form-textarea {
   height: 100px;
   resize: vertical;
+  padding: 0.5rem 0.5rem;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
 }
 
-.best-selling-form-btn {
+.bsf-form-btn {
   width: 100%;
   padding: 0.75rem;
   font-size: 1rem;
@@ -45,31 +49,45 @@
   transition: background-color 0.2s ease;
 }
 
-.best-selling-form-btn:hover {
+.bsf-form-btn:hover {
   background-color: #0056b3;
 }
 
-.best-selling-form-btn:focus {
+.bsf-form-btn:focus {
   outline: none;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
 
+.bsf-mt-2 {
+  margin-top: 1rem;
+  background-color: #dc3545;
+}
+
+.bsf-mt-2:hover {
+  background-color: #c82333;
+}
+
+.bsf-text-muted {
+  color: #666;
+  font-size: 0.9rem;
+}
+
 /* Responsive */
 @media (max-width: 767px) {
-  .best-selling-form {
+  .bsf-form {
     max-width: 100%;
     padding: 0.5rem;
   }
 
-  .form-input {
+  .bsf-form-input {
     font-size: 0.9rem;
   }
 
-  .form-textarea {
+  .bsf-form-textarea {
     height: 80px;
   }
 
-  .best-selling-form-btn {
+  .bsf-form-btn {
     font-size: 0.9rem;
     padding: 0.5rem;
   }
