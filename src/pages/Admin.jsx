@@ -6,14 +6,17 @@ import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import ProductForm from "../components/ProductForm.jsx";
 import "../styles/pages/Admin.css";
+import LoadingScreen from "../components/LoadingScreen"; // Import LoadingScreen
 
 function Admin() {
   const [products, setProducts] = useState([]);
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // State cho loading
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setIsLoading(true); // Bắt đầu hiển thị loading
       try {
         const [productsResponse, bestSellingResponse] = await Promise.all([
           axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
@@ -36,12 +39,15 @@ function Admin() {
         setBestSellingProducts(bestSellingResponse.data);
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
+      } finally {
+        setIsLoading(false); // Kết thúc loading
       }
     };
     fetchProducts();
   }, []);
 
   const handleDelete = async (id, table) => {
+    setIsLoading(true); // Bắt đầu hiển thị loading
     try {
       await axios.delete(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,
@@ -66,31 +72,40 @@ function Admin() {
       );
     } catch (error) {
       toast.error("Lỗi khi xóa: " + error.message);
+    } finally {
+      setIsLoading(false); // Kết thúc loading
     }
   };
 
   const handleSave = () => {
     setSelectedProduct(null);
+    setIsLoading(true); // Bắt đầu hiển thị loading
     const fetchProducts = async () => {
-      const [productsResponse, bestSellingResponse] = await Promise.all([
-        axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
-          headers: {
-            apikey: import.meta.env.VITE_SUPABASE_KEY,
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }),
-        axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
-          {
+      try {
+        const [productsResponse, bestSellingResponse] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
             headers: {
               apikey: import.meta.env.VITE_SUPABASE_KEY,
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          }
-        ),
-      ]);
-      setProducts(productsResponse.data);
-      setBestSellingProducts(bestSellingResponse.data);
+          }),
+          axios.get(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
+            {
+              headers: {
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          ),
+        ]);
+        setProducts(productsResponse.data);
+        setBestSellingProducts(bestSellingResponse.data);
+      } catch (error) {
+        toast.error("Lỗi khi lấy sản phẩm: " + error.message);
+      } finally {
+        setIsLoading(false); // Kết thúc loading
+      }
     };
     fetchProducts();
   };
@@ -106,6 +121,8 @@ function Admin() {
 
   return (
     <div>
+      {isLoading && <LoadingScreen />}{" "}
+      {/* Hiển thị loading khi isLoading là true */}
       <Header />
       <Container className="admin-container">
         <h2 className="admin-title my-4">Quản lý sản phẩm</h2>

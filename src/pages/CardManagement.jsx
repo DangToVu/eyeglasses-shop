@@ -5,16 +5,52 @@ import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import ProductForm from "../components/ProductForm.jsx";
-import BestSellingForm from "../components/BestSellingForm.jsx"; // Import form mới
+import BestSellingForm from "../components/BestSellingForm.jsx";
 import "../styles/pages/CardManagement.css";
+import LoadingScreen from "../components/LoadingScreen"; // Import LoadingScreen
 
 function CardManagement() {
   const [selectedCardType, setSelectedCardType] = useState(null);
   const [products, setProducts] = useState([]);
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // State cho loading
 
   useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true); // Bắt đầu hiển thị loading
+      try {
+        const [productsResponse, bestSellingResponse] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }),
+          axios.get(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
+            {
+              headers: {
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          ),
+        ]);
+        setProducts(productsResponse.data);
+        setBestSellingProducts(bestSellingResponse.data);
+      } catch (error) {
+        toast.error("Lỗi khi lấy sản phẩm: " + error.message);
+      } finally {
+        setIsLoading(false); // Kết thúc loading
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const handleSave = () => {
+    setSelectedProduct(null);
+    setIsLoading(true); // Bắt đầu hiển thị loading
     const fetchProducts = async () => {
       try {
         const [productsResponse, bestSellingResponse] = await Promise.all([
@@ -38,35 +74,45 @@ function CardManagement() {
         setBestSellingProducts(bestSellingResponse.data);
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
+      } finally {
+        setIsLoading(false); // Kết thúc loading
       }
     };
     fetchProducts();
-  }, []);
+  };
 
-  const handleSave = () => {
-    setSelectedProduct(null);
-    const fetchProducts = async () => {
-      const [productsResponse, bestSellingResponse] = await Promise.all([
-        axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
+  const handleDelete = (id, table) => {
+    setIsLoading(true); // Bắt đầu hiển thị loading
+    axios
+      .delete(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,
+        {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }),
-        axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        ),
-      ]);
-      setProducts(productsResponse.data);
-      setBestSellingProducts(bestSellingResponse.data);
-    };
-    fetchProducts();
+        }
+      )
+      .then(() => {
+        if (table === "products") {
+          setProducts(products.filter((p) => p.id !== id));
+        } else {
+          setBestSellingProducts(
+            bestSellingProducts.filter((p) => p.id !== id)
+          );
+        }
+        toast.success(
+          `Xóa ${
+            table === "best_selling_glasses" ? "sản phẩm bán chạy" : "sản phẩm"
+          } thành công!`
+        );
+      })
+      .catch((error) => {
+        toast.error("Lỗi khi xóa: " + error.message);
+      })
+      .finally(() => {
+        setIsLoading(false); // Kết thúc loading
+      });
   };
 
   const allProducts =
@@ -81,6 +127,8 @@ function CardManagement() {
 
   return (
     <div className="page-wrapper">
+      {isLoading && <LoadingScreen />}{" "}
+      {/* Hiển thị loading khi isLoading là true */}
       <Header />
       <Container className="card-management-container">
         <h2 className="card-management-title my-4">Quản lý sản phẩm</h2>
@@ -176,36 +224,6 @@ function CardManagement() {
       <Footer />
     </div>
   );
-
-  function handleDelete(id, table) {
-    axios
-      .delete(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,
-        {
-          headers: {
-            apikey: import.meta.env.VITE_SUPABASE_KEY,
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      )
-      .then(() => {
-        if (table === "products") {
-          setProducts(products.filter((p) => p.id !== id));
-        } else {
-          setBestSellingProducts(
-            bestSellingProducts.filter((p) => p.id !== id)
-          );
-        }
-        toast.success(
-          `Xóa ${
-            table === "best_selling_glasses" ? "sản phẩm bán chạy" : "sản phẩm"
-          } thành công!`
-        );
-      })
-      .catch((error) => {
-        toast.error("Lỗi khi xóa: " + error.message);
-      });
-  }
 }
 
 export default CardManagement;

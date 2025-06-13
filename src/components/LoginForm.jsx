@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Person, Lock } from "react-bootstrap-icons";
 import "../styles/LoginForm.css";
+import LoadingScreen from "../components/LoadingScreen"; // Import LoadingScreen
 
 function LoginForm() {
   const [email, setEmail] = useState(
@@ -16,6 +17,7 @@ function LoginForm() {
   const [rememberMe, setRememberMe] = useState(
     !!localStorage.getItem("savedUsername")
   );
+  const [isLoading, setIsLoading] = useState(false); // State cho loading
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
@@ -31,6 +33,7 @@ function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); // Bắt đầu hiển thị loading
     try {
       const response = await axios.post(
         `${
@@ -57,11 +60,15 @@ function LoginForm() {
         "Đăng nhập thất bại: " +
           (error.response?.data?.message || error.message)
       );
+    } finally {
+      setIsLoading(false); // Kết thúc loading dù thành công hay thất bại
     }
   };
 
   return (
     <div className="lf-container">
+      {isLoading && <LoadingScreen />}{" "}
+      {/* Hiển thị loading khi isLoading là true */}
       <Form onSubmit={handleSubmit} className="lf-form">
         <h3 className="lf-title">Login</h3>
         <Form.Group className="lf-form-group">
