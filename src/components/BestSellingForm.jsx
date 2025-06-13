@@ -3,6 +3,7 @@ import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "../styles/BestSellingForm.css";
+import LoadingScreen from "../components/LoadingScreen"; // Import LoadingScreen
 
 // Hàm định dạng số tiền với dấu chấm ngắt số ngàn
 const formatCurrency = (value) => {
@@ -20,9 +21,11 @@ function BestSellingForm({ product, onSave }) {
     product ? product.description : ""
   );
   const [image, setImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // State cho loading
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); // Bắt đầu hiển thị loading
     try {
       let imageUrl = product ? product.image_url : "";
       if (image) {
@@ -87,12 +90,15 @@ function BestSellingForm({ product, onSave }) {
       onSave();
     } catch (error) {
       toast.error("Lỗi: " + error.message);
+    } finally {
+      setIsLoading(false); // Kết thúc loading
     }
   };
 
   const handleDelete = async () => {
     if (!product) return;
 
+    setIsLoading(true); // Bắt đầu hiển thị loading
     try {
       const table = "best_selling_glasses";
       await axios.delete(
@@ -110,6 +116,8 @@ function BestSellingForm({ product, onSave }) {
       onSave();
     } catch (error) {
       toast.error("Lỗi khi xóa: " + error.message);
+    } finally {
+      setIsLoading(false); // Kết thúc loading
     }
   };
 
@@ -129,62 +137,66 @@ function BestSellingForm({ product, onSave }) {
   const charactersLeft = 50 - description.length;
 
   return (
-    <Form onSubmit={handleSubmit} className="bsf-form">
-      <Form.Group className="bsf-form-group">
-        <Form.Label>Tên sản phẩm</Form.Label>
-        <Form.Control
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          className="bsf-form-input"
-        />
-      </Form.Group>
-      <Form.Group className="bsf-form-group">
-        <Form.Label>Giá</Form.Label>
-        <Form.Control
-          type="text"
-          value={price}
-          onChange={handlePriceChange}
-          required
-          className="bsf-form-input"
-        />
-      </Form.Group>
-      <Form.Group className="bsf-form-group">
-        <Form.Label>Mô tả</Form.Label>
-        <Form.Control
-          as="textarea"
-          value={description}
-          onChange={handleDescriptionChange}
-          className="bsf-form-input bsf-form-textarea"
-          maxLength={50}
-        />
-        <small className="bsf-text-muted">
-          {charactersLeft}/50 ký tự còn lại
-        </small>
-      </Form.Group>
-      <Form.Group className="bsf-form-group">
-        <Form.Label>Ảnh sản phẩm</Form.Label>
-        <Form.Control
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files[0])}
-          className="bsf-form-input"
-        />
-      </Form.Group>
-      <Button type="submit" variant="primary" className="bsf-form-btn">
-        {product ? "Cập nhật" : "Thêm sản phẩm"}
-      </Button>
-      {product && (
-        <Button
-          variant="danger"
-          className="bsf-form-btn bsf-mt-2"
-          onClick={handleDelete}
-        >
-          Xóa
+    <>
+      {isLoading && <LoadingScreen />}{" "}
+      {/* Hiển thị loading khi isLoading là true */}
+      <Form onSubmit={handleSubmit} className="bsf-form">
+        <Form.Group className="bsf-form-group">
+          <Form.Label>Tên sản phẩm</Form.Label>
+          <Form.Control
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="bsf-form-input"
+          />
+        </Form.Group>
+        <Form.Group className="bsf-form-group">
+          <Form.Label>Giá</Form.Label>
+          <Form.Control
+            type="text"
+            value={price}
+            onChange={handlePriceChange}
+            required
+            className="bsf-form-input"
+          />
+        </Form.Group>
+        <Form.Group className="bsf-form-group">
+          <Form.Label>Mô tả</Form.Label>
+          <Form.Control
+            as="textarea"
+            value={description}
+            onChange={handleDescriptionChange}
+            className="bsf-form-input bsf-form-textarea"
+            maxLength={50}
+          />
+          <small className="bsf-text-muted">
+            {charactersLeft}/50 ký tự còn lại
+          </small>
+        </Form.Group>
+        <Form.Group className="bsf-form-group">
+          <Form.Label>Ảnh sản phẩm</Form.Label>
+          <Form.Control
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0])}
+            className="bsf-form-input"
+          />
+        </Form.Group>
+        <Button type="submit" variant="primary" className="bsf-form-btn">
+          {product ? "Cập nhật" : "Thêm sản phẩm"}
         </Button>
-      )}
-    </Form>
+        {product && (
+          <Button
+            variant="danger"
+            className="bsf-form-btn bsf-mt-2"
+            onClick={handleDelete}
+          >
+            Xóa
+          </Button>
+        )}
+      </Form>
+    </>
   );
 }
 

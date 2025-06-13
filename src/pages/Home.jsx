@@ -4,20 +4,23 @@ import axios from "axios";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import ProductCard from "../components/ProductCard.jsx";
-import BestSellingCard from "../components/BestSellingCard.jsx"; // Import component mới
+import BestSellingCard from "../components/BestSellingCard.jsx";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "../styles/pages/Home.css";
+import LoadingScreen from "../components/LoadingScreen"; // Import LoadingScreen
 
 function Home() {
   const [products, setProducts] = useState([]);
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
   const productsContainerRef = useRef(null);
-  const bestSellingContainerRef = useRef(null); // Tham chiếu cho carousel bán chạy
-  const [currentIndex, setCurrentIndex] = useState(0); // Cho Bộ sưu tập mới nhất
-  const [bestSellingIndex, setBestSellingIndex] = useState(0); // Cho Sản phẩm bán chạy
+  const bestSellingContainerRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [bestSellingIndex, setBestSellingIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false); // State cho loading
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setIsLoading(true); // Bắt đầu hiển thị loading
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
@@ -31,9 +34,8 @@ function Home() {
       } catch (error) {
         console.error("Lỗi khi lấy sản phẩm:", error);
       }
-    };
 
-    const fetchBestSellingProducts = async () => {
+      setIsLoading(true); // Bắt đầu hiển thị loading cho bestSelling
       try {
         const response = await axios.get(
           `${
@@ -46,22 +48,22 @@ function Home() {
             },
           }
         );
-        setBestSellingProducts(response.data); // Lấy toàn bộ sản phẩm, loại bỏ slice(0, 4)
+        setBestSellingProducts(response.data);
       } catch (error) {
         console.error("Lỗi khi fetch sản phẩm bán chạy:", error);
+      } finally {
+        setIsLoading(false); // Kết thúc loading
       }
     };
 
     fetchProducts();
-    fetchBestSellingProducts();
   }, []);
 
-  // Hàm cuộn sang trái cho Bộ sưu tập mới nhất
   const scrollLeft = () => {
     if (productsContainerRef.current && currentIndex > 0) {
       const newIndex = currentIndex - 1;
       setCurrentIndex(newIndex);
-      const cardWidth = 296; // 17.5rem + 1rem gap = 18.5rem ≈ 296px
+      const cardWidth = 296;
       productsContainerRef.current.scrollTo({
         left: newIndex * cardWidth,
         behavior: "smooth",
@@ -69,7 +71,6 @@ function Home() {
     }
   };
 
-  // Hàm cuộn sang phải cho Bộ sưu tập mới nhất
   const scrollRight = () => {
     if (productsContainerRef.current && currentIndex < products.length - 4) {
       const newIndex = currentIndex + 1;
@@ -82,7 +83,6 @@ function Home() {
     }
   };
 
-  // Hàm cuộn sang trái cho Sản phẩm bán chạy
   const scrollBestSellingLeft = () => {
     if (bestSellingContainerRef.current && bestSellingIndex > 0) {
       const newIndex = bestSellingIndex - 1;
@@ -95,7 +95,6 @@ function Home() {
     }
   };
 
-  // Hàm cuộn sang phải cho Sản phẩm bán chạy
   const scrollBestSellingRight = () => {
     if (
       bestSellingContainerRef.current &&
@@ -113,6 +112,8 @@ function Home() {
 
   return (
     <div className="page-wrapper">
+      {isLoading && <LoadingScreen />}{" "}
+      {/* Hiển thị loading khi isLoading là true */}
       <Header />
       <Container className="home-container">
         <h2 className="home-title my-4">Bộ sưu tập mới nhất</h2>
