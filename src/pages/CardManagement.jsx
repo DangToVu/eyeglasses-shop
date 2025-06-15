@@ -7,18 +7,21 @@ import Footer from "../components/Footer.jsx";
 import ProductForm from "../components/ProductForm.jsx";
 import BestSellingForm from "../components/BestSellingForm.jsx";
 import "../styles/pages/CardManagement.css";
-import LoadingScreen from "../components/LoadingScreen"; // Import LoadingScreen
+import LoadingScreen from "../components/LoadingScreen";
+import ConfirmBox from "../components/ConfirmBox"; // Import ConfirmBox
 
 function CardManagement() {
   const [selectedCardType, setSelectedCardType] = useState(null);
   const [products, setProducts] = useState([]);
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // State cho loading
+  const [isLoading, setIsLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false); // State cho ConfirmBox
+  const [deleteData, setDeleteData] = useState({ id: null, table: null }); // Lưu dữ liệu để xóa
 
   useEffect(() => {
     const fetchProducts = async () => {
-      setIsLoading(true); // Bắt đầu hiển thị loading
+      setIsLoading(true);
       try {
         const [productsResponse, bestSellingResponse] = await Promise.all([
           axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
@@ -42,7 +45,7 @@ function CardManagement() {
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
       } finally {
-        setIsLoading(false); // Kết thúc loading
+        setIsLoading(false);
       }
     };
     fetchProducts();
@@ -50,7 +53,7 @@ function CardManagement() {
 
   const handleSave = () => {
     setSelectedProduct(null);
-    setIsLoading(true); // Bắt đầu hiển thị loading
+    setIsLoading(true);
     const fetchProducts = async () => {
       try {
         const [productsResponse, bestSellingResponse] = await Promise.all([
@@ -75,44 +78,57 @@ function CardManagement() {
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
       } finally {
-        setIsLoading(false); // Kết thúc loading
+        setIsLoading(false);
       }
     };
     fetchProducts();
   };
 
   const handleDelete = (id, table) => {
-    setIsLoading(true); // Bắt đầu hiển thị loading
-    axios
-      .delete(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,
+    setDeleteData({ id, table }); // Lưu dữ liệu để xử lý sau khi xác nhận
+    setShowConfirm(true); // Hiển thị ConfirmBox khi nhấn Xóa
+  };
+
+  const confirmDelete = async () => {
+    setIsLoading(true);
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
+          deleteData.table
+        }?id=eq.${deleteData.id}`,
         {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
-      )
-      .then(() => {
-        if (table === "products") {
-          setProducts(products.filter((p) => p.id !== id));
-        } else {
-          setBestSellingProducts(
-            bestSellingProducts.filter((p) => p.id !== id)
-          );
-        }
-        toast.success(
-          `Xóa ${
-            table === "best_selling_glasses" ? "sản phẩm bán chạy" : "sản phẩm"
-          } thành công!`
+      );
+      if (deleteData.table === "products") {
+        setProducts(products.filter((p) => p.id !== deleteData.id));
+      } else {
+        setBestSellingProducts(
+          bestSellingProducts.filter((p) => p.id !== deleteData.id)
         );
-      })
-      .catch((error) => {
-        toast.error("Lỗi khi xóa: " + error.message);
-      })
-      .finally(() => {
-        setIsLoading(false); // Kết thúc loading
-      });
+      }
+      toast.success(
+        `Xóa ${
+          deleteData.table === "best_selling_glasses"
+            ? "sản phẩm bán chạy"
+            : "sản phẩm"
+        } thành công!`
+      );
+    } catch (error) {
+      toast.error("Lỗi khi xóa: " + error.message);
+    } finally {
+      setIsLoading(false);
+      setShowConfirm(false); // Ẩn ConfirmBox sau khi xóa
+      setDeleteData({ id: null, table: null }); // Reset dữ liệu xóa
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowConfirm(false);
+    setDeleteData({ id: null, table: null }); // Reset dữ liệu xóa
   };
 
   const allProducts =
@@ -127,8 +143,14 @@ function CardManagement() {
 
   return (
     <div className="page-wrapper">
-      {isLoading && <LoadingScreen />}{" "}
-      {/* Hiển thị loading khi isLoading là true */}
+      {isLoading && <LoadingScreen />}
+      {showConfirm && (
+        <ConfirmBox
+          message="Bạn có chắc chắn muốn xóa sản phẩm này không?"
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+      )}
       <Header />
       <Container className="card-management-container">
         <h2 className="card-management-title my-4">Quản lý sản phẩm</h2>

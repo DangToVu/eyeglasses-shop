@@ -6,17 +6,20 @@ import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import ProductForm from "../components/ProductForm.jsx";
 import "../styles/pages/Admin.css";
-import LoadingScreen from "../components/LoadingScreen"; // Import LoadingScreen
+import LoadingScreen from "../components/LoadingScreen";
+import ConfirmBox from "../components/ConfirmBox"; // Import ConfirmBox
 
 function Admin() {
   const [products, setProducts] = useState([]);
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // State cho loading
+  const [isLoading, setIsLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false); // State cho ConfirmBox
+  const [deleteData, setDeleteData] = useState({ id: null, table: null }); // Lưu dữ liệu để xóa
 
   useEffect(() => {
     const fetchProducts = async () => {
-      setIsLoading(true); // Bắt đầu hiển thị loading
+      setIsLoading(true);
       try {
         const [productsResponse, bestSellingResponse] = await Promise.all([
           axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
@@ -40,17 +43,24 @@ function Admin() {
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
       } finally {
-        setIsLoading(false); // Kết thúc loading
+        setIsLoading(false);
       }
     };
     fetchProducts();
   }, []);
 
-  const handleDelete = async (id, table) => {
-    setIsLoading(true); // Bắt đầu hiển thị loading
+  const handleDelete = (id, table) => {
+    setDeleteData({ id, table }); // Lưu dữ liệu để xử lý sau khi xác nhận
+    setShowConfirm(true); // Hiển thị ConfirmBox khi nhấn Xóa
+  };
+
+  const confirmDelete = async () => {
+    setIsLoading(true);
     try {
       await axios.delete(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
+          deleteData.table
+        }?id=eq.${deleteData.id}`,
         {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
@@ -58,28 +68,37 @@ function Admin() {
           },
         }
       );
-      if (table === "products") {
-        setProducts(products.filter((product) => product.id !== id));
+      if (deleteData.table === "products") {
+        setProducts(products.filter((product) => product.id !== deleteData.id));
       } else {
         setBestSellingProducts(
-          bestSellingProducts.filter((product) => product.id !== id)
+          bestSellingProducts.filter((product) => product.id !== deleteData.id)
         );
       }
       toast.success(
         `Xóa ${
-          table === "best_selling_glasses" ? "sản phẩm bán chạy" : "sản phẩm"
+          deleteData.table === "best_selling_glasses"
+            ? "sản phẩm bán chạy"
+            : "sản phẩm"
         } thành công!`
       );
     } catch (error) {
       toast.error("Lỗi khi xóa: " + error.message);
     } finally {
-      setIsLoading(false); // Kết thúc loading
+      setIsLoading(false);
+      setShowConfirm(false); // Ẩn ConfirmBox sau khi xóa
+      setDeleteData({ id: null, table: null }); // Reset dữ liệu xóa
     }
+  };
+
+  const cancelDelete = () => {
+    setShowConfirm(false);
+    setDeleteData({ id: null, table: null }); // Reset dữ liệu xóa
   };
 
   const handleSave = () => {
     setSelectedProduct(null);
-    setIsLoading(true); // Bắt đầu hiển thị loading
+    setIsLoading(true);
     const fetchProducts = async () => {
       try {
         const [productsResponse, bestSellingResponse] = await Promise.all([
@@ -104,13 +123,12 @@ function Admin() {
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
       } finally {
-        setIsLoading(false); // Kết thúc loading
+        setIsLoading(false);
       }
     };
     fetchProducts();
   };
 
-  // Kết hợp cả hai danh sách sản phẩm để hiển thị
   const allProducts = [
     ...products.map((p) => ({ ...p, table: "products" })),
     ...bestSellingProducts.map((p) => ({
@@ -121,8 +139,14 @@ function Admin() {
 
   return (
     <div>
-      {isLoading && <LoadingScreen />}{" "}
-      {/* Hiển thị loading khi isLoading là true */}
+      {isLoading && <LoadingScreen />}
+      {showConfirm && (
+        <ConfirmBox
+          message="Bạn có chắc chắn muốn xóa sản phẩm này không?"
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+      )}
       <Header />
       <Container className="admin-container">
         <h2 className="admin-title my-4">Quản lý sản phẩm</h2>

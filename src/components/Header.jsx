@@ -7,7 +7,7 @@ import logo from "../../public/logo.png";
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [isVisible, setIsVisible] = useState(true); // State để kiểm soát hiển thị header
+  const [isVisible, setIsVisible] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,10 +19,8 @@ function Header() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scroll xuống và vượt quá 100px thì ẩn header
         setIsVisible(false);
       } else if (currentScrollY < lastScrollY) {
-        // Scroll lên thì hiện header
         setIsVisible(true);
       }
       lastScrollY = currentScrollY;
@@ -30,7 +28,6 @@ function Header() {
 
     window.addEventListener("scroll", handleScroll);
 
-    // Cleanup event listener khi component unmount
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -42,7 +39,7 @@ function Header() {
   };
 
   const handleManage = () => {
-    navigate("/card-management"); // Điều hướng đến trang CardManagement
+    navigate("/card-management");
     setShowDropdown(false);
   };
 
