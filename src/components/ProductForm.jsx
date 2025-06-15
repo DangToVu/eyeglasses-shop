@@ -3,7 +3,8 @@ import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "../styles/ProductForm.css";
-import LoadingScreen from "../components/LoadingScreen"; // Import LoadingScreen
+import LoadingScreen from "../components/LoadingScreen";
+import ConfirmBox from "../components/ConfirmBox"; // Import ConfirmBox
 
 // Hàm định dạng số tiền với dấu chấm ngắt số ngàn
 const formatCurrency = (value) => {
@@ -21,11 +22,12 @@ function ProductForm({ product, onSave }) {
     product ? product.description : ""
   );
   const [image, setImage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // State cho loading
+  const [isLoading, setIsLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false); // State cho ConfirmBox
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Bắt đầu hiển thị loading
+    setIsLoading(true);
     try {
       let imageUrl = product ? product.image : "";
       if (image) {
@@ -91,14 +93,17 @@ function ProductForm({ product, onSave }) {
     } catch (error) {
       toast.error("Lỗi: " + error.message);
     } finally {
-      setIsLoading(false); // Kết thúc loading
+      setIsLoading(false);
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!product) return;
+    setShowConfirm(true); // Hiển thị ConfirmBox khi nhấn Xóa
+  };
 
-    setIsLoading(true); // Bắt đầu hiển thị loading
+  const confirmDelete = async () => {
+    setIsLoading(true);
     try {
       const table = "products";
       await axios.delete(
@@ -117,8 +122,13 @@ function ProductForm({ product, onSave }) {
     } catch (error) {
       toast.error("Lỗi khi xóa: " + error.message);
     } finally {
-      setIsLoading(false); // Kết thúc loading
+      setIsLoading(false);
+      setShowConfirm(false); // Ẩn ConfirmBox sau khi xóa
     }
+  };
+
+  const cancelDelete = () => {
+    setShowConfirm(false);
   };
 
   const handlePriceChange = (e) => {
@@ -138,8 +148,14 @@ function ProductForm({ product, onSave }) {
 
   return (
     <>
-      {isLoading && <LoadingScreen />}{" "}
-      {/* Hiển thị loading khi isLoading là true */}
+      {isLoading && <LoadingScreen />}
+      {showConfirm && (
+        <ConfirmBox
+          message="Bạn có chắc chắn muốn xóa sản phẩm này không?"
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+      )}
       <Form onSubmit={handleSubmit} className="pf-form">
         <Form.Group className="pf-form-group">
           <Form.Label>Tên sản phẩm</Form.Label>
