@@ -1,5 +1,5 @@
 import { Card } from "react-bootstrap";
-import "../styles/ProductCard.css";
+import "../styles/components/ProductCard.css";
 
 function ProductCard({ product }) {
   const formatCurrency = (value) => {
