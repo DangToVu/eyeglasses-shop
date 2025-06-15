@@ -1,7 +1,9 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home.jsx";
-import CardManagement from "./pages/CardManagement.jsx"; // Thêm CardManagement
+import CardManagement from "./pages/CardManagement.jsx";
 import Login from "./pages/Login.jsx";
+import RegularProducts from "./pages/RegularProducts.jsx"; // Import trang mới
+import BestSellingProducts from "./pages/BestSellingProducts.jsx"; // Import trang mới
 import { ToastContainer } from "react-toastify";
 
 function App() {
@@ -11,8 +13,13 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/card-management" element={<CardManagement />} />
         <Route path="/login" element={<Login />} />
-        {/* Loại bỏ hoặc giữ /admin nếu cần */}
-        {/* <Route path="/admin" element={<Admin />} /> */}
+        <Route path="/products/regular" element={<RegularProducts />} />{" "}
+        {/* Route mới */}
+        <Route
+          path="/products/best-selling"
+          element={<BestSellingProducts />}
+        />{" "}
+        {/* Route mới */}
       </Routes>
       <ToastContainer position="bottom-right" autoClose={3000} closeOnClick />
     </div>

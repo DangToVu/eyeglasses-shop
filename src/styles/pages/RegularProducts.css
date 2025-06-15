@@ -1,0 +1,66 @@
+.regular-container {
+  padding: 2rem 0;
+}
+
+.regular-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+}
+
+.regular-table {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.regular-table th {
+  background-color: #007bff; /* Màu xanh dương cho sản phẩm nổi bật */
+  color: #fff;
+  font-weight: 600;
+}
+
+.regular-table td {
+  vertical-align: middle;
+}
+
+.regular-table img {
+  border-radius: 4px;
+}
+
+.regular-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  margin: 0 0.25rem;
+}
+
+.regular-btn:hover {
+  opacity: 0.9;
+}
+
+.back-btn {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.back-btn:hover {
+  opacity: 0.9;
+}
+
+/* Thêm quy tắc mới để footer luôn ở cuối */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.regular-container {
+  flex: 1 0 auto;
+}
+
+footer {
+  flex-shrink: 0;
+  width: 100%;
+}

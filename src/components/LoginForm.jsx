@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Person, Lock } from "react-bootstrap-icons";
-import "../styles/LoginForm.css";
+import "../styles/components/LoginForm.css";
 import LoadingScreen from "../components/LoadingScreen"; // Import LoadingScreen
 
 function LoginForm() {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
-import "../styles/ProductForm.css";
+import "../styles/components/ProductForm.css";
 import LoadingScreen from "../components/LoadingScreen";
 import ConfirmBox from "../components/ConfirmBox"; // Import ConfirmBox
 

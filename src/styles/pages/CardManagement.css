@@ -28,42 +28,6 @@
   margin-bottom: 1rem;
 }
 
-.admin-table {
-  background-color: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.admin-table th {
-  background-color: #007bff;
-  color: #fff;
-  font-weight: 600;
-}
-
-.admin-table td {
-  vertical-align: middle;
-}
-
-.admin-table img {
-  border-radius: 4px;
-}
-
-.admin-btn {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  margin: 0 0.25rem;
-}
-
-.admin-btn:hover {
-  opacity: 0.9;
-}
-
-/* Style cho cột Loại */
-.admin-table td:first-child {
-  font-weight: 500;
-  color: #555;
-}
-
 /* Thêm quy tắc mới để footer luôn ở cuối */
 .page-wrapper {
   display: flex;

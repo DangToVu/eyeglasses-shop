@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { BiCog } from "react-icons/bi";
-import "../styles/Header.css";
+import "../styles/components/Header.css";
 import logo from "../../public/logo.png";
 
 function Header() {
