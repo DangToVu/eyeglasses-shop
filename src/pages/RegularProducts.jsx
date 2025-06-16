@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Container, Button, Table } from "react-bootstrap";
-import { useNavigate } from "react-router-dom"; // Thêm để xử lý router
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
@@ -16,7 +16,7 @@ function RegularProducts() {
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteData, setDeleteData] = useState({ id: null, table: null });
-  const navigate = useNavigate(); // Hook để điều hướng
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -73,6 +73,37 @@ function RegularProducts() {
   const confirmDelete = async () => {
     setIsLoading(true);
     try {
+      // Lấy thông tin sản phẩm để lấy đường dẫn ảnh
+      const productToDelete = products.find((p) => p.id === deleteData.id);
+      if (productToDelete && productToDelete.image) {
+        // Trích xuất tên file từ URL
+        const imageUrl = productToDelete.image;
+        const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+        console.log("Sản phẩm cần xóa:", productToDelete);
+        console.log("Đường dẫn ảnh từ bảng:", imageUrl);
+        console.log("Tên file cần xóa:", imagePath);
+        console.log(
+          "Yêu cầu xóa ảnh:",
+          `${
+            import.meta.env.VITE_SUPABASE_URL
+          }/storage/v1/object/product-images/${imagePath}`
+        );
+
+        // Xóa file ảnh từ bucket 'product-images'
+        await axios.delete(
+          `${
+            import.meta.env.VITE_SUPABASE_URL
+          }/storage/v1/object/product-images/${imagePath}`,
+          {
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+      }
+
+      // Xóa bản ghi khỏi bảng
       await axios.delete(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
           deleteData.table
@@ -81,13 +112,23 @@ function RegularProducts() {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
             Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Prefer: "return=representation",
           },
         }
       );
       setProducts(products.filter((p) => p.id !== deleteData.id));
-      toast.success("Xóa sản phẩm thành công!");
+      toast.success("Xóa sản phẩm và ảnh thành công!");
     } catch (error) {
-      toast.error("Lỗi khi xóa: " + error.message);
+      console.error(
+        "Lỗi chi tiết:",
+        error.response ? error.response.data : error.message
+      );
+      toast.error(
+        "Lỗi khi xóa: " +
+          (error.response?.data?.message ||
+            error.message ||
+            "Không thể xóa ảnh hoặc sản phẩm")
+      );
     } finally {
       setIsLoading(false);
       setShowConfirm(false);
@@ -143,6 +184,7 @@ function RegularProducts() {
                     alt={product.name}
                     width="50"
                     style={{ borderRadius: "4px" }}
+                    onError={() => console.log("Lỗi tải ảnh:", product.image)}
                   />
                 </td>
                 <td>
