@@ -25,6 +25,13 @@ function CardManagement() {
               </Button>
             </Link>
           </Col>
+          <Col md={6} className="mb-3">
+            <Link to="/products/all">
+              <Button variant="info" className="card-select-btn w-100">
+                Quản lý tất cả sản phẩm
+              </Button>
+            </Link>
+          </Col>
         </Row>
       </Container>
       <Footer />
