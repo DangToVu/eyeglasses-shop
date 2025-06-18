@@ -73,12 +73,10 @@ function BestSellingProducts() {
   const confirmDelete = async () => {
     setIsLoading(true);
     try {
-      // Lấy thông tin sản phẩm để lấy đường dẫn ảnh
       const productToDelete = bestSellingProducts.find(
         (p) => p.id === deleteData.id
       );
       if (productToDelete && productToDelete.image_url) {
-        // Trích xuất tên file từ URL
         const imageUrl = productToDelete.image_url;
         const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
         console.log("Sản phẩm cần xóa:", productToDelete);
@@ -91,7 +89,6 @@ function BestSellingProducts() {
           }/storage/v1/object/best-selling-images/${imagePath}`
         );
 
-        // Xóa file ảnh từ bucket 'best-selling-images'
         await axios.delete(
           `${
             import.meta.env.VITE_SUPABASE_URL
@@ -105,7 +102,6 @@ function BestSellingProducts() {
         );
       }
 
-      // Xóa bản ghi khỏi bảng
       await axios.delete(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
           deleteData.table
@@ -170,6 +166,7 @@ function BestSellingProducts() {
           <thead>
             <tr>
               <th>Tên</th>
+              <th>Mã sản phẩm</th>
               <th>Giá</th>
               <th>Mô tả</th>
               <th>Ảnh</th>
@@ -180,6 +177,7 @@ function BestSellingProducts() {
             {bestSellingProducts.map((product) => (
               <tr key={product.id}>
                 <td>{product.name}</td>
+                <td>{product.product_id || "-"}</td>
                 <td>{product.price}</td>
                 <td>{product.description || "-"}</td>
                 <td>

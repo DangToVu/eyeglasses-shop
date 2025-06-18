@@ -27,6 +27,8 @@ function ProductCard({ product }) {
       <Card.Body className="product-body">
         <Card.Title className="product-title">{product.name}</Card.Title>
         <Card.Text className="product-text">
+          Mã sản phẩm: {product.product_id || "-"}
+          <br />
           Giá: {formatCurrency(product.price)}
           <br />
           Mô tả: {truncatedDescription}

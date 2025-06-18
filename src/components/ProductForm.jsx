@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "../styles/components/ProductForm.css";
 import LoadingScreen from "../components/LoadingScreen";
-import ConfirmBox from "../components/ConfirmBox"; // Import ConfirmBox
+import ConfirmBox from "../components/ConfirmBox";
 
 // Hàm định dạng số tiền với dấu chấm ngắt số ngàn
 const formatCurrency = (value) => {
@@ -17,13 +17,14 @@ const formatCurrency = (value) => {
 
 function ProductForm({ product, onSave }) {
   const [name, setName] = useState(product ? product.name : "");
+  const [productId, setProductId] = useState(product ? product.product_id : "");
   const [price, setPrice] = useState(product ? product.price.toString() : "");
   const [description, setDescription] = useState(
     product ? product.description : ""
   );
   const [image, setImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false); // State cho ConfirmBox
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,6 +53,7 @@ function ProductForm({ product, onSave }) {
 
       const productData = {
         name,
+        product_id: productId,
         price: parseFloat(price.replace(/[^0-9]/g, "")),
         description,
         image: imageUrl,
@@ -99,7 +101,7 @@ function ProductForm({ product, onSave }) {
 
   const handleDelete = () => {
     if (!product) return;
-    setShowConfirm(true); // Hiển thị ConfirmBox khi nhấn Xóa
+    setShowConfirm(true);
   };
 
   const confirmDelete = async () => {
@@ -123,7 +125,7 @@ function ProductForm({ product, onSave }) {
       toast.error("Lỗi khi xóa: " + error.message);
     } finally {
       setIsLoading(false);
-      setShowConfirm(false); // Ẩn ConfirmBox sau khi xóa
+      setShowConfirm(false);
     }
   };
 
@@ -164,6 +166,15 @@ function ProductForm({ product, onSave }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            className="pf-form-input"
+          />
+        </Form.Group>
+        <Form.Group className="pf-form-group">
+          <Form.Label>Mã sản phẩm</Form.Label>
+          <Form.Control
+            type="text"
+            value={productId}
+            onChange={(e) => setProductId(e.target.value)}
             className="pf-form-input"
           />
         </Form.Group>
