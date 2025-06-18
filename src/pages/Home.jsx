@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Container, Row } from "react-bootstrap";
+import { Container, Row, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
@@ -7,7 +8,7 @@ import ProductCard from "../components/ProductCard.jsx";
 import BestSellingCard from "../components/BestSellingCard.jsx";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "../styles/pages/Home.css";
-import LoadingScreen from "../components/LoadingScreen"; // Import LoadingScreen
+import LoadingScreen from "../components/LoadingScreen";
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -16,11 +17,11 @@ function Home() {
   const bestSellingContainerRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [bestSellingIndex, setBestSellingIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(false); // State cho loading
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      setIsLoading(true); // Bắt đầu hiển thị loading
+      setIsLoading(true);
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
@@ -35,7 +36,6 @@ function Home() {
         console.error("Lỗi khi lấy sản phẩm:", error);
       }
 
-      setIsLoading(true); // Bắt đầu hiển thị loading cho bestSelling
       try {
         const response = await axios.get(
           `${
@@ -52,7 +52,7 @@ function Home() {
       } catch (error) {
         console.error("Lỗi khi fetch sản phẩm bán chạy:", error);
       } finally {
-        setIsLoading(false); // Kết thúc loading
+        setIsLoading(false);
       }
     };
 
@@ -112,8 +112,7 @@ function Home() {
 
   return (
     <div className="page-wrapper">
-      {isLoading && <LoadingScreen />}{" "}
-      {/* Hiển thị loading khi isLoading là true */}
+      {isLoading && <LoadingScreen />}
       <Header />
       <Container className="home-container">
         <h2 className="home-title my-4">Bộ sưu tập mới nhất</h2>
@@ -164,6 +163,14 @@ function Home() {
           >
             <FaChevronRight />
           </button>
+        </div>
+
+        <div className="my-4 text-center">
+          <Link to="/products/all">
+            <Button variant="primary" size="lg" className="w-100">
+              Tất cả sản phẩm
+            </Button>
+          </Link>
         </div>
       </Container>
       <Footer />
