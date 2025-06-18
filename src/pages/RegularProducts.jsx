@@ -73,10 +73,8 @@ function RegularProducts() {
   const confirmDelete = async () => {
     setIsLoading(true);
     try {
-      // Lấy thông tin sản phẩm để lấy đường dẫn ảnh
       const productToDelete = products.find((p) => p.id === deleteData.id);
       if (productToDelete && productToDelete.image) {
-        // Trích xuất tên file từ URL
         const imageUrl = productToDelete.image;
         const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
         console.log("Sản phẩm cần xóa:", productToDelete);
@@ -89,7 +87,6 @@ function RegularProducts() {
           }/storage/v1/object/product-images/${imagePath}`
         );
 
-        // Xóa file ảnh từ bucket 'product-images'
         await axios.delete(
           `${
             import.meta.env.VITE_SUPABASE_URL
@@ -103,7 +100,6 @@ function RegularProducts() {
         );
       }
 
-      // Xóa bản ghi khỏi bảng
       await axios.delete(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
           deleteData.table
@@ -166,6 +162,7 @@ function RegularProducts() {
           <thead>
             <tr>
               <th>Tên</th>
+              <th>Mã sản phẩm</th>
               <th>Giá</th>
               <th>Mô tả</th>
               <th>Ảnh</th>
@@ -176,6 +173,7 @@ function RegularProducts() {
             {products.map((product) => (
               <tr key={product.id}>
                 <td>{product.name}</td>
+                <td>{product.product_id || "-"}</td>
                 <td>{product.price}</td>
                 <td>{product.description || "-"}</td>
                 <td>
