@@ -239,7 +239,11 @@ function AllProducts() {
         </Button>
         <h2 className="all-products-title my-4">Tất cả sản phẩm</h2>
         {isAdmin && (
-          <AllProductForm product={selectedProduct} onSave={handleSave} />
+          <AllProductForm
+            product={selectedProduct}
+            onSave={handleSave}
+            table={selectedProduct ? selectedProduct.table : "all_product"}
+          />
         )}
         {isAdmin ? (
           <Table striped bordered hover className="all-products-table mt-4">

@@ -14,7 +14,7 @@ const formatCurrency = (value) => {
   }).format(cleanValue);
 };
 
-function AllProductForm({ product, onSave }) {
+function AllProductForm({ product, onSave, table }) {
   const [name, setName] = useState(product ? product.name : "");
   const [productId, setProductId] = useState(product ? product.product_id : "");
   const [price, setPrice] = useState(product ? product.price.toString() : "");
@@ -30,13 +30,18 @@ function AllProductForm({ product, onSave }) {
     setIsLoading(true);
     try {
       let imageUrl = product ? product.image_url : "";
+      let bucket = "";
+      if (table === "products") bucket = "product-images";
+      else if (table === "best_selling_glasses") bucket = "best-selling-images";
+      else if (table === "all_product") bucket = "all-product-images";
+
       if (image) {
         const formData = new FormData();
         formData.append("file", image);
         await axios.post(
-          `${
-            import.meta.env.VITE_SUPABASE_URL
-          }/storage/v1/object/all-product-images/${image.name}`,
+          `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/${bucket}/${
+            image.name
+          }`,
           formData,
           {
             headers: {
@@ -47,7 +52,7 @@ function AllProductForm({ product, onSave }) {
         );
         imageUrl = `${
           import.meta.env.VITE_SUPABASE_URL
-        }/storage/v1/object/public/all-product-images/${image.name}`;
+        }/storage/v1/object/public/${bucket}/${image.name}`;
       }
 
       const productData = {
@@ -58,7 +63,6 @@ function AllProductForm({ product, onSave }) {
         image_url: imageUrl,
       };
 
-      const table = "all_product";
       const idField = product ? `id=eq.${product.id}` : null;
 
       if (product) {
@@ -106,7 +110,11 @@ function AllProductForm({ product, onSave }) {
   const confirmDelete = async () => {
     setIsLoading(true);
     try {
-      const table = "all_product";
+      let bucket = "";
+      if (table === "products") bucket = "product-images";
+      else if (table === "best_selling_glasses") bucket = "best-selling-images";
+      else if (table === "all_product") bucket = "all-product-images";
+
       await axios.delete(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?id=eq.${
           product.id
@@ -125,7 +133,7 @@ function AllProductForm({ product, onSave }) {
         await axios.delete(
           `${
             import.meta.env.VITE_SUPABASE_URL
-          }/storage/v1/object/all-product-images/${imagePath}`,
+          }/storage/v1/object/${bucket}/${imagePath}`,
           {
             headers: {
               apikey: import.meta.env.VITE_SUPABASE_KEY,

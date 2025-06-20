@@ -18,6 +18,7 @@ function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [bestSellingIndex, setBestSellingIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [underlineStep, setUnderlineStep] = useState(0); // Số bước di chuyển của gạch chân
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -59,11 +60,31 @@ function Home() {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    // Cập nhật số bước dựa trên currentIndex
+    const maxSteps = Math.max(products.length - 4, 0); // Hiển thị tối đa 4 thẻ
+    setUnderlineStep(
+      Math.min((currentIndex / (products.length > 4 ? maxSteps : 1)) * 100, 100)
+    );
+  }, [currentIndex, products.length]);
+
+  useEffect(() => {
+    // Cập nhật số bước dựa trên bestSellingIndex
+    const maxSteps = Math.max(bestSellingProducts.length - 4, 0);
+    setUnderlineStep(
+      Math.min(
+        (bestSellingIndex / (bestSellingProducts.length > 4 ? maxSteps : 1)) *
+          100,
+        100
+      )
+    );
+  }, [bestSellingIndex, bestSellingProducts.length]);
+
   const scrollLeft = () => {
     if (productsContainerRef.current && currentIndex > 0) {
       const newIndex = currentIndex - 1;
       setCurrentIndex(newIndex);
-      const cardWidth = 296;
+      const cardWidth = 296; // Chiều rộng cố định của card
       productsContainerRef.current.scrollTo({
         left: newIndex * cardWidth,
         behavior: "smooth",
@@ -72,10 +93,13 @@ function Home() {
   };
 
   const scrollRight = () => {
-    if (productsContainerRef.current && currentIndex < products.length - 4) {
+    if (
+      productsContainerRef.current &&
+      currentIndex < Math.max(products.length - 4, 0)
+    ) {
       const newIndex = currentIndex + 1;
       setCurrentIndex(newIndex);
-      const cardWidth = 296;
+      const cardWidth = 296; // Chiều rộng cố định của card
       productsContainerRef.current.scrollTo({
         left: newIndex * cardWidth,
         behavior: "smooth",
@@ -98,7 +122,7 @@ function Home() {
   const scrollBestSellingRight = () => {
     if (
       bestSellingContainerRef.current &&
-      bestSellingIndex < bestSellingProducts.length - 4
+      bestSellingIndex < Math.max(bestSellingProducts.length - 4, 0)
     ) {
       const newIndex = bestSellingIndex + 1;
       setBestSellingIndex(newIndex);
@@ -115,7 +139,12 @@ function Home() {
       {isLoading && <LoadingScreen />}
       <Header />
       <Container className="home-container">
-        <h2 className="home-title my-4">Bộ sưu tập mới nhất</h2>
+        <h2
+          className="home-title underlined-title my-4"
+          style={{ "--underline-step": `${underlineStep}%` }}
+        >
+          Bộ sưu tập mới nhất
+        </h2>
         <div className="carousel-wrapper">
           <button
             className="carousel-button left"
@@ -134,13 +163,38 @@ function Home() {
           <button
             className="carousel-button right"
             onClick={scrollRight}
-            disabled={currentIndex >= products.length - 4}
+            disabled={currentIndex >= Math.max(products.length - 4, 0)}
           >
             <FaChevronRight />
           </button>
         </div>
 
-        <h2 className="home-title my-4">Sản Phẩm Bán Chạy Nhất</h2>
+        <div className="image-section">
+          <div className="image-overlay">
+            <div className="image-container">
+              <div className="image-text below-image1">Hiện đại</div>
+              <img
+                src="/image1.png"
+                alt="Image 1"
+                className="angled-image image1"
+              />
+              <div className="image-text between-images">&</div>
+              <div className="image-text above-image2">Độc đáo</div>
+              <img
+                src="/image2.png"
+                alt="Image 2"
+                className="angled-image image2"
+              />
+            </div>
+          </div>
+        </div>
+
+        <h2
+          className="home-title underlined-title my-4"
+          style={{ "--underline-step": `${underlineStep}%` }}
+        >
+          Sản Phẩm Bán Chạy
+        </h2>
         <div className="carousel-wrapper">
           <button
             className="carousel-button left"
@@ -159,7 +213,9 @@ function Home() {
           <button
             className="carousel-button right"
             onClick={scrollBestSellingRight}
-            disabled={bestSellingIndex >= bestSellingProducts.length - 4}
+            disabled={
+              bestSellingIndex >= Math.max(bestSellingProducts.length - 4, 0)
+            }
           >
             <FaChevronRight />
           </button>
