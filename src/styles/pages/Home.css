@@ -1,4 +1,6 @@
 /* src/styles/pages/Home.css */
+@import url("https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap");
+
 .page-wrapper {
   display: flex;
   flex-direction: column;
@@ -13,8 +15,49 @@
 .home-title {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #333;
+  color: #26a69a; /* Màu xanh cho tiêu đề */
   text-align: center;
+  margin-left: 20px;
+}
+
+.underlined-title {
+  position: relative;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  padding-bottom: 10px;
+  display: inline-block; /* Để gạch chân chỉ áp dụng cho nội dung */
+}
+
+.underlined-title::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #26a69a; /* Gạch chân màu xanh cố định */
+}
+
+.underlined-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%; /* Phần cam chiếm toàn bộ chiều dài */
+  height: 3px;
+  background: #ff9800; /* Màu cam cho hiệu ứng */
+  transform: translateX(0); /* Bắt đầu từ 0 */
+  transition: transform 0.3s ease; /* Hiệu ứng mượt mà */
+  clip-path: inset(
+    0 calc(100% - var(--underline-step, 0%)) 0 0
+  ); /* Cắt phần thừa, giới hạn trong vùng xanh */
+}
+
+/* Đảm bảo phần cam không vượt quá giới hạn */
+.underlined-title::after {
+  will-change: transform; /* Tối ưu hiệu suất */
+  transform-origin: left;
 }
 
 .carousel-wrapper {
@@ -24,15 +67,16 @@
   justify-content: center;
   max-width: 100%;
   margin: 0 auto;
+  overflow: hidden; /* Ngăn tràn ra ngoài */
 }
 
 .products-container {
   display: flex;
   flex-direction: row;
-  width: 74rem;
+  width: 1180px; /* chỉnh width thành 1180px để đảm bảo vừa với 4 thẻ*/
   overflow-x: auto;
-  padding: 1rem 1rem;
-  gap: 1rem;
+  padding: 0;
+  gap: 0;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   white-space: nowrap;
@@ -46,8 +90,11 @@
 }
 
 .product-item {
-  flex: 0 0 auto;
+  flex: 0 0 296px; /* Cố định kích thước mỗi thẻ */
   scroll-snap-align: start;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .carousel-button {
@@ -83,14 +130,148 @@
   margin-right: 20px;
 }
 
-/* Responsive cho màn hình nhỏ */
+/* picture section */
+.image-section {
+  position: relative;
+  width: 100%;
+  margin: 2rem 0 12rem 0;
+  text-align: center;
+}
+
+.image-overlay {
+  position: relative;
+  width: 1250px;
+  height: 280px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.image-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.image1 {
+  transform: rotate(0deg);
+  border-radius: 15px;
+}
+
+.image2 {
+  transform: rotate(0deg);
+  margin-top: 120px;
+  border-radius: 15px;
+}
+
+.image-text {
+  position: absolute;
+  font-size: 3.2rem;
+  font-weight: lighter;
+  color: #000000;
+  z-index: 1;
+  font-family: "Great Vibes", cursive;
+}
+
+.below-image1 {
+  bottom: -110px;
+  left: 23%;
+  transform: translateX(-50%);
+}
+
+.between-images {
+  top: 73%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.above-image2 {
+  top: 25px;
+  right: 23%;
+  transform: translateX(50%);
+}
+
+.angled-image {
+  width: 45%;
+  height: 100%;
+  object-fit: cover;
+  border: 2px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
 @media (max-width: 767px) {
-  .products-container {
-    width: 37.5rem;
-    padding: 1rem;
+  .home-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-left: 10px;
   }
+
+  .image-section {
+    margin: 1rem 0 4rem 0;
+  }
+
+  .image-overlay {
+    width: 410px;
+    height: 130px;
+  }
+
+  .angled-image {
+    width: 45%;
+    height: 100%;
+  }
+
+  .image1 {
+    margin-top: -15px;
+  }
+
+  .image2 {
+    margin-top: 30px;
+  }
+
+  .image-text {
+    font-size: 1.2rem;
+  }
+
+  .below-image1 {
+    bottom: -30px;
+    left: 23%;
+    transform: translateX(-50%);
+  }
+
+  .between-images {
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .above-image2 {
+    top: -10px;
+    right: 23%;
+    transform: translateX(50%);
+  }
+
+  .products-container {
+    width: 800px; /* 4 thẻ x 200px */
+  }
+
+  .product-item {
+    flex: 0 0 200px; /* Giảm kích thước card trên màn hình nhỏ */
+  }
+
   .carousel-button {
     font-size: 1rem;
     padding: 0.3rem;
+  }
+
+  .underlined-title {
+    font-size: 1.5rem;
+  }
+
+  .underlined-title::before,
+  .underlined-title::after {
+    height: 2px;
   }
 }
