@@ -84,7 +84,7 @@ function Home() {
     if (productsContainerRef.current && currentIndex > 0) {
       const newIndex = currentIndex - 1;
       setCurrentIndex(newIndex);
-      const cardWidth = 296; // Chiều rộng cố định của card
+      const cardWidth = 300; // Updated to match new mobile width
       productsContainerRef.current.scrollTo({
         left: newIndex * cardWidth,
         behavior: "smooth",
@@ -99,7 +99,7 @@ function Home() {
     ) {
       const newIndex = currentIndex + 1;
       setCurrentIndex(newIndex);
-      const cardWidth = 296; // Chiều rộng cố định của card
+      const cardWidth = 300; // Updated to match new mobile width
       productsContainerRef.current.scrollTo({
         left: newIndex * cardWidth,
         behavior: "smooth",
@@ -111,7 +111,7 @@ function Home() {
     if (bestSellingContainerRef.current && bestSellingIndex > 0) {
       const newIndex = bestSellingIndex - 1;
       setBestSellingIndex(newIndex);
-      const cardWidth = 296;
+      const cardWidth = 300; // Updated to match new mobile width
       bestSellingContainerRef.current.scrollTo({
         left: newIndex * cardWidth,
         behavior: "smooth",
@@ -126,7 +126,7 @@ function Home() {
     ) {
       const newIndex = bestSellingIndex + 1;
       setBestSellingIndex(newIndex);
-      const cardWidth = 296;
+      const cardWidth = 300; // Updated to match new mobile width
       bestSellingContainerRef.current.scrollTo({
         left: newIndex * cardWidth,
         behavior: "smooth",

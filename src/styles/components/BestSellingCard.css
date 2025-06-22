@@ -1,7 +1,7 @@
 /* src/styles/BestSellingCard.css */
-.best-selling-card {
-  width: 17.3rem;
-  margin: 0 1rem 1.5rem 0;
+.best-card {
+  width: 300px; /* Updated to match new mobile width */
+  margin: 0 5px 1rem 5px; /* Adjusted margins for better spacing */
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -10,11 +10,11 @@
   vertical-align: top;
 }
 
-.best-selling-card:hover {
+.best-card:hover {
   transform: translateY(-5px);
 }
 
-.product-img {
+.best-img {
   height: 200px;
   width: 100%;
   object-fit: cover;
@@ -22,26 +22,31 @@
   border-top-right-radius: 8px;
 }
 
-.product-body {
+.best-body {
   padding: 1rem;
+  height: 100px;
 }
 
-.product-title {
+.best-title {
+  margin-top: -10px;
   font-size: 1.2rem;
   font-weight: 600;
   color: #333;
   margin-bottom: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.product-text {
+.best-text {
   font-size: 0.95rem;
   color: #666;
-  overflow: hidden; /* Ngăn tràn ra ngoài */
-  text-overflow: ellipsis; /* Thêm dấu "..." khi tràn */
-  white-space: nowrap; /* Ngăn xuống dòng */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.best-selling-card .btn {
+.best-card .btn {
   width: 100%;
   padding: 0.5rem;
   font-size: 0.9rem;
@@ -50,37 +55,69 @@
   border-radius: 4px;
   color: #fff;
   transition: background-color 0.2s ease;
+  margin-top: 0.5rem; /* Thêm khoảng cách trên nút */
 }
 
-.best-selling-card .btn:hover {
+.best-card .btn:hover {
   background-color: #0056b3;
 }
 
-.best-selling-card .btn:focus {
+.best-card .btn:focus {
   outline: none;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
 
 /* Responsive */
 @media (max-width: 767px) {
-  .best-selling-card {
-    width: 15rem;
-    margin: 0.5rem;
+  .best-card {
+    width: 300px; /* Match product-item width */
+    margin: 0 5px 1rem 5px;
   }
 
-  .product-img {
-    height: 150px;
+  .best-img {
+    height: 200px; /* Maintain image height */
   }
 
-  .product-title {
+  .best-body {
+    height: 100px; /* Maintain body height */
+  }
+
+  .best-title {
     font-size: 1rem;
   }
 
-  .product-text {
+  .best-text {
     font-size: 0.9rem;
   }
 
-  .best-selling-card .btn {
+  .best-card .btn {
     font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .best-card {
+    width: 190px; /* Match product-item width for smaller screens */
+    margin: 0 0 1rem 0;
+  }
+
+  .best-img {
+    height: 150px; /* Reduce image height */
+  }
+
+  .best-body {
+    height: 70px; /* Reduce body height */
+  }
+
+  .best-title {
+    font-size: 0.9rem;
+  }
+
+  .best-text {
+    font-size: 0.8rem;
+  }
+
+  .best-card .btn {
+    font-size: 0.7rem;
   }
 }
