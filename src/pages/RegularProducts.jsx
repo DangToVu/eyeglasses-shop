@@ -71,65 +71,69 @@ function RegularProducts() {
   };
 
   const confirmDelete = async () => {
-    setIsLoading(true);
-    try {
-      const productToDelete = products.find((p) => p.id === deleteData.id);
-      if (productToDelete && productToDelete.image) {
-        const imageUrl = productToDelete.image;
-        const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-        console.log("Sản phẩm cần xóa:", productToDelete);
-        console.log("Đường dẫn ảnh từ bảng:", imageUrl);
-        console.log("Tên file cần xóa:", imagePath);
-        console.log(
-          "Yêu cầu xóa ảnh:",
-          `${
-            import.meta.env.VITE_SUPABASE_URL
-          }/storage/v1/object/product-images/${imagePath}`
-        );
+    setIsLoading(true); // Bật loading screen ngay lập tức
+    setShowConfirm(false); // Ẩn confirm box trước khi xử lý
+
+    // Dùng setTimeout để đảm bảo loading screen hiển thị
+    setTimeout(async () => {
+      try {
+        const productToDelete = products.find((p) => p.id === deleteData.id);
+        if (productToDelete && productToDelete.image) {
+          const imageUrl = productToDelete.image;
+          const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+          console.log("Sản phẩm cần xóa:", productToDelete);
+          console.log("Đường dẫn ảnh từ bảng:", imageUrl);
+          console.log("Tên file cần xóa:", imagePath);
+          console.log(
+            "Yêu cầu xóa ảnh:",
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/storage/v1/object/product-images/${imagePath}`
+          );
+
+          await axios.delete(
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/storage/v1/object/product-images/${imagePath}`,
+            {
+              headers: {
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+        }
 
         await axios.delete(
-          `${
-            import.meta.env.VITE_SUPABASE_URL
-          }/storage/v1/object/product-images/${imagePath}`,
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
+            deleteData.table
+          }?id=eq.${deleteData.id}`,
           {
             headers: {
               apikey: import.meta.env.VITE_SUPABASE_KEY,
               Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Prefer: "return=representation",
             },
           }
         );
+        setProducts(products.filter((p) => p.id !== deleteData.id));
+        toast.success("Xóa sản phẩm và ảnh thành công!");
+      } catch (error) {
+        console.error(
+          "Lỗi chi tiết:",
+          error.response ? error.response.data : error.message
+        );
+        toast.error(
+          "Lỗi khi xóa: " +
+            (error.response?.data?.message ||
+              error.message ||
+              "Không thể xóa ảnh hoặc sản phẩm")
+        );
+      } finally {
+        setIsLoading(false);
+        setDeleteData({ id: null, table: null });
       }
-
-      await axios.delete(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
-          deleteData.table
-        }?id=eq.${deleteData.id}`,
-        {
-          headers: {
-            apikey: import.meta.env.VITE_SUPABASE_KEY,
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            Prefer: "return=representation",
-          },
-        }
-      );
-      setProducts(products.filter((p) => p.id !== deleteData.id));
-      toast.success("Xóa sản phẩm và ảnh thành công!");
-    } catch (error) {
-      console.error(
-        "Lỗi chi tiết:",
-        error.response ? error.response.data : error.message
-      );
-      toast.error(
-        "Lỗi khi xóa: " +
-          (error.response?.data?.message ||
-            error.message ||
-            "Không thể xóa ảnh hoặc sản phẩm")
-      );
-    } finally {
-      setIsLoading(false);
-      setShowConfirm(false);
-      setDeleteData({ id: null, table: null });
-    }
+    }, 10); // Đợi 10ms để loading screen hiển thị
   };
 
   const cancelDelete = () => {
@@ -212,3 +216,4 @@ function RegularProducts() {
 }
 
 export default RegularProducts;
+  

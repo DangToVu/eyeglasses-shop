@@ -48,12 +48,12 @@
 
 .header-icon {
   font-size: 1.8rem;
-  color: #007bff;
+  color: #4b5563;
   transition: color 0.2s ease-in-out;
 }
 
 .header-icon:hover {
-  color: #0056b3;
+  color: #343434;
 }
 
 .dropdown-menu {
