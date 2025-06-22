@@ -121,82 +121,86 @@ function AllProducts() {
   };
 
   const confirmDelete = async () => {
-    setIsLoading(true);
-    try {
-      let productToDelete = null;
-      let imagePath = "";
-      let bucket = "";
+    setIsLoading(true); // Bật loading screen ngay lập tức
+    setShowConfirm(false); // Ẩn confirm box trước khi xử lý
 
-      if (deleteData.table === "products") {
-        productToDelete = regularProducts.find((p) => p.id === deleteData.id);
-        bucket = "product-images";
-      } else if (deleteData.table === "best_selling_glasses") {
-        productToDelete = bestSellingProducts.find(
-          (p) => p.id === deleteData.id
-        );
-        bucket = "best-selling-images";
-      } else if (deleteData.table === "all_product") {
-        productToDelete = allProducts.find((p) => p.id === deleteData.id);
-        bucket = "all-product-images";
-      }
+    // Dùng setTimeout để đảm bảo loading screen hiển thị
+    setTimeout(async () => {
+      try {
+        let productToDelete = null;
+        let imagePath = "";
+        let bucket = "";
 
-      if (productToDelete) {
-        if (productToDelete.image_url) {
-          imagePath = productToDelete.image_url.substring(
-            productToDelete.image_url.lastIndexOf("/") + 1
+        if (deleteData.table === "products") {
+          productToDelete = regularProducts.find((p) => p.id === deleteData.id);
+          bucket = "product-images";
+        } else if (deleteData.table === "best_selling_glasses") {
+          productToDelete = bestSellingProducts.find(
+            (p) => p.id === deleteData.id
           );
-        } else if (productToDelete.image) {
-          imagePath = productToDelete.image.substring(
-            productToDelete.image.lastIndexOf("/") + 1
-          );
+          bucket = "best-selling-images";
+        } else if (deleteData.table === "all_product") {
+          productToDelete = allProducts.find((p) => p.id === deleteData.id);
+          bucket = "all-product-images";
         }
-        if (imagePath && bucket) {
-          await axios.delete(
-            `${
-              import.meta.env.VITE_SUPABASE_URL
-            }/storage/v1/object/${bucket}/${imagePath}`,
-            {
-              headers: {
-                apikey: import.meta.env.VITE_SUPABASE_KEY,
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
-          );
-        }
-      }
 
-      await axios.delete(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
-          deleteData.table
-        }?id=eq.${deleteData.id}`,
-        {
-          headers: {
-            apikey: import.meta.env.VITE_SUPABASE_KEY,
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            Prefer: "return=representation",
-          },
+        if (productToDelete) {
+          if (productToDelete.image_url) {
+            imagePath = productToDelete.image_url.substring(
+              productToDelete.image_url.lastIndexOf("/") + 1
+            );
+          } else if (productToDelete.image) {
+            imagePath = productToDelete.image.substring(
+              productToDelete.image.lastIndexOf("/") + 1
+            );
+          }
+          if (imagePath && bucket) {
+            await axios.delete(
+              `${
+                import.meta.env.VITE_SUPABASE_URL
+              }/storage/v1/object/${bucket}/${imagePath}`,
+              {
+                headers: {
+                  apikey: import.meta.env.VITE_SUPABASE_KEY,
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+          }
         }
-      );
 
-      if (deleteData.table === "products") {
-        setRegularProducts(
-          regularProducts.filter((p) => p.id !== deleteData.id)
+        await axios.delete(
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
+            deleteData.table
+          }?id=eq.${deleteData.id}`,
+          {
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Prefer: "return=representation",
+            },
+          }
         );
-      } else if (deleteData.table === "best_selling_glasses") {
-        setBestSellingProducts(
-          bestSellingProducts.filter((p) => p.id !== deleteData.id)
-        );
-      } else if (deleteData.table === "all_product") {
-        setAllProducts(allProducts.filter((p) => p.id !== deleteData.id));
+
+        if (deleteData.table === "products") {
+          setRegularProducts(
+            regularProducts.filter((p) => p.id !== deleteData.id)
+          );
+        } else if (deleteData.table === "best_selling_glasses") {
+          setBestSellingProducts(
+            bestSellingProducts.filter((p) => p.id !== deleteData.id)
+          );
+        } else if (deleteData.table === "all_product") {
+          setAllProducts(allProducts.filter((p) => p.id !== deleteData.id));
+        }
+        toast.success("Xóa sản phẩm thành công!");
+      } catch (error) {
+        toast.error("Lỗi khi xóa: " + error.message);
+      } finally {
+        setIsLoading(false);
+        setDeleteData({ id: null, table: null });
       }
-      toast.success("Xóa sản phẩm thành công!");
-    } catch (error) {
-      toast.error("Lỗi khi xóa: " + error.message);
-    } finally {
-      setIsLoading(false);
-      setShowConfirm(false);
-      setDeleteData({ id: null, table: null });
-    }
+    }, 10); // Đợi 10ms để loading screen hiển thị
   };
 
   const cancelDelete = () => {

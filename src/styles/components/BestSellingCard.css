@@ -1,7 +1,7 @@
 /* src/styles/BestSellingCard.css */
 .best-card {
-  width: 300px; /* Updated to match new mobile width */
-  margin: 0 5px 1rem 5px; /* Adjusted margins for better spacing */
+  width: 330px;
+  margin: 0 5px 1rem 5px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -15,7 +15,7 @@
 }
 
 .best-img {
-  height: 200px;
+  height: 250px;
   width: 100%;
   object-fit: cover;
   border-top-left-radius: 8px;
@@ -55,7 +55,7 @@
   border-radius: 4px;
   color: #fff;
   transition: background-color 0.2s ease;
-  margin-top: 0.5rem; /* Thêm khoảng cách trên nút */
+  margin-top: 0.5rem;
 }
 
 .best-card .btn:hover {
@@ -70,16 +70,16 @@
 /* Responsive */
 @media (max-width: 767px) {
   .best-card {
-    width: 300px; /* Match product-item width */
+    width: 300px;
     margin: 0 5px 1rem 5px;
   }
 
   .best-img {
-    height: 200px; /* Maintain image height */
+    height: 200px;
   }
 
   .best-body {
-    height: 100px; /* Maintain body height */
+    height: 100px;
   }
 
   .best-title {
@@ -97,16 +97,16 @@
 
 @media (max-width: 576px) {
   .best-card {
-    width: 190px; /* Match product-item width for smaller screens */
+    width: 190px;
     margin: 0 0 1rem 0;
   }
 
   .best-img {
-    height: 150px; /* Reduce image height */
+    height: 150px;
   }
 
   .best-body {
-    height: 70px; /* Reduce body height */
+    height: 70px;
   }
 
   .best-title {
@@ -119,5 +119,33 @@
 
   .best-card .btn {
     font-size: 0.7rem;
+  }
+}
+
+/* New Responsive Section for width < 400px */
+@media (max-width: 400px) {
+  .best-card {
+    width: 165px;
+  }
+
+  .best-img {
+    height: 130px;
+  }
+
+  .best-body {
+    height: 65px;
+  }
+
+  .best-title {
+    font-size: 0.85rem;
+  }
+
+  .best-text {
+    font-size: 0.75rem;
+  }
+
+  .best-card .btn {
+    font-size: 0.65rem;
+    padding: 0.4rem;
   }
 }
