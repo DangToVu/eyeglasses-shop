@@ -17,16 +17,16 @@ function ProductCard({ product }) {
     : "-";
 
   return (
-    <Card className="product-card">
+    <Card className="prod-card">
       <Card.Img
         variant="top"
         src={product.image}
         alt={product.name}
-        className="product-img"
+        className="prod-img"
       />
-      <Card.Body className="product-body">
-        <Card.Title className="product-title">{product.name}</Card.Title>
-        <Card.Text className="product-text">
+      <Card.Body className="prod-body">
+        <Card.Title className="prod-title">{product.name}</Card.Title>
+        <Card.Text className="prod-text">
           Mã sản phẩm: {product.product_id || "-"}
           <br />
           Giá: {formatCurrency(product.price)}

@@ -17,16 +17,16 @@ function BestSellingCard({ product }) {
     : "-";
 
   return (
-    <Card className="best-selling-card">
+    <Card className="best-card">
       <Card.Img
         variant="top"
         src={product.image_url}
         alt={product.name}
-        className="product-img"
+        className="best-img"
       />
-      <Card.Body className="product-body">
-        <Card.Title className="product-title">{product.name}</Card.Title>
-        <Card.Text className="product-text">
+      <Card.Body className="best-body">
+        <Card.Title className="best-title">{product.name}</Card.Title>
+        <Card.Text className="best-text">
           Mã sản phẩm: {product.product_id || "-"}
           <br />
           Giá: {formatCurrency(product.price)}
