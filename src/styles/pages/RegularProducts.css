@@ -1,5 +1,5 @@
 .regular-container {
-  padding: 2rem 0;
+  padding: 0rem 0;
 }
 
 .regular-title {
@@ -13,10 +13,12 @@
   background-color: #fff;
   border-radius: 8px;
   overflow: hidden;
+  width: 100%;
+  border: 2px solid #000000;
 }
 
 .regular-table th {
-  background-color: #007bff; /* Màu xanh dương cho sản phẩm nổi bật */
+  background-color: #007bff;
   color: #fff;
   font-weight: 600;
 }
@@ -49,7 +51,24 @@
   opacity: 0.9;
 }
 
-/* Thêm quy tắc mới để footer luôn ở cuối */
+.product-layout {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 20px; /* Thêm khoảng trắng giữa form và list */
+}
+
+.product-form-container {
+  width: 30%; /* Giảm chiều rộng của form */
+  padding-right: 0;
+}
+
+.product-list-container {
+  width: 65%; /* Giảm chiều rộng của list */
+  max-height: 680px; /* chiều cao của list container */
+  overflow-y: auto; /* Cho phép cuộn khi danh sách dài */
+}
+
 .page-wrapper {
   display: flex;
   flex-direction: column;

@@ -1,5 +1,5 @@
 .pf-form {
-  max-width: 500px;
+  max-width: 500px; /* Giảm chiều rộng tối đa của form */
   width: 100%;
   margin: 0 auto;
   padding: 1rem;

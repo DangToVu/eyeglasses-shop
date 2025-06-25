@@ -1,5 +1,5 @@
 .all-products-container {
-  padding: 2rem 0;
+  padding: 0rem 0;
 }
 
 .all-products-title {
@@ -13,10 +13,12 @@
   background-color: #fff;
   border-radius: 8px;
   overflow: hidden;
+  width: 100%;
+  border: 2px solid #000000;
 }
 
 .all-products-table th {
-  background-color: #6f42c1; /* Màu tím cho tất cả sản phẩm */
+  background-color: #6f42c1;
   color: #fff;
   font-weight: 600;
 }
@@ -39,14 +41,22 @@
   opacity: 0.9;
 }
 
-.back-btn {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  margin-bottom: 1rem;
+.product-layout {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 20px;
 }
 
-.back-btn:hover {
-  opacity: 0.9;
+.product-form-container {
+  width: 30%;
+  padding-right: 0;
+}
+
+.product-list-container {
+  width: 65%;
+  max-height: 680px;
+  overflow-y: auto;
 }
 
 .all-products-cards {

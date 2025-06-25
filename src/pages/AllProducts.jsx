@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Container, Button, Table } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
@@ -19,7 +18,6 @@ function AllProducts() {
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteData, setDeleteData] = useState({ id: null, table: null });
-  const navigate = useNavigate();
   const isAdmin = !!localStorage.getItem("token");
 
   useEffect(() => {
@@ -121,10 +119,9 @@ function AllProducts() {
   };
 
   const confirmDelete = async () => {
-    setIsLoading(true); // Bật loading screen ngay lập tức
-    setShowConfirm(false); // Ẩn confirm box trước khi xử lý
+    setIsLoading(true);
+    setShowConfirm(false);
 
-    // Dùng setTimeout để đảm bảo loading screen hiển thị
     setTimeout(async () => {
       try {
         let productToDelete = null;
@@ -200,7 +197,7 @@ function AllProducts() {
         setIsLoading(false);
         setDeleteData({ id: null, table: null });
       }
-    }, 10); // Đợi 10ms để loading screen hiển thị
+    }, 10);
   };
 
   const cancelDelete = () => {
@@ -234,75 +231,75 @@ function AllProducts() {
       )}
       <Header />
       <Container className="all-products-container">
-        <Button
-          variant="secondary"
-          className="back-btn mb-3"
-          onClick={() => navigate("/card-management")}
-        >
-          Quay lại
-        </Button>
         <h2 className="all-products-title my-4">Tất cả sản phẩm</h2>
         {isAdmin && (
-          <AllProductForm
-            product={selectedProduct}
-            onSave={handleSave}
-            table={selectedProduct ? selectedProduct.table : "all_product"}
-          />
+          <div className="product-layout">
+            <div className="product-form-container">
+              <AllProductForm
+                product={selectedProduct}
+                onSave={handleSave}
+                table={selectedProduct ? selectedProduct.table : "all_product"}
+              />
+            </div>
+            <div className="product-list-container">
+              <Table striped bordered hover className="all-products-table mt-4">
+                <thead>
+                  <tr>
+                    <th>Tên</th>
+                    <th>Mã sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Mô tả</th>
+                    <th>Ảnh</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allProductsList.map((product) => (
+                    <tr key={product.id}>
+                      <td>{product.name}</td>
+                      <td>{product.product_id || "-"}</td>
+                      <td>{product.price}</td>
+                      <td>{product.description || "-"}</td>
+                      <td>
+                        <img
+                          src={product.image || product.image_url}
+                          alt={product.name}
+                          width="50"
+                          style={{ borderRadius: "4px" }}
+                          onError={() =>
+                            console.log(
+                              "Lỗi tải ảnh:",
+                              product.image || product.image_url
+                            )
+                          }
+                        />
+                      </td>
+                      <td>
+                        <Button
+                          variant="warning"
+                          className="all-products-btn me-2"
+                          onClick={() => setSelectedProduct(product)}
+                        >
+                          Sửa
+                        </Button>
+                        <Button
+                          variant="danger"
+                          className="all-products-btn"
+                          onClick={() =>
+                            handleDelete(product.id, product.table)
+                          }
+                        >
+                          Xóa
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </div>
         )}
-        {isAdmin ? (
-          <Table striped bordered hover className="all-products-table mt-4">
-            <thead>
-              <tr>
-                <th>Tên</th>
-                <th>Mã sản phẩm</th>
-                <th>Giá</th>
-                <th>Mô tả</th>
-                <th>Ảnh</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allProductsList.map((product) => (
-                <tr key={product.id}>
-                  <td>{product.name}</td>
-                  <td>{product.product_id || "-"}</td>
-                  <td>{product.price}</td>
-                  <td>{product.description || "-"}</td>
-                  <td>
-                    <img
-                      src={product.image || product.image_url}
-                      alt={product.name}
-                      width="50"
-                      style={{ borderRadius: "4px" }}
-                      onError={() =>
-                        console.log(
-                          "Lỗi tải ảnh:",
-                          product.image || product.image_url
-                        )
-                      }
-                    />
-                  </td>
-                  <td>
-                    <Button
-                      variant="warning"
-                      className="all-products-btn me-2"
-                      onClick={() => setSelectedProduct(product)}
-                    >
-                      Sửa
-                    </Button>
-                    <Button
-                      variant="danger"
-                      className="all-products-btn"
-                      onClick={() => handleDelete(product.id, product.table)}
-                    >
-                      Xóa
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        ) : (
+        {!isAdmin && (
           <div className="all-products-cards">
             {allProductsList.map((product) => (
               <div key={product.id} className="product-item">
