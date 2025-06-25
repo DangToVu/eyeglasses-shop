@@ -1,5 +1,7 @@
 .card-management-container {
   padding: 2rem 0;
+  max-width: 1200px; /* Giới hạn chiều rộng tối đa */
+  margin: 0 auto; /* Căn giữa container */
 }
 
 .card-management-title {
@@ -7,39 +9,120 @@
   font-weight: 700;
   color: #333;
   text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.card-management-title::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 4px;
+  background-color: #26a69a;
+  border-radius: 2px;
 }
 
 .card-selection {
   display: flex;
+  flex-direction: column; /* Sắp xếp các nút theo cột */
   justify-content: center;
   gap: 1rem;
+  flex-wrap: wrap; /* Đảm bảo responsive */
+}
+
+.card-link {
+  text-decoration: none;
+  width: 100%; /* Đảm bảo Link chiếm toàn bộ chiều rộng của Col */
+  display: flex;
+  justify-content: center; /* Căn giữa nội dung trong Link */
 }
 
 .card-select-btn {
-  width: 200px;
+  width: 300px; /* Chiều rộng cố định cho tất cả các nút */
   padding: 1rem;
   font-size: 1.1rem;
-  border-radius: 8px;
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Căn giữa nội dung trong nút */
 }
 
-.back-btn {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  margin-bottom: 1rem;
+.card-select-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0.9;
 }
 
-/* Thêm quy tắc mới để footer luôn ở cuối */
+/* Responsive Design */
+@media (max-width: 768px) {
+  .card-management-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-management-title::after {
+    width: 100px;
+    height: 3px;
+  }
+
+  .card-select-btn {
+    font-size: 1rem;
+    padding: 0.8rem;
+    width: 250px; /* Giảm chiều rộng trên tablet */
+  }
+}
+
+@media (max-width: 576px) {
+  .card-management-container {
+    padding: 1rem 0;
+  }
+
+  .card-management-title {
+    font-size: 1.2rem;
+  }
+
+  .card-select-btn {
+    font-size: 1.1rem; /* Tăng font-size trên mobile */
+    padding: 1rem; /* Tăng padding trên mobile */
+    width: 100%; /* Toàn chiều rộng trên mobile */
+  }
+
+  .card-selection {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .card-management-title {
+    font-size: 1rem;
+  }
+
+  .card-select-btn {
+    font-size: 1rem; /* Giữ font-size lớn hơn */
+    padding: 0.9rem; /* Tăng padding để dễ ấn hơn */
+  }
+}
+
+/* Giữ nguyên phần footer luôn ở cuối */
 .page-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Đảm bảo chiều cao tối thiểu là 100% viewport */
+  min-height: 100vh;
 }
 
 .card-management-container {
-  flex: 1 0 auto; /* Cho phép container chính co giãn nhưng không bị ép chiều cao */
+  
+  flex: 1 0 auto;
 }
 
 footer {
-  flex-shrink: 0; /* Ngăn footer co lại */
-  width: 100%; /* Đảm bảo footer chiếm toàn bộ chiều rộng */
+  flex-shrink: 0;
+  width: 100%;
 }

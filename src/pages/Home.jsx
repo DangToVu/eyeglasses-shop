@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Container, Row, Button } from "react-bootstrap";
+import { ArrowRight } from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/Header.jsx";
@@ -221,10 +222,10 @@ function Home() {
           </button>
         </div>
 
-        <div className="my-4 text-center">
-          <Link to="/products/all">
-            <Button variant="primary" size="lg" className="w-100">
-              Tất cả sản phẩm
+        <div className="all-products-home-btn">
+          <Link to="/products/all" style={{ textDecoration: "none" }}>
+            <Button className="all-products-home-text">
+              Tất cả sản phẩm <ArrowRight />
             </Button>
           </Link>
         </div>

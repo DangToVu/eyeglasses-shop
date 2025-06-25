@@ -208,6 +208,56 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.all-products-home-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
+}
+
+.all-products-home-text {
+  padding: 15px 30px;
+  border-radius: 40px;
+  border: 2px solid #26a69a;
+  background-color: transparent;
+  color: #26a69a;
+  font-size: 1.6rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  cursor: pointer;
+  width: 500px; /* Đặt chiều rộng cố định */
+  display: flex;
+  flex-direction: row; /* Sắp xếp text và icon theo hàng ngang */
+  align-items: center; /* Căn giữa theo chiều dọc */
+  justify-content: center; /* Căn giữa theo chiều ngang */
+}
+
+/* Kiểu dáng cho svg (mũi tên) */
+.all-products-home-text svg {
+  margin-left: 8px; /* Khoảng cách giữa text và mũi tên */
+  width: 25px; /* Kích thước hình tròn */
+  height: 25px;
+  border-radius: 50%; /* Tạo hình tròn */
+  background-color: #26a69a; /* Màu nền solid */
+  color: white; /* Màu mũi tên */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.all-products-home-text:hover {
+  background-color: #26a69a;
+  color: aliceblue;
+  border: 2px solid #54f5e4;
+}
+
+.all-products-home-text:hover svg {
+  transform: translateX(15px); /* Di chuyển mũi tên sang phải khi hover */
+  background-color: #fff;
+  color: #26a69a;
+}
 /* Responsive */
 @media (max-width: 767px) {
   .home-title {
@@ -289,6 +339,19 @@
   .underlined-title::after {
     height: 2px;
   }
+
+  .all-products-home-text {
+    padding: 8px 20px;
+    font-size: 1rem;
+    border-width: 1.5px;
+    width: 300px;
+  }
+
+  .all-products-home-text svg {
+    margin-left: 6px;
+    width: 18px;
+    height: 18px;
+  }
 }
 
 @media (max-width: 576px) {
@@ -344,6 +407,19 @@
     width: 45%;
     height: 100%;
   }
+
+  .all-products-home-text {
+    padding: 6px 15px;
+    font-size: 0.9rem;
+    border-width: 1px;
+    width: 250px;
+  }
+
+  .all-products-home-text svg {
+    margin-left: 4px;
+    width: 16px;
+    height: 16px;
+  }
 }
 
 /* New Responsive Section for width < 400px */
@@ -387,6 +463,18 @@
     width: 45%;
     height: 100%;
   }
+
+  .all-products-home-text {
+    padding: 5px 12px;
+    font-size: 0.95rem;
+    width: 200px;
+  }
+
+  .all-products-home-text svg {
+    margin-left: 4px;
+    width: 14px;
+    height: 14px;
+  }
 }
 
 @media (max-width: 376px) {
@@ -428,5 +516,17 @@
   .angled-image {
     width: 45%;
     height: 100%;
+  }
+
+  .all-products-home-text {
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    width: 170px;
+  }
+
+  .all-products-home-text svg {
+    margin-left: 3px;
+    width: 14px;
+    height: 14px;
   }
 }

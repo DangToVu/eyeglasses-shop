@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import "../styles/components/BestSellingForm.css";
 import LoadingScreen from "../components/LoadingScreen";
 import ConfirmBox from "../components/ConfirmBox";
@@ -25,6 +26,7 @@ function BestSellingForm({ product, onSave }) {
   const [image, setImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -222,6 +224,13 @@ function BestSellingForm({ product, onSave }) {
             Xóa
           </Button>
         )}
+        <Button
+          variant="secondary"
+          className="bsf-form-btn bsf-mt-2"
+          onClick={() => navigate("/card-management")}
+        >
+          Quay lại
+        </Button>
       </Form>
     </>
   );
