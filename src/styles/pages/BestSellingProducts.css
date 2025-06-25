@@ -73,3 +73,25 @@ footer {
   flex-shrink: 0;
   width: 100%;
 }
+
+@media (max-width: 767px) {
+  .product-layout {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .product-form-container {
+    width: 100%;
+    padding-right: 0;
+  }
+  .product-list-container {
+    width: 100%;
+    max-height: 400px; /* Giảm chiều cao tối đa trên mobile */
+  }
+  .best-selling-table {
+    font-size: 0.9rem; /* Giảm kích thước chữ trên mobile */
+  }
+  .best-selling-btn {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+  }
+}

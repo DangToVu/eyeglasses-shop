@@ -61,20 +61,23 @@
 
 @media (max-width: 767px) {
   .bsf-form {
-    max-width: 100%;
+    max-width: 90%;
     padding: 0.5rem;
+    margin: 0 0.5rem; /* Thêm margin để tránh dính cạnh */
   }
-
   .bsf-form-input {
     font-size: 0.9rem;
+    padding: 0.5rem 0.3rem;
   }
-
   .bsf-form-textarea {
     height: 80px;
+    font-size: 0.9rem;
   }
-
   .bsf-form-btn {
     font-size: 0.9rem;
     padding: 0.5rem;
+  }
+  .bsf-text-muted {
+    font-size: 0.8rem;
   }
 }
