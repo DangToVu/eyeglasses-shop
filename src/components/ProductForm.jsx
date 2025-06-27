@@ -24,9 +24,25 @@ function ProductForm({ product, onSave }) {
     product ? product.description : ""
   );
   const [image, setImage] = useState(null);
+  const [brand, setBrand] = useState(product ? product.brand : "");
+  const [material, setMaterial] = useState(product ? product.material : "");
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const navigate = useNavigate();
+
+  const brandOptions = [
+    "G.M.Surne",
+    "V/E",
+    "WINNER",
+    "DIVEI",
+    "KLEINMONSTES",
+    "FEMINA",
+    "ENCINO",
+    "AVALON",
+    "RUBERTY",
+    "ROGERSON",
+  ];
+  const materialOptions = ["Kim loại", "Titan", "Nhựa"];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,6 +75,8 @@ function ProductForm({ product, onSave }) {
         price: parseFloat(price.replace(/[^0-9]/g, "")),
         description,
         image: imageUrl,
+        brand,
+        material,
       };
 
       const table = "products";
@@ -202,6 +220,40 @@ function ProductForm({ product, onSave }) {
           <small className="pf-text-muted">
             {charactersLeft}/50 ký tự còn lại
           </small>
+        </Form.Group>
+        <Form.Group className="pf-form-group">
+          <Form.Label>Thương hiệu</Form.Label>
+          <Form.Control
+            as="select"
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+            className="pf-form-input"
+            required
+          >
+            <option value="">Chọn thương hiệu</option>
+            {brandOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Form.Control>
+        </Form.Group>
+        <Form.Group className="pf-form-group">
+          <Form.Label>Chất liệu</Form.Label>
+          <Form.Control
+            as="select"
+            value={material}
+            onChange={(e) => setMaterial(e.target.value)}
+            className="pf-form-input"
+            required
+          >
+            <option value="">Chọn chất liệu</option>
+            {materialOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Form.Control>
         </Form.Group>
         <Form.Group className="pf-form-group">
           <Form.Label>Ảnh sản phẩm</Form.Label>
