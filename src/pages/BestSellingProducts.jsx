@@ -80,16 +80,6 @@ function BestSellingProducts() {
         if (productToDelete && productToDelete.image_url) {
           const imageUrl = productToDelete.image_url;
           const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-          console.log("Sản phẩm cần xóa:", productToDelete);
-          console.log("Đường dẫn ảnh từ bảng:", imageUrl);
-          console.log("Tên file cần xóa:", imagePath);
-          console.log(
-            "Yêu cầu xóa ảnh:",
-            `${
-              import.meta.env.VITE_SUPABASE_URL
-            }/storage/v1/object/best-selling-images/${imagePath}`
-          );
-
           await axios.delete(
             `${
               import.meta.env.VITE_SUPABASE_URL
@@ -120,10 +110,6 @@ function BestSellingProducts() {
         );
         toast.success("Xóa sản phẩm và ảnh thành công!");
       } catch (error) {
-        console.error(
-          "Lỗi chi tiết:",
-          error.response ? error.response.data : error.message
-        );
         toast.error(
           "Lỗi khi xóa: " +
             (error.response?.data?.message ||
@@ -167,6 +153,8 @@ function BestSellingProducts() {
                   <th>Mã sản phẩm</th>
                   <th>Giá</th>
                   <th>Mô tả</th>
+                  <th>Thương hiệu</th>
+                  <th>Chất liệu</th>
                   <th>Ảnh</th>
                   <th>Hành động</th>
                 </tr>
@@ -178,6 +166,8 @@ function BestSellingProducts() {
                     <td>{product.product_id || "-"}</td>
                     <td>{product.price}</td>
                     <td>{product.description || "-"}</td>
+                    <td>{product.brand || "-"}</td>
+                    <td>{product.material || "-"}</td>
                     <td>
                       <img
                         src={product.image_url}

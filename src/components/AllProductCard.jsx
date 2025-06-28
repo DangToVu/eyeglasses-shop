@@ -9,12 +9,6 @@ function AllProductCard({ product }) {
     }).format(value);
   };
 
-  const truncatedDescription = product.description
-    ? product.description.length > 50
-      ? product.description.substring(0, 50) + "..."
-      : product.description
-    : "-";
-
   return (
     <Card className="all-prod-card-container">
       <Card.Img
@@ -26,11 +20,13 @@ function AllProductCard({ product }) {
       <Card.Body className="all-prod-card-body">
         <Card.Title className="all-prod-card-title">{product.name}</Card.Title>
         <Card.Text className="all-prod-card-text">
+          Thương hiệu: {product.brand || "-"}
+          <br />
           Mã sản phẩm: {product.product_id || "-"}
           <br />
           Giá: {formatCurrency(product.price)}
           <br />
-          Mô tả: {truncatedDescription}
+          Chất liệu: {product.material || "-"}
         </Card.Text>
       </Card.Body>
     </Card>

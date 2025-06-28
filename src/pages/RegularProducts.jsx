@@ -78,16 +78,6 @@ function RegularProducts() {
         if (productToDelete && productToDelete.image) {
           const imageUrl = productToDelete.image;
           const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-          console.log("Sản phẩm cần xóa:", productToDelete);
-          console.log("Đường dẫn ảnh từ bảng:", imageUrl);
-          console.log("Tên file cần xóa:", imagePath);
-          console.log(
-            "Yêu cầu xóa ảnh:",
-            `${
-              import.meta.env.VITE_SUPABASE_URL
-            }/storage/v1/object/product-images/${imagePath}`
-          );
-
           await axios.delete(
             `${
               import.meta.env.VITE_SUPABASE_URL
@@ -116,10 +106,6 @@ function RegularProducts() {
         setProducts(products.filter((p) => p.id !== deleteData.id));
         toast.success("Xóa sản phẩm và ảnh thành công!");
       } catch (error) {
-        console.error(
-          "Lỗi chi tiết:",
-          error.response ? error.response.data : error.message
-        );
         toast.error(
           "Lỗi khi xóa: " +
             (error.response?.data?.message ||
@@ -163,6 +149,8 @@ function RegularProducts() {
                   <th>Mã sản phẩm</th>
                   <th>Giá</th>
                   <th>Mô tả</th>
+                  <th>Thương hiệu</th>
+                  <th>Chất liệu</th>
                   <th>Ảnh</th>
                   <th>Hành động</th>
                 </tr>
@@ -174,6 +162,8 @@ function RegularProducts() {
                     <td>{product.product_id || "-"}</td>
                     <td>{product.price}</td>
                     <td>{product.description || "-"}</td>
+                    <td>{product.brand || "-"}</td>
+                    <td>{product.material || "-"}</td>
                     <td>
                       <img
                         src={product.image}
