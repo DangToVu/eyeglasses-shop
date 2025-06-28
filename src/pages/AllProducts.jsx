@@ -249,6 +249,8 @@ function AllProducts() {
                     <th>Mã sản phẩm</th>
                     <th>Giá</th>
                     <th>Mô tả</th>
+                    <th>Thương hiệu</th>
+                    <th>Chất liệu</th>
                     <th>Ảnh</th>
                     <th>Hành động</th>
                   </tr>
@@ -260,6 +262,8 @@ function AllProducts() {
                       <td>{product.product_id || "-"}</td>
                       <td>{product.price}</td>
                       <td>{product.description || "-"}</td>
+                      <td>{product.brand || "-"}</td>
+                      <td>{product.material || "-"}</td>
                       <td>
                         <img
                           src={product.image || product.image_url}
