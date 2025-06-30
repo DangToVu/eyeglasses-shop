@@ -19,7 +19,7 @@ function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [bestSellingIndex, setBestSellingIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [underlineStep, setUnderlineStep] = useState(0); // Số bước di chuyển của gạch chân
+  const [underlineStep, setUnderlineStep] = useState(0);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -62,15 +62,13 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    // Cập nhật số bước dựa trên currentIndex
-    const maxSteps = Math.max(products.length - 4, 0); // Hiển thị tối đa 4 thẻ
+    const maxSteps = Math.max(products.length - 4, 0);
     setUnderlineStep(
       Math.min((currentIndex / (products.length > 4 ? maxSteps : 1)) * 100, 100)
     );
   }, [currentIndex, products.length]);
 
   useEffect(() => {
-    // Cập nhật số bước dựa trên bestSellingIndex
     const maxSteps = Math.max(bestSellingProducts.length - 4, 0);
     setUnderlineStep(
       Math.min(
@@ -82,10 +80,10 @@ function Home() {
   }, [bestSellingIndex, bestSellingProducts.length]);
 
   const scrollLeft = () => {
-    if (productsContainerRef.current && currentIndex > 0) {
-      const newIndex = currentIndex - 1;
+    if (productsContainerRef.current && products.length > 0) {
+      const newIndex = (currentIndex - 1 + products.length) % products.length;
       setCurrentIndex(newIndex);
-      const cardWidth = 300; // Updated to match new mobile width
+      const cardWidth = 300;
       productsContainerRef.current.scrollTo({
         left: newIndex * cardWidth,
         behavior: "smooth",
@@ -94,13 +92,10 @@ function Home() {
   };
 
   const scrollRight = () => {
-    if (
-      productsContainerRef.current &&
-      currentIndex < Math.max(products.length - 4, 0)
-    ) {
-      const newIndex = currentIndex + 1;
+    if (productsContainerRef.current && products.length > 0) {
+      const newIndex = (currentIndex + 1) % products.length;
       setCurrentIndex(newIndex);
-      const cardWidth = 300; // Updated to match new mobile width
+      const cardWidth = 300;
       productsContainerRef.current.scrollTo({
         left: newIndex * cardWidth,
         behavior: "smooth",
@@ -109,10 +104,12 @@ function Home() {
   };
 
   const scrollBestSellingLeft = () => {
-    if (bestSellingContainerRef.current && bestSellingIndex > 0) {
-      const newIndex = bestSellingIndex - 1;
+    if (bestSellingContainerRef.current && bestSellingProducts.length > 0) {
+      const newIndex =
+        (bestSellingIndex - 1 + bestSellingProducts.length) %
+        bestSellingProducts.length;
       setBestSellingIndex(newIndex);
-      const cardWidth = 300; // Updated to match new mobile width
+      const cardWidth = 300;
       bestSellingContainerRef.current.scrollTo({
         left: newIndex * cardWidth,
         behavior: "smooth",
@@ -121,19 +118,33 @@ function Home() {
   };
 
   const scrollBestSellingRight = () => {
-    if (
-      bestSellingContainerRef.current &&
-      bestSellingIndex < Math.max(bestSellingProducts.length - 4, 0)
-    ) {
-      const newIndex = bestSellingIndex + 1;
+    if (bestSellingContainerRef.current && bestSellingProducts.length > 0) {
+      const newIndex = (bestSellingIndex + 1) % bestSellingProducts.length;
       setBestSellingIndex(newIndex);
-      const cardWidth = 300; // Updated to match new mobile width
+      const cardWidth = 300;
       bestSellingContainerRef.current.scrollTo({
         left: newIndex * cardWidth,
         behavior: "smooth",
       });
     }
   };
+
+  // Hiển thị 4 thẻ, bắt đầu từ currentIndex
+  const visibleProducts = products.slice(currentIndex, currentIndex + 4);
+  // Nếu số thẻ hiển thị ít hơn 4, bổ sung từ đầu danh sách để tạo vòng lặp
+  if (visibleProducts.length < 4 && products.length > 0) {
+    const remainingCount = 4 - visibleProducts.length;
+    visibleProducts.push(...products.slice(0, remainingCount));
+  }
+
+  const visibleBestSelling = bestSellingProducts.slice(
+    bestSellingIndex,
+    bestSellingIndex + 4
+  );
+  if (visibleBestSelling.length < 4 && bestSellingProducts.length > 0) {
+    const remainingCount = 4 - visibleBestSelling.length;
+    visibleBestSelling.push(...bestSellingProducts.slice(0, remainingCount));
+  }
 
   return (
     <div className="page-wrapper">
@@ -147,25 +158,17 @@ function Home() {
           Bộ sưu tập mới nhất
         </h2>
         <div className="carousel-wrapper">
-          <button
-            className="carousel-button left"
-            onClick={scrollLeft}
-            disabled={currentIndex === 0}
-          >
+          <button className="carousel-button left" onClick={scrollLeft}>
             <FaChevronLeft />
           </button>
           <div className="products-container" ref={productsContainerRef}>
-            {products.map((product) => (
+            {visibleProducts.map((product) => (
               <div key={product.id} className="product-item">
                 <ProductCard product={product} />
               </div>
             ))}
           </div>
-          <button
-            className="carousel-button right"
-            onClick={scrollRight}
-            disabled={currentIndex >= Math.max(products.length - 4, 0)}
-          >
+          <button className="carousel-button right" onClick={scrollRight}>
             <FaChevronRight />
           </button>
         </div>
@@ -200,12 +203,11 @@ function Home() {
           <button
             className="carousel-button left"
             onClick={scrollBestSellingLeft}
-            disabled={bestSellingIndex === 0}
           >
             <FaChevronLeft />
           </button>
           <div className="products-container" ref={bestSellingContainerRef}>
-            {bestSellingProducts.map((product) => (
+            {visibleBestSelling.map((product) => (
               <div key={product.id} className="product-item">
                 <BestSellingCard product={product} />
               </div>
@@ -214,9 +216,6 @@ function Home() {
           <button
             className="carousel-button right"
             onClick={scrollBestSellingRight}
-            disabled={
-              bestSellingIndex >= Math.max(bestSellingProducts.length - 4, 0)
-            }
           >
             <FaChevronRight />
           </button>
