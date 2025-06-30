@@ -92,13 +92,56 @@ footer {
   }
   .all-products-list-container {
     width: 100%;
-    max-height: 400px; /* Giảm chiều cao tối đa trên mobile */
+    max-height: 400px;
   }
   .all-products-table {
-    font-size: 0.9rem; /* Giảm kích thước chữ trên mobile */
+    font-size: 0.9rem;
   }
   .all-products-btn {
     padding: 0.3rem 0.7rem;
     font-size: 0.8rem;
   }
+}
+
+/* Pagination Styling */
+.pagination-all-products {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  gap: 0.5rem;
+}
+
+.pagination-all-products button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.pagination-all-products button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-all-products button:not(:disabled):hover {
+  background-color: #5a2ea6;
+  color: #fff;
+}
+
+.pagination-all-products .btn-primary {
+  background-color: #6f42c1 !important;
+  color: #fff !important;
+  font-weight: bold;
+  border: none !important;
+}
+
+.pagination-all-products .btn-outline-primary {
+  background-color: transparent !important;
+  color: #6f42c1 !important;
+  border-color: #6f42c1 !important;
+}
+
+.pagination-all-products .mx-1 {
+  margin: 0 0.25rem;
 }
