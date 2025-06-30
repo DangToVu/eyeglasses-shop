@@ -20,6 +20,8 @@ function Home() {
   const [bestSellingIndex, setBestSellingIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [underlineStep, setUnderlineStep] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchMove, setTouchMove] = useState(0);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -129,9 +131,39 @@ function Home() {
     }
   };
 
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchMove(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (isBestSelling) => {
+    const touchDiff = touchStart - touchMove;
+    const threshold = 50; // Ngưỡng vuốt (pixel) để xác định cuộn
+
+    if (Math.abs(touchDiff) > threshold) {
+      if (isBestSelling) {
+        if (touchDiff > 0) {
+          scrollBestSellingRight();
+        } else {
+          scrollBestSellingLeft();
+        }
+      } else {
+        if (touchDiff > 0) {
+          scrollRight();
+        } else {
+          scrollLeft();
+        }
+      }
+    }
+    setTouchStart(0);
+    setTouchMove(0);
+  };
+
   // Hiển thị 4 thẻ, bắt đầu từ currentIndex
   const visibleProducts = products.slice(currentIndex, currentIndex + 4);
-  // Nếu số thẻ hiển thị ít hơn 4, bổ sung từ đầu danh sách để tạo vòng lặp
   if (visibleProducts.length < 4 && products.length > 0) {
     const remainingCount = 4 - visibleProducts.length;
     visibleProducts.push(...products.slice(0, remainingCount));
@@ -161,7 +193,13 @@ function Home() {
           <button className="carousel-button left" onClick={scrollLeft}>
             <FaChevronLeft />
           </button>
-          <div className="products-container" ref={productsContainerRef}>
+          <div
+            className="products-container"
+            ref={productsContainerRef}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={() => handleTouchEnd(false)}
+          >
             {visibleProducts.map((product) => (
               <div key={product.id} className="product-item">
                 <ProductCard product={product} />
@@ -206,7 +244,13 @@ function Home() {
           >
             <FaChevronLeft />
           </button>
-          <div className="products-container" ref={bestSellingContainerRef}>
+          <div
+            className="products-container"
+            ref={bestSellingContainerRef}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={() => handleTouchEnd(true)}
+          >
             {visibleBestSelling.map((product) => (
               <div key={product.id} className="product-item">
                 <BestSellingCard product={product} />
