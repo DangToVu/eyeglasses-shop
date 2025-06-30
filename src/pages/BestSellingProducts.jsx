@@ -129,7 +129,7 @@ function BestSellingProducts() {
   };
 
   return (
-    <div className="page-wrapper">
+    <div className="best-selling-page-wrapper">
       {isLoading && <LoadingScreen />}
       {showConfirm && (
         <ConfirmBox
@@ -141,11 +141,11 @@ function BestSellingProducts() {
       <Header />
       <Container className="best-selling-container">
         <h2 className="best-selling-title my-4">Quản lý Sản phẩm Bán chạy</h2>
-        <div className="product-layout">
-          <div className="product-form-container">
+        <div className="best-selling-product-layout">
+          <div className="best-selling-product-form-container">
             <BestSellingForm product={selectedProduct} onSave={handleSave} />
           </div>
-          <div className="product-list-container">
+          <div className="best-selling-product-list-container">
             <Table striped bordered hover className="best-selling-table mt-4">
               <thead>
                 <tr>
