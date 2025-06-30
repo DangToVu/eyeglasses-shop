@@ -125,7 +125,7 @@ function RegularProducts() {
   };
 
   return (
-    <div className="page-wrapper">
+    <div className="regular-page-wrapper">
       {isLoading && <LoadingScreen />}
       {showConfirm && (
         <ConfirmBox
@@ -137,11 +137,11 @@ function RegularProducts() {
       <Header />
       <Container className="regular-container">
         <h2 className="regular-title my-4">Quản lý Sản phẩm Nổi bật</h2>
-        <div className="product-layout">
-          <div className="product-form-container">
+        <div className="regular-product-layout">
+          <div className="regular-product-form-container">
             <ProductForm product={selectedProduct} onSave={handleSave} />
           </div>
-          <div className="product-list-container">
+          <div className="regular-product-list-container">
             <Table striped bordered hover className="regular-table mt-4">
               <thead>
                 <tr>

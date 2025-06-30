@@ -220,7 +220,7 @@ function AllProducts() {
   ];
 
   return (
-    <div className="page-wrapper">
+    <div className="all-products-page-wrapper">
       {isLoading && <LoadingScreen />}
       {showConfirm && (
         <ConfirmBox
@@ -233,15 +233,15 @@ function AllProducts() {
       <Container className="all-products-container">
         <h2 className="all-products-title my-4">Tất cả sản phẩm</h2>
         {isAdmin && (
-          <div className="product-layout">
-            <div className="product-form-container">
+          <div className="all-products-layout">
+            <div className="all-products-form-container">
               <AllProductForm
                 product={selectedProduct}
                 onSave={handleSave}
                 table={selectedProduct ? selectedProduct.table : "all_product"}
               />
             </div>
-            <div className="product-list-container">
+            <div className="all-products-list-container">
               <Table striped bordered hover className="all-products-table mt-4">
                 <thead>
                   <tr>
