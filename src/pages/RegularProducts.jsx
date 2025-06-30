@@ -15,6 +15,8 @@ function RegularProducts() {
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteData, setDeleteData] = useState({ id: null, table: null });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -54,6 +56,13 @@ function RegularProducts() {
           }
         );
         setProducts(response.data);
+        // Chỉ reset currentPage khi cần (ví dụ: sau khi thêm sản phẩm mới)
+        if (products.length === 0 || response.data.length < products.length) {
+          setCurrentPage(1);
+          console.log("Saved, resetting to page 1, currentPage:", currentPage);
+        } else {
+          console.log("Saved, keeping currentPage:", currentPage);
+        }
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
       } finally {
@@ -104,6 +113,16 @@ function RegularProducts() {
           }
         );
         setProducts(products.filter((p) => p.id !== deleteData.id));
+        // Chỉ reset currentPage nếu trang hiện tại không còn hợp lệ
+        if (currentPage > Math.ceil(products.length / itemsPerPage)) {
+          setCurrentPage(1);
+          console.log(
+            "Deleted, resetting to page 1, currentPage:",
+            currentPage
+          );
+        } else {
+          console.log("Deleted, keeping currentPage:", currentPage);
+        }
         toast.success("Xóa sản phẩm và ảnh thành công!");
       } catch (error) {
         toast.error(
@@ -123,6 +142,36 @@ function RegularProducts() {
     setShowConfirm(false);
     setDeleteData({ id: null, table: null });
   };
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    console.log("Paginating to page:", pageNumber);
+  };
+  const nextPage = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const firstPage = () => setCurrentPage(1);
+  const lastPage = () => setCurrentPage(totalPages);
+
+  // Dynamic page range (always 5 pages)
+  const maxPagesToShow = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+  let endPage = startPage + maxPagesToShow - 1;
+
+  if (endPage > totalPages) {
+    endPage = totalPages;
+    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+  }
+
+  const pageNumbers = [...Array(endPage - startPage + 1).keys()].map(
+    (i) => startPage + i
+  );
 
   return (
     <div className="regular-page-wrapper">
@@ -156,7 +205,7 @@ function RegularProducts() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => (
+                {currentProducts.map((product) => (
                   <tr key={product.id}>
                     <td>{product.name}</td>
                     <td>{product.product_id || "-"}</td>
@@ -195,6 +244,50 @@ function RegularProducts() {
                 ))}
               </tbody>
             </Table>
+            {totalPages > 1 && (
+              <div className="pagination-regular" key={currentPage}>
+                <Button
+                  variant="secondary"
+                  onClick={firstPage}
+                  disabled={currentPage === 1}
+                >
+                  &lt;&lt;
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                >
+                  &lt;
+                </Button>
+                {pageNumbers.map((number) => (
+                  <Button
+                    key={number}
+                    variant={
+                      currentPage === number ? "primary" : "outline-primary"
+                    }
+                    onClick={() => paginate(number)}
+                    className="mx-1"
+                  >
+                    {number}
+                  </Button>
+                ))}
+                <Button
+                  variant="secondary"
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages}
+                >
+                  &gt;
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={lastPage}
+                  disabled={currentPage === totalPages}
+                >
+                  &gt;&gt;
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </Container>

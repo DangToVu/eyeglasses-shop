@@ -85,13 +85,56 @@ footer {
   }
   .regular-product-list-container {
     width: 100%;
-    max-height: 400px; /* Giảm chiều cao tối đa trên mobile */
+    max-height: 400px;
   }
   .regular-table {
-    font-size: 0.9rem; /* Giảm kích thước chữ trên mobile */
+    font-size: 0.9rem;
   }
   .regular-btn {
     padding: 0.3rem 0.7rem;
     font-size: 0.8rem;
   }
+}
+
+/* Pagination Styling */
+.pagination-regular {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  gap: 0.5rem;
+}
+
+.pagination-regular button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.pagination-regular button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-regular button:not(:disabled):hover {
+  background-color: #0056b3;
+  color: #fff;
+}
+
+.pagination-regular .btn-primary {
+  background-color: #007bff !important;
+  color: #fff !important;
+  font-weight: bold;
+  border: none !important;
+}
+
+.pagination-regular .btn-outline-primary {
+  background-color: transparent !important;
+  color: #007bff !important;
+  border-color: #007bff !important;
+}
+
+.pagination-regular .mx-1 {
+  margin: 0 0.25rem;
 }
