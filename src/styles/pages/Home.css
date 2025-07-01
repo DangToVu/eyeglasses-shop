@@ -77,7 +77,7 @@
   max-width: 1400px; /* Optional: limit max width on larger screens */
   overflow-x: auto;
   padding: 0;
-  gap: 10px; /* Added small gap between cards */
+  gap: 7px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   white-space: nowrap;
