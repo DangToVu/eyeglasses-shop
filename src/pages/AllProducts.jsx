@@ -321,7 +321,7 @@ function AllProducts() {
   };
 
   return (
-    <div className="all-products-page-wrapper">
+    <div className="ap-page-wrapper">
       {isLoading && <LoadingScreen />}
       {showConfirm && (
         <ConfirmBox
@@ -331,19 +331,19 @@ function AllProducts() {
         />
       )}
       <Header />
-      <Container className="all-products-container" fluid>
-        <h2 className="all-products-title my-4">Tất cả sản phẩm</h2>
+      <Container className="ap-main-container" fluid>
+        <h2 className="ap-main-title my-4">Tất cả sản phẩm</h2>
         {isAdmin && (
-          <div className="all-products-layout">
-            <div className="all-products-form-container">
+          <div className="ap-layout">
+            <div className="ap-form-container">
               <AllProductForm
                 product={selectedProduct}
                 onSave={handleSave}
                 table={selectedProduct ? selectedProduct.table : "all_product"}
               />
             </div>
-            <div className="all-products-list-container">
-              <Table striped bordered hover className="all-products-table mt-4">
+            <div className="ap-list-container">
+              <Table striped bordered hover className="ap-table mt-4">
                 <thead>
                   <tr>
                     <th>Tên</th>
@@ -382,14 +382,14 @@ function AllProducts() {
                       <td>
                         <Button
                           variant="warning"
-                          className="all-products-btn me-2"
+                          className="ap-btn me-2"
                           onClick={() => setSelectedProduct(product)}
                         >
                           Sửa
                         </Button>
                         <Button
                           variant="danger"
-                          className="all-products-btn"
+                          className="ap-btn"
                           onClick={() =>
                             handleDelete(product.id, product.table)
                           }
@@ -402,7 +402,7 @@ function AllProducts() {
                 </tbody>
               </Table>
               {totalPages > 1 && (
-                <div className="pagination-all-products" key={currentPage}>
+                <div className="ap-pagination" key={currentPage}>
                   <Button
                     variant="secondary"
                     onClick={firstPage}
@@ -441,7 +441,7 @@ function AllProducts() {
                     onClick={lastPage}
                     disabled={currentPage === totalPages}
                   >
-                    &gt;&gt;
+                    &gt; &gt;
                   </Button>
                 </div>
               )}
@@ -451,20 +451,20 @@ function AllProducts() {
         {!isAdmin && (
           <>
             {/* Phần hình ảnh quảng cáo */}
-            <div className="ad-image-container">
+            <div className="ap-ad-container">
               <img
                 src="/ad-image.jpg" // Thay bằng đường dẫn ảnh quảng cáo thực tế
                 alt="Quảng cáo"
-                className="ad-image"
+                className="ap-ad-image"
               />
             </div>
 
             {/* Phần filter và danh sách sản phẩm */}
-            <div className="all-products-content">
+            <div className="ap-content">
               {/* Filter section (1/5 bên trái) */}
-              <div className="filter-section">
+              <div className="ap-filter-section">
                 <h3>Lọc sản phẩm</h3>
-                <div className="filter-group">
+                <div className="ap-filter-group">
                   <h4>Thương hiệu</h4>
                   {uniqueBrands.map((brand) => (
                     <div key={brand}>
@@ -478,7 +478,7 @@ function AllProducts() {
                     </div>
                   ))}
                 </div>
-                <div className="filter-group">
+                <div className="ap-filter-group">
                   <h4>Chất liệu</h4>
                   {uniqueMaterials.map((material) => (
                     <div key={material}>
@@ -497,16 +497,16 @@ function AllProducts() {
               </div>
 
               {/* Product cards section (4/5 bên phải) */}
-              <div className="products-cards-section">
-                <div className="all-products-cards">
+              <div className="ap-cards-section">
+                <div className="ap-cards">
                   {currentProducts.map((product) => (
-                    <div key={product.id} className="product-item">
+                    <div key={product.id} className="ap-card-item">
                       <AllProductCard product={product} />
                     </div>
                   ))}
                 </div>
                 {totalPages > 1 && (
-                  <div className="pagination-all-products" key={currentPage}>
+                  <div className="ap-pagination" key={currentPage}>
                     <Button
                       variant="secondary"
                       onClick={firstPage}
@@ -545,7 +545,7 @@ function AllProducts() {
                       onClick={lastPage}
                       disabled={currentPage === totalPages}
                     >
-                      &gt;&gt;
+                      &gt; &gt;
                     </Button>
                   </div>
                 )}
