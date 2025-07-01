@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Button, Table } from "react-bootstrap";
+import { Container, Button, Row, Col, Table } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
@@ -19,8 +19,14 @@ function AllProducts() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteData, setDeleteData] = useState({ id: null, table: null });
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 10; // Mặc định 10 cho admin
   const isAdmin = !!localStorage.getItem("token");
+
+  // State cho filter (chỉ áp dụng cho user chưa đăng nhập)
+  const [filters, setFilters] = useState({
+    brands: [],
+    materials: [],
+  });
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -106,7 +112,6 @@ function AllProducts() {
           }
         );
         setBestSellingProducts(bestSellingResponse.data);
-        // Chỉ reset currentPage khi cần
         const allProductsList = [
           ...regularResponse.data,
           ...bestSellingResponse.data,
@@ -119,7 +124,7 @@ function AllProducts() {
           setCurrentPage(1);
           console.log("Saved, resetting to page 1, currentPage:", currentPage);
         } else {
-          console.log("Saved, keeping currentPage:", currentPage);
+          console.log("Saved, giữ currentPage:", currentPage);
         }
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
@@ -207,7 +212,6 @@ function AllProducts() {
         } else if (deleteData.table === "all_product") {
           setAllProducts(allProducts.filter((p) => p.id !== deleteData.id));
         }
-        // Chỉ reset currentPage nếu trang hiện tại không còn hợp lệ
         const allProductsList = [
           ...regularProducts,
           ...bestSellingProducts,
@@ -220,7 +224,7 @@ function AllProducts() {
             currentPage
           );
         } else {
-          console.log("Deleted, keeping currentPage:", currentPage);
+          console.log("Deleted, giữ currentPage:", currentPage);
         }
         toast.success("Xóa sản phẩm thành công!");
       } catch (error) {
@@ -251,14 +255,28 @@ function AllProducts() {
     })),
   ];
 
+  // Áp dụng filter cho user chưa đăng nhập
+  const filteredProducts = !isAdmin
+    ? allProductsList.filter((product) => {
+        const brandMatch =
+          filters.brands.length === 0 ||
+          filters.brands.includes(product.brand || "");
+        const materialMatch =
+          filters.materials.length === 0 ||
+          filters.materials.includes(product.material || "");
+        return brandMatch && materialMatch;
+      })
+    : allProductsList;
+
   // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProducts = allProductsList.slice(
+  const effectiveItemsPerPage = !isAdmin ? 20 : itemsPerPage; // 20 cho user chưa đăng nhập, 10 cho admin
+  const indexOfLastItem = currentPage * effectiveItemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - effectiveItemsPerPage;
+  const currentProducts = filteredProducts.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
-  const totalPages = Math.ceil(allProductsList.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredProducts.length / effectiveItemsPerPage);
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -284,6 +302,24 @@ function AllProducts() {
     (i) => startPage + i
   );
 
+  // Lấy danh sách duy nhất của brand và material
+  const uniqueBrands = [
+    ...new Set(allProductsList.map((p) => p.brand).filter(Boolean)),
+  ];
+  const uniqueMaterials = [
+    ...new Set(allProductsList.map((p) => p.material).filter(Boolean)),
+  ];
+
+  const handleFilterChange = (category, value) => {
+    setFilters((prev) => {
+      const updatedCategory = prev[category].includes(value)
+        ? prev[category].filter((v) => v !== value)
+        : [...prev[category], value];
+      return { ...prev, [category]: updatedCategory };
+    });
+    setCurrentPage(1); // Reset về trang 1 khi filter thay đổi
+  };
+
   return (
     <div className="all-products-page-wrapper">
       {isLoading && <LoadingScreen />}
@@ -295,7 +331,7 @@ function AllProducts() {
         />
       )}
       <Header />
-      <Container className="all-products-container">
+      <Container className="all-products-container" fluid>
         <h2 className="all-products-title my-4">Tất cả sản phẩm</h2>
         {isAdmin && (
           <div className="all-products-layout">
@@ -413,13 +449,109 @@ function AllProducts() {
           </div>
         )}
         {!isAdmin && (
-          <div className="all-products-cards">
-            {allProductsList.map((product) => (
-              <div key={product.id} className="product-item">
-                <AllProductCard product={product} />
+          <>
+            {/* Phần hình ảnh quảng cáo */}
+            <div className="ad-image-container">
+              <img
+                src="/ad-image.jpg" // Thay bằng đường dẫn ảnh quảng cáo thực tế
+                alt="Quảng cáo"
+                className="ad-image"
+              />
+            </div>
+
+            {/* Phần filter và danh sách sản phẩm */}
+            <div className="all-products-content">
+              {/* Filter section (1/5 bên trái) */}
+              <div className="filter-section">
+                <h3>Lọc sản phẩm</h3>
+                <div className="filter-group">
+                  <h4>Thương hiệu</h4>
+                  {uniqueBrands.map((brand) => (
+                    <div key={brand}>
+                      <input
+                        type="checkbox"
+                        id={`brand-${brand}`}
+                        checked={filters.brands.includes(brand)}
+                        onChange={() => handleFilterChange("brands", brand)}
+                      />
+                      <label htmlFor={`brand-${brand}`}>{brand}</label>
+                    </div>
+                  ))}
+                </div>
+                <div className="filter-group">
+                  <h4>Chất liệu</h4>
+                  {uniqueMaterials.map((material) => (
+                    <div key={material}>
+                      <input
+                        type="checkbox"
+                        id={`material-${material}`}
+                        checked={filters.materials.includes(material)}
+                        onChange={() =>
+                          handleFilterChange("materials", material)
+                        }
+                      />
+                      <label htmlFor={`material-${material}`}>{material}</label>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
+
+              {/* Product cards section (4/5 bên phải) */}
+              <div className="products-cards-section">
+                <div className="all-products-cards">
+                  {currentProducts.map((product) => (
+                    <div key={product.id} className="product-item">
+                      <AllProductCard product={product} />
+                    </div>
+                  ))}
+                </div>
+                {totalPages > 1 && (
+                  <div className="pagination-all-products" key={currentPage}>
+                    <Button
+                      variant="secondary"
+                      onClick={firstPage}
+                      disabled={currentPage === 1}
+                    >
+                      &lt;&lt;
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={prevPage}
+                      disabled={currentPage === 1}
+                    >
+                      &lt;
+                    </Button>
+                    {pageNumbers.map((number) => (
+                      <Button
+                        key={number}
+                        variant={
+                          currentPage === number ? "primary" : "outline-primary"
+                        }
+                        onClick={() => paginate(number)}
+                        className="mx-1"
+                      >
+                        {number}
+                      </Button>
+                    ))}
+                    <Button
+                      variant="secondary"
+                      onClick={nextPage}
+                      disabled={currentPage === totalPages}
+                    >
+                      &gt;
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={lastPage}
+                      disabled={currentPage === totalPages}
+                    >
+                      &gt;&gt;
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
         )}
       </Container>
       <Footer />
