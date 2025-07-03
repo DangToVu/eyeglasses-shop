@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "../styles/components/ProductForm.css";
 import LoadingScreen from "../components/LoadingScreen";
-import ConfirmBox from "../components/ConfirmBox";
 
 // Hàm định dạng số tiền với dấu chấm ngắt số ngàn
 const formatCurrency = (value) => {
@@ -23,11 +22,10 @@ function ProductForm({ product, onSave }) {
   const [description, setDescription] = useState(
     product ? product.description : ""
   );
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(null); // Mặc định luôn là null, không fetch ảnh
   const [brand, setBrand] = useState(product ? product.brand : "");
   const [material, setMaterial] = useState(product ? product.material : "");
   const [isLoading, setIsLoading] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const navigate = useNavigate();
 
   const brandOptions = [
@@ -43,6 +41,32 @@ function ProductForm({ product, onSave }) {
     "ROGERSON",
   ];
   const materialOptions = ["Kim loại", "Titan", "Nhựa"];
+
+  // Reset form về trạng thái ban đầu
+  const resetForm = () => {
+    setName("");
+    setProductId("");
+    setPrice("");
+    setDescription("");
+    setImage(null);
+    setBrand("");
+    setMaterial("");
+  };
+
+  // Cập nhật dữ liệu form khi product thay đổi
+  useEffect(() => {
+    if (product) {
+      setName(product.name);
+      setProductId(product.product_id || "");
+      setPrice(formatCurrency(product.price.toString()));
+      setDescription(product.description || "");
+      setBrand(product.brand || "");
+      setMaterial(product.material || "");
+      setImage(null); // Luôn đặt image về null khi fetch dữ liệu sản phẩm
+    } else {
+      resetForm();
+    }
+  }, [product]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,6 +120,7 @@ function ProductForm({ product, onSave }) {
           }
         );
         toast.success("Cập nhật sản phẩm thành công!");
+        resetForm(); // Clear form sau khi cập nhật thành công
       } else {
         await axios.post(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}`,
@@ -110,6 +135,7 @@ function ProductForm({ product, onSave }) {
           }
         );
         toast.success("Thêm sản phẩm thành công!");
+        resetForm(); // Clear form sau khi thêm thành công
       }
       onSave();
     } catch (error) {
@@ -119,38 +145,9 @@ function ProductForm({ product, onSave }) {
     }
   };
 
-  const handleDelete = () => {
-    if (!product) return;
-    setShowConfirm(true);
-  };
-
-  const confirmDelete = async () => {
-    setIsLoading(true);
-    try {
-      const table = "products";
-      await axios.delete(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?id=eq.${
-          product.id
-        }`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            apikey: import.meta.env.VITE_SUPABASE_KEY,
-          },
-        }
-      );
-      toast.success("Xóa sản phẩm thành công!");
-      onSave();
-    } catch (error) {
-      toast.error("Lỗi khi xóa: " + error.message);
-    } finally {
-      setIsLoading(false);
-      setShowConfirm(false);
-    }
-  };
-
-  const cancelDelete = () => {
-    setShowConfirm(false);
+  const handleCancel = () => {
+    resetForm(); // Xóa dữ liệu trong form
+    onSave(); // Gọi onSave để cập nhật lại trạng thái, có thể làm mới danh sách
   };
 
   const handlePriceChange = (e) => {
@@ -171,13 +168,6 @@ function ProductForm({ product, onSave }) {
   return (
     <>
       {isLoading && <LoadingScreen />}
-      {showConfirm && (
-        <ConfirmBox
-          message="Bạn có chắc chắn muốn xóa sản phẩm này không?"
-          onConfirm={confirmDelete}
-          onCancel={cancelDelete}
-        />
-      )}
       <Form onSubmit={handleSubmit} className="pf-form">
         <Form.Group className="pf-form-group">
           <Form.Label>Tên sản phẩm</Form.Label>
@@ -269,11 +259,11 @@ function ProductForm({ product, onSave }) {
         </Button>
         {product && (
           <Button
-            variant="danger"
+            variant="secondary"
             className="pf-form-btn pf-mt-2"
-            onClick={handleDelete}
+            onClick={handleCancel}
           >
-            Xóa
+            Hủy
           </Button>
         )}
         <Button
