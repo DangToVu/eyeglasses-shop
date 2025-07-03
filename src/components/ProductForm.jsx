@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -27,6 +27,7 @@ function ProductForm({ product, onSave }) {
   const [material, setMaterial] = useState(product ? product.material : "");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const fileInputRef = useRef(null); // Ref để reset file input
 
   const brandOptions = [
     "G.M.Surne",
@@ -48,9 +49,12 @@ function ProductForm({ product, onSave }) {
     setProductId("");
     setPrice("");
     setDescription("");
-    setImage(null);
+    setImage(null); // Clear ảnh khi reset
     setBrand("");
     setMaterial("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset file input
+    }
   };
 
   // Cập nhật dữ liệu form khi product thay đổi
@@ -63,6 +67,9 @@ function ProductForm({ product, onSave }) {
       setBrand(product.brand || "");
       setMaterial(product.material || "");
       setImage(null); // Luôn đặt image về null khi fetch dữ liệu sản phẩm
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""; // Reset file input khi load sản phẩm
+      }
     } else {
       resetForm();
     }
@@ -135,7 +142,7 @@ function ProductForm({ product, onSave }) {
           }
         );
         toast.success("Thêm sản phẩm thành công!");
-        resetForm(); // Clear form sau khi thêm thành công
+        resetForm(); // Clear form sau khi thêm thành công, bao gồm trường ảnh
       }
       onSave();
     } catch (error) {
@@ -252,6 +259,7 @@ function ProductForm({ product, onSave }) {
             accept="image/*"
             onChange={(e) => setImage(e.target.files[0])}
             className="pf-form-input"
+            ref={fileInputRef} // Gắn ref vào input file
           />
         </Form.Group>
         <Button type="submit" variant="primary" className="pf-form-btn">

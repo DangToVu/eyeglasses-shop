@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "../styles/components/BestSellingForm.css";
 import LoadingScreen from "../components/LoadingScreen";
-import ConfirmBox from "../components/ConfirmBox";
 
 // Hàm định dạng số tiền với dấu chấm ngắt số ngàn
 const formatCurrency = (value) => {
@@ -23,12 +22,12 @@ function BestSellingForm({ product, onSave }) {
   const [description, setDescription] = useState(
     product ? product.description : ""
   );
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(null); // Mặc định luôn là null, không fetch ảnh
   const [brand, setBrand] = useState(product ? product.brand : "");
   const [material, setMaterial] = useState(product ? product.material : "");
   const [isLoading, setIsLoading] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const navigate = useNavigate();
+  const fileInputRef = useRef(null); // Ref để reset file input
 
   const brandOptions = [
     "G.M.Surne",
@@ -43,6 +42,38 @@ function BestSellingForm({ product, onSave }) {
     "ROGERSON",
   ];
   const materialOptions = ["Kim loại", "Titan", "Nhựa"];
+
+  // Reset form về trạng thái ban đầu
+  const resetForm = () => {
+    setName("");
+    setProductId("");
+    setPrice("");
+    setDescription("");
+    setImage(null); // Clear ảnh khi reset
+    setBrand("");
+    setMaterial("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset file input
+    }
+  };
+
+  // Cập nhật dữ liệu form khi product thay đổi
+  useEffect(() => {
+    if (product) {
+      setName(product.name);
+      setProductId(product.product_id || "");
+      setPrice(formatCurrency(product.price.toString()));
+      setDescription(product.description || "");
+      setBrand(product.brand || "");
+      setMaterial(product.material || "");
+      setImage(null); // Luôn đặt image về null khi fetch dữ liệu sản phẩm
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""; // Reset file input khi load sản phẩm
+      }
+    } else {
+      resetForm();
+    }
+  }, [product]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,6 +127,7 @@ function BestSellingForm({ product, onSave }) {
           }
         );
         toast.success("Cập nhật sản phẩm bán chạy thành công!");
+        resetForm(); // Clear form sau khi cập nhật thành công
       } else {
         await axios.post(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}`,
@@ -110,6 +142,7 @@ function BestSellingForm({ product, onSave }) {
           }
         );
         toast.success("Thêm sản phẩm bán chạy thành công!");
+        resetForm(); // Clear form sau khi thêm thành công, bao gồm trường ảnh
       }
       onSave();
     } catch (error) {
@@ -119,38 +152,9 @@ function BestSellingForm({ product, onSave }) {
     }
   };
 
-  const handleDelete = () => {
-    if (!product) return;
-    setShowConfirm(true);
-  };
-
-  const confirmDelete = async () => {
-    setIsLoading(true);
-    try {
-      const table = "best_selling_glasses";
-      await axios.delete(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?id=eq.${
-          product.id
-        }`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            apikey: import.meta.env.VITE_SUPABASE_KEY,
-          },
-        }
-      );
-      toast.success("Xóa sản phẩm bán chạy thành công!");
-      onSave();
-    } catch (error) {
-      toast.error("Lỗi khi xóa: " + error.message);
-    } finally {
-      setIsLoading(false);
-      setShowConfirm(false);
-    }
-  };
-
-  const cancelDelete = () => {
-    setShowConfirm(false);
+  const handleCancel = () => {
+    resetForm(); // Xóa dữ liệu trong form
+    onSave(); // Gọi onSave để cập nhật lại trạng thái, có thể làm mới danh sách
   };
 
   const handlePriceChange = (e) => {
@@ -171,13 +175,6 @@ function BestSellingForm({ product, onSave }) {
   return (
     <>
       {isLoading && <LoadingScreen />}
-      {showConfirm && (
-        <ConfirmBox
-          message="Bạn có chắc chắn muốn xóa sản phẩm này không?"
-          onConfirm={confirmDelete}
-          onCancel={cancelDelete}
-        />
-      )}
       <Form onSubmit={handleSubmit} className="bsf-form">
         <Form.Group className="bsf-form-group">
           <Form.Label>Tên sản phẩm</Form.Label>
@@ -262,6 +259,7 @@ function BestSellingForm({ product, onSave }) {
             accept="image/*"
             onChange={(e) => setImage(e.target.files[0])}
             className="bsf-form-input"
+            ref={fileInputRef} // Gắn ref vào input file
           />
         </Form.Group>
         <Button type="submit" variant="primary" className="bsf-form-btn">
@@ -269,11 +267,11 @@ function BestSellingForm({ product, onSave }) {
         </Button>
         {product && (
           <Button
-            variant="danger"
+            variant="secondary"
             className="bsf-form-btn bsf-mt-2"
-            onClick={handleDelete}
+            onClick={handleCancel}
           >
-            Xóa
+            Hủy
           </Button>
         )}
         <Button
