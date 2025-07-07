@@ -33,7 +33,7 @@ function AllProductForm({ product, onSave, table }) {
     "V/E",
     "WINNER",
     "DIVEI",
-    "KLEINMONSTES",
+    "KIEINMONSTES",
     "FEMINA",
     "ENCINO",
     "AVALON",

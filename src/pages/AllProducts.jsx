@@ -10,6 +10,12 @@ import "../styles/pages/AllProducts.css";
 import LoadingScreen from "../components/LoadingScreen";
 import ConfirmBox from "../components/ConfirmBox";
 
+// Hàm định dạng số với dấu chấm ngăn cách hàng nghìn
+const formatPrice = (price) =>
+  price === Infinity
+    ? "Không giới hạn"
+    : price.toLocaleString("vi-VN") + " VND";
+
 function AllProducts() {
   const [allProducts, setAllProducts] = useState([]);
   const [regularProducts, setRegularProducts] = useState([]);
@@ -22,10 +28,18 @@ function AllProducts() {
   const itemsPerPage = 10; // Mặc định 10 cho admin
   const isAdmin = !!localStorage.getItem("token");
 
-  // State cho filter (chỉ áp dụng cho user chưa đăng nhập)
+  // State cho filter và tìm kiếm (chỉ áp dụng cho user chưa đăng nhập)
   const [filters, setFilters] = useState({
     brands: [],
     materials: [],
+    minPrice: 0,
+    maxPrice: Infinity,
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  // State tạm để lưu giá khi kéo range, chưa áp dụng ngay
+  const [tempPriceRange, setTempPriceRange] = useState({
+    minPrice: 0,
+    maxPrice: Infinity,
   });
 
   useEffect(() => {
@@ -255,16 +269,34 @@ function AllProducts() {
     })),
   ];
 
-  // Áp dụng filter cho user chưa đăng nhập
+  // Áp dụng filter và tìm kiếm cho user chưa đăng nhập
   const filteredProducts = !isAdmin
     ? allProductsList.filter((product) => {
+        const searchMatch =
+          !searchTerm ||
+          (product.name &&
+            product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (product.brand &&
+            product.brand.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (product.product_id &&
+            product.product_id
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) ||
+          (product.material &&
+            product.material
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) ||
+          (product.price && product.price.toString().includes(searchTerm));
         const brandMatch =
           filters.brands.length === 0 ||
           filters.brands.includes(product.brand || "");
         const materialMatch =
           filters.materials.length === 0 ||
           filters.materials.includes(product.material || "");
-        return brandMatch && materialMatch;
+        const priceMatch =
+          (!filters.minPrice || product.price >= filters.minPrice) &&
+          (!filters.maxPrice || product.price <= filters.maxPrice);
+        return searchMatch && brandMatch && materialMatch && priceMatch;
       })
     : allProductsList;
 
@@ -318,6 +350,24 @@ function AllProducts() {
       return { ...prev, [category]: updatedCategory };
     });
     setCurrentPage(1); // Reset về trang 1 khi filter thay đổi
+  };
+
+  const handlePriceFilter = async () => {
+    setIsLoading(true); // Hiển thị LoadingScreen khi bắt đầu lọc
+    try {
+      // Thêm delay giả lập để đảm bảo LoadingScreen hiển thị
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Delay 500ms
+      setFilters((prev) => ({
+        ...prev,
+        minPrice: tempPriceRange.minPrice,
+        maxPrice: tempPriceRange.maxPrice,
+      }));
+      setCurrentPage(1); // Reset về trang 1 khi áp dụng lọc giá
+    } catch (error) {
+      toast.error("Lỗi khi lọc: " + error.message);
+    } finally {
+      setIsLoading(false); // Tắt LoadingScreen sau khi lọc xong
+    }
   };
 
   return (
@@ -441,7 +491,7 @@ function AllProducts() {
                     onClick={lastPage}
                     disabled={currentPage === totalPages}
                   >
-                    &gt; &gt;
+                    &gt;&gt;
                   </Button>
                 </div>
               )}
@@ -453,7 +503,7 @@ function AllProducts() {
             {/* Phần hình ảnh quảng cáo */}
             <div className="ap-ad-container">
               <img
-                src="/ad-image.jpg" // Thay bằng đường dẫn ảnh quảng cáo thực tế
+                src="/ad-image.jpg"
                 alt="Quảng cáo"
                 className="ap-ad-image"
               />
@@ -463,6 +513,67 @@ function AllProducts() {
             <div className="ap-content">
               {/* Filter section (1/5 bên trái) */}
               <div className="ap-filter-section">
+                {/* Thanh tìm kiếm */}
+                <div className="ap-search-container mb-3">
+                  <input
+                    type="text"
+                    className="ap-search-input"
+                    placeholder="Tìm theo tên, thương hiệu, mã, chất liệu, giá..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+
+                {/* Bộ lọc theo giá */}
+                <div className="ap-price-filter mb-3">
+                  <label>
+                    Khoảng giá: {formatPrice(tempPriceRange.minPrice)} -{" "}
+                    {formatPrice(tempPriceRange.maxPrice)}
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="5000000" // Giá lớn nhất giảm xuống 5 triệu
+                    step="100000" // Bước nhảy 100,000 VND
+                    value={tempPriceRange.minPrice}
+                    onChange={(e) =>
+                      setTempPriceRange({
+                        ...tempPriceRange,
+                        minPrice: Number(e.target.value),
+                      })
+                    }
+                    className="ap-range-input"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="5000000" // Giá lớn nhất giảm xuống 5 triệu
+                    step="100000" // Bước nhảy 100,000 VND
+                    value={
+                      tempPriceRange.maxPrice === Infinity
+                        ? 5000000
+                        : tempPriceRange.maxPrice
+                    }
+                    onChange={(e) =>
+                      setTempPriceRange({
+                        ...tempPriceRange,
+                        maxPrice:
+                          Number(e.target.value) === 5000000
+                            ? Infinity
+                            : Number(e.target.value),
+                      })
+                    }
+                    className="ap-range-input"
+                  />
+                  <Button
+                    variant="primary"
+                    onClick={handlePriceFilter}
+                    className="mt-2"
+                  >
+                    Lọc
+                  </Button>
+                </div>
+
                 <h3>Lọc sản phẩm</h3>
                 <div className="ap-filter-group">
                   <h4>Thương hiệu</h4>
@@ -545,7 +656,7 @@ function AllProducts() {
                       onClick={lastPage}
                       disabled={currentPage === totalPages}
                     >
-                      &gt; &gt;
+                      &gt;&gt;
                     </Button>
                   </div>
                 )}
