@@ -34,7 +34,7 @@ function BestSellingForm({ product, onSave }) {
     "V/E",
     "WINNER",
     "DIVEI",
-    "KLEINMONSTES",
+    "KIEINMONSTES",
     "FEMINA",
     "ENCINO",
     "AVALON",

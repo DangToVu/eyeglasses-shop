@@ -34,7 +34,7 @@ function ProductForm({ product, onSave }) {
     "V/E",
     "WINNER",
     "DIVEI",
-    "KLEINMONSTES",
+    "KIEINMONSTES",
     "FEMINA",
     "ENCINO",
     "AVALON",
