@@ -163,7 +163,7 @@
 .ap-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 10px;
 }
 
 .ap-card-item {
@@ -236,103 +236,6 @@ footer {
   width: 100%;
 }
 
-/* ✅ Responsive breakpoints */
-@media (max-width: 1024px) {
-  .ap-content {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .ap-filter-section {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .ap-cards-section {
-    width: 100%;
-    padding-left: 0;
-  }
-
-  .ap-cards {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 767px) {
-  .ap-layout {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .ap-form-container {
-    width: 100%;
-    padding-right: 0;
-  }
-
-  .ap-list-container {
-    width: 100%;
-    max-height: 400px;
-  }
-
-  .ap-table {
-    font-size: 0.9rem;
-  }
-
-  .ap-btn {
-    padding: 0.3rem 0.7rem;
-    font-size: 0.8rem;
-  }
-
-  .ap-content {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .ap-filter-section {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .ap-cards-section {
-    width: 100%;
-    padding-left: 0;
-  }
-
-  .ap-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .ap-ad-container {
-    margin-bottom: 1rem;
-  }
-  .ap-ad-image {
-    height: 200px;
-  }
-
-  .ap-search-input {
-    padding: 0.5rem;
-    font-size: 0.9rem;
-  }
-
-  .ap-price-filter label {
-    font-size: 0.9rem;
-  }
-
-  .ap-price-filter button {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .ap-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .ap-ad-image {
-    height: 200px;
-  }
-}
-
 /* Pagination Styling */
 .ap-pagination {
   display: flex;
@@ -374,4 +277,144 @@ footer {
 
 .ap-pagination .mx-1 {
   margin: 0 0.25rem;
+}
+
+/* ✅ Responsive breakpoints */
+@media (max-width: 1024px) {
+  .ap-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ap-filter-section {
+    width: 95%;
+    min-width: 0;
+  }
+
+  .ap-cards-section {
+    width: 100%;
+    padding-left: 0;
+  }
+
+  .ap-cards {
+    grid-template-columns: repeat(3, minmax(0px, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .ap-layout {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ap-form-container {
+    width: 100%;
+    padding-right: 0;
+  }
+
+  .ap-list-container {
+    width: 100%;
+    max-height: 400px;
+  }
+
+  .ap-table {
+    font-size: 0.9rem;
+  }
+
+  .ap-btn {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  .ap-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ap-filter-section {
+    width: 95%;
+    min-width: 0;
+  }
+
+  .ap-cards-section {
+    width: 100%;
+    padding-left: 0;
+  }
+
+  .ap-cards {
+    grid-template-columns: repeat(2, minmax(0px, 1fr));
+  }
+
+  .ap-ad-container {
+    margin-bottom: 1rem;
+  }
+  .ap-ad-image {
+    height: 200px;
+  }
+
+  .ap-search-input {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .ap-price-filter label {
+    font-size: 0.9rem;
+  }
+
+  .ap-price-filter button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ap-cards {
+    grid-template-columns: repeat(2, minmax(0px, 1fr));
+    gap: 0px;
+  }
+  .ap-card-item {
+    width: 95%;
+  }
+  .ap-ad-image {
+    height: 200px;
+  }
+  .ap-filter-section {
+    width: 90%;
+  }
+}
+
+@media (max-width: 400px) {
+  .ap-cards {
+    /* grid-template-columns: repeat(2, 1fr); */
+    grid-template-columns: repeat(2, minmax(0px, 1fr));
+    gap: 0px;
+  }
+  .ap-card-item {
+    width: 95%;
+    margin: 0 0;
+  }
+  .ap-ad-image {
+    height: 200px;
+  }
+  .ap-filter-section {
+    width: 90%;
+  }
+}
+
+@media (max-width: 376px) {
+  .ap-cards {
+    /* grid-template-columns: repeat(2, 1fr); */
+    grid-template-columns: repeat(2, minmax(0px, 1fr));
+    gap: 0px;
+  }
+  .ap-card-item {
+    width: 95%;
+    margin: 0 0;
+  }
+  .ap-ad-image {
+    height: 200px;
+  }
+  .ap-filter-section {
+    width: 90%;
+  }
 }
