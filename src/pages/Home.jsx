@@ -22,6 +22,7 @@ function Home() {
   const [underlineStep, setUnderlineStep] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchMove, setTouchMove] = useState(0);
+  const brandCarouselRef = useRef(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -178,11 +179,79 @@ function Home() {
     visibleBestSelling.push(...bestSellingProducts.slice(0, remainingCount));
   }
 
+  // Logic cho carousel thương hiệu
+  const brands = [
+    "FEMINA",
+    "KIEINMONSTES",
+    "VE",
+    "WINNER",
+    "DIVEI",
+    "ROGERSON",
+    "G.M.Surne",
+    "AVALON",
+    "RUBERTY",
+  ];
+  useEffect(() => {
+    let animationFrameId;
+    const animateBrands = () => {
+      if (brandCarouselRef.current) {
+        let currentPosition = brandCarouselRef.current.style.transform
+          ? parseInt(brandCarouselRef.current.style.transform.split("(")[1]) ||
+            0
+          : 0;
+        const newPosition = currentPosition - 1;
+        const maxScroll =
+          brandCarouselRef.current.scrollWidth -
+          brandCarouselRef.current.clientWidth;
+        if (newPosition <= -maxScroll) {
+          brandCarouselRef.current.style.transform = `translateX(0px)`;
+        } else {
+          brandCarouselRef.current.style.transform = `translateX(${newPosition}px)`;
+        }
+        animationFrameId = requestAnimationFrame(animateBrands);
+      }
+    };
+    animationFrameId = requestAnimationFrame(animateBrands);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
   return (
     <div className="page-wrapper">
       {isLoading && <LoadingScreen />}
       <Header />
       <Container className="home-container">
+        {/* Phân phối các thương hiệu độc quyền - Đặt lên trên */}
+        <div className="ub-unique-brands-section">
+          <div className="ub-brands-container">
+            <h2 className="ub-title">Phân phối các thương hiệu độc quyền</h2>
+            <div className="ub-brand-carousel-wrapper">
+              <div className="ub-brand-carousel" ref={brandCarouselRef}>
+                {[...brands, ...brands].map((brand, index) => (
+                  <div key={index} className="ub-brand-item">
+                    <img
+                      src={`/logos/${brand
+                        .toLowerCase()
+                        .replace(/\./g, "")}.jpg`} // Thay .png bằng .jpg
+                      alt={`${brand} logo`}
+                      className="ub-brand-logo"
+                    />
+                    <div className="ub-brand-view-more-btn">
+                      <Link
+                        to={`/brands/${brand.toLowerCase().replace(/\./g, "")}`}
+                        style={{ textDecoration: "none" }}
+                      >
+                        <Button className="ub-brand-view-more-text">
+                          Xem thêm
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <h2
           className="home-title underlined-title my-4"
           style={{ "--underline-step": `${underlineStep}%` }}
@@ -216,14 +285,14 @@ function Home() {
             <div className="image-container">
               <div className="image-text below-image1">Hiện đại</div>
               <img
-                src="/image1.png"
+                src="/image1.png" // Giữ nguyên nếu bạn chưa đổi, sau đổi thành /image1.jpg
                 alt="Image 1"
                 className="angled-image image1"
               />
               <div className="image-text between-images">&</div>
               <div className="image-text above-image2">Độc đáo</div>
               <img
-                src="/image2.png"
+                src="/image2.png" // Giữ nguyên nếu bạn chưa đổi, sau đổi thành /image2.jpg
                 alt="Image 2"
                 className="angled-image image2"
               />

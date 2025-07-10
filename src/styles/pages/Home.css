@@ -258,6 +258,7 @@
   background-color: #fff;
   color: #26a69a;
 }
+
 /* Responsive */
 @media (max-width: 767px) {
   .home-title {
@@ -528,5 +529,196 @@
     margin-left: 3px;
     width: 14px;
     height: 14px;
+  }
+}
+
+/* Phân phối các thương hiệu độc quyền */
+.ub-unique-brands-section {
+  width: 100%;
+  margin: 2rem 0;
+  padding: 1rem 0;
+}
+
+.ub-brands-container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  background-image: url("/uniqueBrand.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.ub-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #26a69a;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.ub-brand-carousel-wrapper {
+  position: relative;
+  height: 250px; /* Chiều cao vừa phải */
+  overflow: hidden;
+}
+
+.ub-brand-carousel {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: scrollBrands 30s linear infinite; /* tốc độ chạy của các item */
+}
+
+.ub-brand-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 100%; /* Đảm bảo chiều cao khớp với wrapper */
+  margin: 0 100px;
+}
+
+.ub-brand-logo {
+  width: 280px;
+  height: 160px;
+  object-fit: cover;
+}
+
+.ub-brand-view-more-btn {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.ub-brand-view-more-text {
+  padding: 10px 25px;
+  border-radius: 25px;
+  border: 2px solid #26a69a;
+  background-color: transparent;
+  color: #26a69a;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ub-brand-view-more-text:hover {
+  background-color: #26a69a;
+  color: aliceblue;
+  border: 2px solid #54f5e4;
+}
+
+/* Animation cho carousel thương hiệu */
+@keyframes scrollBrands {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Responsive cho Unique Brands */
+@media (max-width: 767px) {
+  .ub-title {
+    font-size: 1.6rem;
+  }
+
+  .ub-brand-carousel-wrapper {
+    height: 200px; /* Giảm chiều cao trên mobile */
+  }
+
+  .ub-brand-item {
+    width: 90px;
+    margin: 0 90px;
+  }
+
+  .ub-brand-logo {
+    width: 240px; /* Giảm kích thước trên mobile */
+    height: 130px;
+  }
+
+  .ub-brand-view-more-text {
+    padding: 10px 25px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .ub-title {
+    font-size: 1.3rem;
+  }
+
+  .ub-brand-carousel-wrapper {
+    height: 200px;
+  }
+
+  .ub-brand-item {
+    width: 70px;
+    margin: 0 80px;
+  }
+
+  .ub-brand-logo {
+    width: 200px;
+    height: 120px;
+  }
+
+  .ub-brand-view-more-text {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .ub-title {
+    font-size: 1.2rem;
+  }
+
+  .ub-brand-carousel-wrapper {
+    height: 180px;
+  }
+
+  .ub-brand-item {
+    width: 60px;
+    margin: 0 80px;
+  }
+
+  .ub-brand-logo {
+    width: 190px; /* Giảm thêm trên màn hình nhỏ */
+    height: 110px;
+  }
+
+  .ub-brand-view-more-text {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 376px) {
+  .ub-title {
+    font-size: 1.1rem;
+  }
+
+  .ub-brand-carousel-wrapper {
+    height: 180px;
+  }
+
+  .ub-brand-item {
+    width: 50px;
+    margin: 0 90px;
+  }
+
+  .ub-brand-logo {
+    width: 200px; /* Giảm thêm trên màn hình nhỏ */
+    height: 110px;
+  }
+
+  .ub-brand-view-more-text {
+    padding: 10px 25px;
+    font-size: 0.9rem;
   }
 }
