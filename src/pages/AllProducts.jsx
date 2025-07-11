@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Container, Button, Row, Col, Table } from "react-bootstrap";
+import { useSearchParams } from "react-router-dom"; // Chỉ sử dụng để đọc tham số
 import axios from "axios";
 import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
@@ -41,6 +42,7 @@ function AllProducts() {
     minPrice: 0,
     maxPrice: Infinity,
   });
+  const [searchParams] = useSearchParams(); // Chỉ lấy searchParams, bỏ setSearchParams
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -86,7 +88,19 @@ function AllProducts() {
       }
     };
     fetchProducts();
-  }, []);
+  }, []); // Chỉ chạy một lần khi component mount
+
+  // Áp dụng bộ lọc thương hiệu từ URL khi component mount hoặc searchParams thay đổi
+  useEffect(() => {
+    const brandParam = searchParams.get("brand");
+    if (brandParam && !filters.brands.includes(brandParam)) {
+      setFilters((prev) => ({
+        ...prev,
+        brands: [brandParam],
+      }));
+      setCurrentPage(1); // Reset về trang 1 khi lọc
+    }
+  }, [searchParams, filters.brands]); // Thêm filters.brands vào dependency array
 
   const handleSave = () => {
     setSelectedProduct(null);
@@ -491,7 +505,7 @@ function AllProducts() {
                     onClick={lastPage}
                     disabled={currentPage === totalPages}
                   >
-                    &gt;&gt;
+                    &gt; &gt;
                   </Button>
                 </div>
               )}
@@ -656,7 +670,7 @@ function AllProducts() {
                       onClick={lastPage}
                       disabled={currentPage === totalPages}
                     >
-                      &gt;&gt;
+                      &gt; &gt;
                     </Button>
                   </div>
                 )}

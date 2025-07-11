@@ -231,13 +231,13 @@ function Home() {
                     <img
                       src={`/logos/${brand
                         .toLowerCase()
-                        .replace(/\./g, "")}.jpg`} // Thay .png bằng .jpg
+                        .replace(/\./g, "")}.jpg`}
                       alt={`${brand} logo`}
                       className="ub-brand-logo"
                     />
                     <div className="ub-brand-view-more-btn">
                       <Link
-                        to={`/brands/${brand.toLowerCase().replace(/\./g, "")}`}
+                        to={`/products/all?brand=${encodeURIComponent(brand)}`} // Thêm query string cho brand
                         style={{ textDecoration: "none" }}
                       >
                         <Button className="ub-brand-view-more-text">
@@ -285,14 +285,14 @@ function Home() {
             <div className="image-container">
               <div className="image-text below-image1">Hiện đại</div>
               <img
-                src="/image1.png" // Giữ nguyên nếu bạn chưa đổi, sau đổi thành /image1.jpg
+                src="/image1.png"
                 alt="Image 1"
                 className="angled-image image1"
               />
               <div className="image-text between-images">&</div>
               <div className="image-text above-image2">Độc đáo</div>
               <img
-                src="/image2.png" // Giữ nguyên nếu bạn chưa đổi, sau đổi thành /image2.jpg
+                src="/image2.png"
                 alt="Image 2"
                 className="angled-image image2"
               />
