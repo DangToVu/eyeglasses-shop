@@ -30,7 +30,7 @@ function AllProductForm({ product, onSave, table }) {
 
   const brandOptions = [
     "G.M.Surne",
-    "V/E",
+    "VE",
     "WINNER",
     "DIVEI",
     "KIEINMONSTES",

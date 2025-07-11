@@ -560,7 +560,7 @@
 
 .ub-brand-carousel-wrapper {
   position: relative;
-  height: 250px; /* Chiều cao vừa phải */
+  height: 250px;
   overflow: hidden;
 }
 
@@ -577,7 +577,7 @@
   justify-content: center;
   align-items: center;
   width: 120px;
-  height: 100%; /* Đảm bảo chiều cao khớp với wrapper */
+  height: 100%;
   margin: 0 100px;
 }
 
@@ -585,6 +585,7 @@
   width: 280px;
   height: 160px;
   object-fit: cover;
+  border-radius: 10px;
 }
 
 .ub-brand-view-more-btn {
