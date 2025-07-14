@@ -1,13 +1,13 @@
 .all-prod-card-container {
-  width: 100%; /* Use full width of parent .product-item */
-  margin: 0 0 1rem 0; /* Remove horizontal margins, keep vertical spacing */
+  width: 100%;
+  margin: 0 0 1rem 0;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease-in-out;
   display: inline-block;
   vertical-align: top;
-  box-sizing: border-box; /* Include padding and border in width */
+  box-sizing: border-box;
 }
 
 .all-prod-card-container:hover {
@@ -15,7 +15,7 @@
 }
 
 .all-prod-card-image {
-  height: 250px;
+  height: 230px;
   width: 100%;
   object-fit: cover;
   border-top-left-radius: 8px;
@@ -24,12 +24,11 @@
 
 .all-prod-card-body {
   padding: 1rem;
-  height: auto; /* Remove fixed height to allow content to expand */
-  min-height: 100px; /* Minimum height for consistency */
+  height: 100px;
 }
 
 .all-prod-card-title {
-  margin-top: -17px;
+  margin-top: -7px;
   font-size: 1.2rem;
   font-weight: 600;
   color: #333;
@@ -49,7 +48,7 @@
 
 @media (max-width: 1024px) {
   .all-prod-card-image {
-    height: 200px; /* Reduced height for tablets */
+    height: 220px;
   }
   .all-prod-card-title {
     font-size: 1.1rem;
@@ -57,17 +56,20 @@
   .all-prod-card-text {
     font-size: 0.9rem;
   }
+  .all-prod-card-body {
+    height: 90px;
+  }
 }
 
 @media (max-width: 767px) {
   .all-prod-card-container {
-    width: 100%; /* Full width of parent .product-item */
-    margin: 0 0 1rem 0; /* Maintain vertical spacing */
+    width: 100%;
+    margin: 0 0 1rem 0;
     box-sizing: border-box;
   }
 
   .all-prod-card-image {
-    height: 180px; /* Adjusted height for mobile */
+    height: 200px;
   }
 
   .all-prod-card-title {
@@ -77,10 +79,13 @@
   .all-prod-card-text {
     font-size: 0.85rem;
   }
+  .all-prod-card-body {
+    height: 80px;
+  }
 }
 
 @media (max-width: 480px) {
   .all-prod-card-image {
-    height: 150px; /* Further reduced for very small screens */
+    height: 150px;
   }
 }

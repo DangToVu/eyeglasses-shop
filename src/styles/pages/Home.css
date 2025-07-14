@@ -346,6 +346,101 @@
   }
 }
 
+/* Tablet / iPad Portrait and Landscape (768px - 1199px) */
+@media (max-width: 1199px) {
+  .home-title {
+    font-size: 1.6rem;
+    margin-left: 15px;
+  }
+
+  .underlined-title {
+    font-size: 1.6rem;
+  }
+
+  .underlined-title::before,
+  .underlined-title::after {
+    height: 2.5px;
+  }
+
+  .image-overlay {
+    width: 100%;
+    max-width: 900px;
+    height: 250px;
+  }
+
+  .angled-image {
+    width: 47%;
+    height: 100%;
+  }
+
+  .image-text {
+    font-size: 2.5rem;
+  }
+
+  .below-image1 {
+    bottom: -80px;
+    left: 24%;
+  }
+
+  .between-images {
+    top: 68%;
+    left: 50%;
+  }
+
+  .above-image2 {
+    top: 25px;
+    right: 24%;
+  }
+
+  .products-container {
+    max-width: 900px;
+  }
+
+  .product-item {
+    flex: 0 0 335px; /* Điều chỉnh kích thước item cho 2 item (700px / 2 - 7px gap) */
+  }
+
+  .carousel-button {
+    font-size: 1.7rem;
+    padding: 0.7rem;
+  }
+
+  .all-products-home-text {
+    padding: 12px 25px;
+    font-size: 1.4rem;
+    width: 400px;
+  }
+
+  .all-products-home-text svg {
+    margin-left: 6px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .ub-title {
+    font-size: 1.9rem;
+  }
+
+  .ub-brand-carousel-wrapper {
+    height: 240px;
+  }
+
+  .ub-brand-item {
+    width: 110px;
+    margin: 0 100px;
+  }
+
+  .ub-brand-logo {
+    width: 270px;
+    height: 160px;
+  }
+
+  .ub-brand-view-more-text {
+    padding: 9px 22px;
+    font-size: 1.1rem;
+  }
+}
+
 @media (max-width: 767px) {
   .home-title {
     font-size: 1.2rem;
@@ -706,100 +801,5 @@
   .ub-brand-view-more-text {
     padding: 10px 25px;
     font-size: 0.9rem;
-  }
-}
-
-/* Tablet / iPad Portrait and Landscape (768px - 1199px) */
-@media (min-width: 768px) and (max-width: 1199px) {
-  .home-title {
-    font-size: 1.6rem;
-    margin-left: 15px;
-  }
-
-  .underlined-title {
-    font-size: 1.6rem;
-  }
-
-  .underlined-title::before,
-  .underlined-title::after {
-    height: 2.5px;
-  }
-
-  .image-overlay {
-    width: 100%;
-    max-width: 700px;
-    height: 250px;
-  }
-
-  .angled-image {
-    width: 47%;
-    height: 100%;
-  }
-
-  .image-text {
-    font-size: 2.5rem;
-  }
-
-  .below-image1 {
-    bottom: -70px;
-    left: 24%;
-  }
-
-  .between-images {
-    top: 68%;
-    left: 50%;
-  }
-
-  .above-image2 {
-    top: 15px;
-    right: 24%;
-  }
-
-  .products-container {
-    max-width: 700px;
-  }
-
-  .product-item {
-    flex: 0 0 335px; /* Điều chỉnh kích thước item cho 2 item (700px / 2 - 7px gap) */
-  }
-
-  .carousel-button {
-    font-size: 1.7rem;
-    padding: 0.7rem;
-  }
-
-  .all-products-home-text {
-    padding: 12px 25px;
-    font-size: 1.4rem;
-    width: 400px;
-  }
-
-  .all-products-home-text svg {
-    margin-left: 6px;
-    width: 22px;
-    height: 22px;
-  }
-
-  .ub-title {
-    font-size: 1.9rem;
-  }
-
-  .ub-brand-carousel-wrapper {
-    height: 220px;
-  }
-
-  .ub-brand-item {
-    width: 110px;
-    margin: 0 90px;
-  }
-
-  .ub-brand-logo {
-    width: 250px;
-    height: 140px;
-  }
-
-  .ub-brand-view-more-text {
-    padding: 9px 22px;
-    font-size: 1.1rem;
   }
 }
