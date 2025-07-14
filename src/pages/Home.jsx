@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Container, Row, Button } from "react-bootstrap";
+import { Container, Button } from "react-bootstrap";
 import { ArrowRight } from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -23,6 +23,23 @@ function Home() {
   const [touchStart, setTouchStart] = useState(0);
   const [touchMove, setTouchMove] = useState(0);
   const brandCarouselRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(4); // Mặc định là 4 item
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && window.innerWidth <= 1199) {
+        setItemsPerView(2); // 2 item cho tablet/iPad
+      } else {
+        setItemsPerView(4); // 4 item cho các kích thước khác
+      }
+    };
+    handleResize(); // Kiểm tra khi tải trang
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -36,9 +53,10 @@ function Home() {
             },
           }
         );
-        setProducts(response.data);
+        setProducts(response.data || []);
       } catch (error) {
         console.error("Lỗi khi lấy sản phẩm:", error);
+        setProducts([]);
       }
 
       try {
@@ -53,9 +71,10 @@ function Home() {
             },
           }
         );
-        setBestSellingProducts(response.data);
+        setBestSellingProducts(response.data || []);
       } catch (error) {
         console.error("Lỗi khi fetch sản phẩm bán chạy:", error);
+        setBestSellingProducts([]);
       } finally {
         setIsLoading(false);
       }
@@ -65,22 +84,26 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    const maxSteps = Math.max(products.length - 4, 0);
-    setUnderlineStep(
-      Math.min((currentIndex / (products.length > 4 ? maxSteps : 1)) * 100, 100)
-    );
-  }, [currentIndex, products.length]);
-
-  useEffect(() => {
-    const maxSteps = Math.max(bestSellingProducts.length - 4, 0);
+    const maxSteps = Math.max(products.length - itemsPerView, 0);
     setUnderlineStep(
       Math.min(
-        (bestSellingIndex / (bestSellingProducts.length > 4 ? maxSteps : 1)) *
+        (currentIndex / (products.length > itemsPerView ? maxSteps : 1)) * 100,
+        100
+      )
+    );
+  }, [currentIndex, products.length, itemsPerView]);
+
+  useEffect(() => {
+    const maxSteps = Math.max(bestSellingProducts.length - itemsPerView, 0);
+    setUnderlineStep(
+      Math.min(
+        (bestSellingIndex /
+          (bestSellingProducts.length > itemsPerView ? maxSteps : 1)) *
           100,
         100
       )
     );
-  }, [bestSellingIndex, bestSellingProducts.length]);
+  }, [bestSellingIndex, bestSellingProducts.length, itemsPerView]);
 
   const scrollLeft = () => {
     if (productsContainerRef.current && products.length > 0) {
@@ -142,44 +165,42 @@ function Home() {
 
   const handleTouchEnd = (isBestSelling) => {
     const touchDiff = touchStart - touchMove;
-    const threshold = 50; // Ngưỡng vuốt (pixel) để xác định cuộn
+    const threshold = 50;
 
     if (Math.abs(touchDiff) > threshold) {
       if (isBestSelling) {
-        if (touchDiff > 0) {
-          scrollBestSellingRight();
-        } else {
-          scrollBestSellingLeft();
-        }
+        if (touchDiff > 0) scrollBestSellingRight();
+        else scrollBestSellingLeft();
       } else {
-        if (touchDiff > 0) {
-          scrollRight();
-        } else {
-          scrollLeft();
-        }
+        if (touchDiff > 0) scrollRight();
+        else scrollLeft();
       }
     }
     setTouchStart(0);
     setTouchMove(0);
   };
 
-  // Hiển thị 4 thẻ, bắt đầu từ currentIndex
-  const visibleProducts = products.slice(currentIndex, currentIndex + 4);
-  if (visibleProducts.length < 4 && products.length > 0) {
-    const remainingCount = 4 - visibleProducts.length;
+  const visibleProducts = products.slice(
+    currentIndex,
+    currentIndex + itemsPerView
+  );
+  if (visibleProducts.length < itemsPerView && products.length > 0) {
+    const remainingCount = itemsPerView - visibleProducts.length;
     visibleProducts.push(...products.slice(0, remainingCount));
   }
 
   const visibleBestSelling = bestSellingProducts.slice(
     bestSellingIndex,
-    bestSellingIndex + 4
+    bestSellingIndex + itemsPerView
   );
-  if (visibleBestSelling.length < 4 && bestSellingProducts.length > 0) {
-    const remainingCount = 4 - visibleBestSelling.length;
+  if (
+    visibleBestSelling.length < itemsPerView &&
+    bestSellingProducts.length > 0
+  ) {
+    const remainingCount = itemsPerView - visibleBestSelling.length;
     visibleBestSelling.push(...bestSellingProducts.slice(0, remainingCount));
   }
 
-  // Logic cho carousel thương hiệu
   const brands = [
     "FEMINA",
     "KIEINMONSTES",
@@ -191,41 +212,83 @@ function Home() {
     "AVALON",
     "RUBERTY",
   ];
+
+  const handleMouseEnter = () => setIsHovered(true);
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setIsDragging(false);
+  };
+
+  const handleMouseDown = (e) => {
+    if (brandCarouselRef.current) {
+      setIsDragging(true);
+      setStartX(e.pageX - brandCarouselRef.current.scrollLeft);
+      brandCarouselRef.current.style.scrollBehavior = "auto";
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging || !brandCarouselRef.current) return;
+    e.preventDefault();
+    const x = e.pageX;
+    const walk = x - startX;
+    const maxScroll =
+      brandCarouselRef.current.scrollWidth -
+      brandCarouselRef.current.clientWidth;
+    const newScrollLeft = Math.max(0, Math.min(walk, maxScroll));
+    brandCarouselRef.current.scrollLeft = newScrollLeft;
+  };
+
+  const handleMouseUp = () => {
+    if (brandCarouselRef.current) {
+      setIsDragging(false);
+      brandCarouselRef.current.style.scrollBehavior = "smooth";
+    }
+  };
+
   useEffect(() => {
     let animationFrameId;
     const animateBrands = () => {
-      if (brandCarouselRef.current) {
-        let currentPosition = brandCarouselRef.current.style.transform
-          ? parseInt(brandCarouselRef.current.style.transform.split("(")[1]) ||
-            0
-          : 0;
-        const newPosition = currentPosition - 1;
-        const maxScroll =
-          brandCarouselRef.current.scrollWidth -
-          brandCarouselRef.current.clientWidth;
-        if (newPosition <= -maxScroll) {
-          brandCarouselRef.current.style.transform = `translateX(0px)`;
-        } else {
-          brandCarouselRef.current.style.transform = `translateX(${newPosition}px)`;
+      if (brandCarouselRef.current && !isHovered && !isDragging) {
+        brandCarouselRef.current.scrollLeft += 1;
+        if (
+          brandCarouselRef.current.scrollLeft >=
+          brandCarouselRef.current.scrollWidth / 2
+        ) {
+          brandCarouselRef.current.scrollLeft = 0;
         }
         animationFrameId = requestAnimationFrame(animateBrands);
       }
     };
-    animationFrameId = requestAnimationFrame(animateBrands);
+    if (!isHovered && !isDragging) {
+      animationFrameId = requestAnimationFrame(animateBrands);
+    }
     return () => cancelAnimationFrame(animationFrameId);
-  }, []);
+  }, [isHovered, isDragging]);
 
   return (
     <div className="page-wrapper">
       {isLoading && <LoadingScreen />}
       <Header />
       <Container className="home-container">
-        {/* Phân phối các thương hiệu độc quyền - Đặt lên trên */}
-        <div className="ub-unique-brands-section">
+        <div
+          className="ub-unique-brands-section"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+        >
           <div className="ub-brands-container">
             <h2 className="ub-title">Phân phối các thương hiệu độc quyền</h2>
             <div className="ub-brand-carousel-wrapper">
-              <div className="ub-brand-carousel" ref={brandCarouselRef}>
+              <div
+                className={`ub-brand-carousel ${
+                  isHovered || isDragging ? "paused" : ""
+                }`}
+                ref={brandCarouselRef}
+              >
                 {[...brands, ...brands].map((brand, index) => (
                   <div key={index} className="ub-brand-item">
                     <img
@@ -237,7 +300,7 @@ function Home() {
                     />
                     <div className="ub-brand-view-more-btn">
                       <Link
-                        to={`/products/all?brand=${encodeURIComponent(brand)}`} // Thêm query string cho brand
+                        to={`/products/all?brand=${encodeURIComponent(brand)}`}
                         style={{ textDecoration: "none" }}
                       >
                         <Button className="ub-brand-view-more-text">

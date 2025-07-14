@@ -1,4 +1,3 @@
-/* src/styles/pages/Home.css */
 @import url("https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap");
 
 .page-wrapper {
@@ -15,7 +14,7 @@
 .home-title {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #26a69a; /* Màu xanh cho tiêu đề */
+  color: #26a69a;
   text-align: center;
   margin-left: 20px;
 }
@@ -26,7 +25,7 @@
   font-weight: 700;
   text-align: center;
   padding-bottom: 10px;
-  display: inline-block; /* Để gạch chân chỉ áp dụng cho nội dung */
+  display: inline-block;
 }
 
 .underlined-title::before {
@@ -36,7 +35,7 @@
   left: 0;
   width: 100%;
   height: 3px;
-  background: #26a69a; /* Gạch chân màu xanh cố định */
+  background: #26a69a;
 }
 
 .underlined-title::after {
@@ -44,19 +43,16 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 100%; /* Phần cam chiếm toàn bộ chiều dài */
+  width: 100%;
   height: 3px;
-  background: #ff9800; /* Màu cam cho hiệu ứng */
-  transform: translateX(0); /* Bắt đầu từ 0 */
-  transition: transform 0.3s ease; /* Hiệu ứng mượt mà */
-  clip-path: inset(
-    0 calc(100% - var(--underline-step, 0%)) 0 0
-  ); /* Cắt phần thừa, giới hạn trong vùng xanh */
+  background: #ff9800;
+  transform: translateX(0);
+  transition: transform 0.3s ease;
+  clip-path: inset(0 calc(100% - var(--underline-step, 0%)) 0 0);
 }
 
-/* Đảm bảo phần cam không vượt quá giới hạn */
 .underlined-title::after {
-  will-change: transform; /* Tối ưu hiệu suất */
+  will-change: transform;
   transform-origin: left;
 }
 
@@ -73,8 +69,8 @@
 .products-container {
   display: flex;
   flex-direction: row;
-  width: 100%; /* Changed from 1400px to 100% */
-  max-width: 1400px; /* Optional: limit max width on larger screens */
+  width: 100%;
+  max-width: 1400px;
   overflow-x: auto;
   padding: 0;
   gap: 7px;
@@ -91,7 +87,7 @@
 }
 
 .product-item {
-  flex: 0 0 300px; /* Default width for desktop (2 cards per row on mobile) */
+  flex: 0 0 300px;
   scroll-snap-align: start;
   display: flex;
   justify-content: center;
@@ -131,7 +127,6 @@
   margin-right: 20px;
 }
 
-/* picture section */
 .image-section {
   position: relative;
   width: 100%;
@@ -159,18 +154,18 @@
 .image1 {
   transform: rotate(0deg);
   border-radius: 15px;
-  object-fit: cover; /* Đảm bảo ảnh được cắt */
-  object-position: 0 0; /* Giữ nguyên phần trên */
-  height: 100%; /* Đảm bảo ảnh lấp đầy container */
+  object-fit: cover;
+  object-position: 0 0;
+  height: 100%;
 }
 
 .image2 {
   transform: rotate(0deg);
   margin-top: 100px;
   border-radius: 15px;
-  object-fit: cover; /* Đảm bảo ảnh được cắt */
-  object-position: 0 0; /* Giữ nguyên phần trên */
-  height: 100%; /* Đảm bảo ảnh lấp đầy container */
+  object-fit: cover;
+  object-position: 0 0;
+  height: 100%;
 }
 
 .image-text {
@@ -226,21 +221,20 @@
   transition: all 0.3s ease;
   white-space: nowrap;
   cursor: pointer;
-  width: 500px; /* Đặt chiều rộng cố định */
+  width: 500px;
   display: flex;
-  flex-direction: row; /* Sắp xếp text và icon theo hàng ngang */
-  align-items: center; /* Căn giữa theo chiều dọc */
-  justify-content: center; /* Căn giữa theo chiều ngang */
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Kiểu dáng cho svg (mũi tên) */
 .all-products-home-text svg {
-  margin-left: 8px; /* Khoảng cách giữa text và mũi tên */
-  width: 25px; /* Kích thước hình tròn */
+  margin-left: 8px;
+  width: 25px;
   height: 25px;
-  border-radius: 50%; /* Tạo hình tròn */
-  background-color: #26a69a; /* Màu nền solid */
-  color: white; /* Màu mũi tên */
+  border-radius: 50%;
+  background-color: #26a69a;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -254,12 +248,104 @@
 }
 
 .all-products-home-text:hover svg {
-  transform: translateX(15px); /* Di chuyển mũi tên sang phải khi hover */
+  transform: translateX(15px);
   background-color: #fff;
   color: #26a69a;
 }
 
-/* Responsive */
+.ub-unique-brands-section {
+  width: 100%;
+  margin: 2rem 0;
+  padding: 1rem 0;
+}
+
+.ub-brands-container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  background-image: url("/uniqueBrand.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.ub-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #26a69a;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.ub-brand-carousel-wrapper {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+}
+
+.ub-brand-carousel {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: scrollBrands 30s linear infinite;
+}
+
+.ub-brand-carousel.paused {
+  animation-play-state: paused;
+}
+
+.ub-brand-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 100%;
+  margin: 0 100px;
+}
+
+.ub-brand-logo {
+  width: 280px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.ub-brand-view-more-btn {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.ub-brand-view-more-text {
+  padding: 10px 25px;
+  border-radius: 25px;
+  border: 2px solid #26a69a;
+  background-color: transparent;
+  color: #26a69a;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ub-brand-view-more-text:hover {
+  background-color: #26a69a;
+  color: aliceblue;
+  border: 2px solid #54f5e4;
+}
+
+@keyframes scrollBrands {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 @media (max-width: 767px) {
   .home-title {
     font-size: 1.2rem;
@@ -272,18 +358,18 @@
   }
 
   .image-overlay {
-    width: 100%; /* Giãn nở theo màn hình mobile */
-    max-width: 410px; /* Giới hạn tối đa */
+    width: 100%;
+    max-width: 410px;
     height: 130px;
     margin: 0 auto;
   }
 
   .image-container {
-    flex-wrap: wrap; /* Cho phép giãn nở tốt hơn */
+    flex-wrap: wrap;
   }
 
   .angled-image {
-    width: 48%; /* Điều chỉnh để fit hai ảnh */
+    width: 48%;
     height: 100%;
   }
 
@@ -319,12 +405,12 @@
 
   .products-container {
     width: 100%;
-    max-width: 610px; /* Adjusted to fit two 300px cards with 10px gap */
-    overflow-x: auto; /* Keep scrollable if content exceeds */
+    max-width: 610px;
+    overflow-x: auto;
   }
 
   .product-item {
-    flex: 0 0 300px; /* Set to 300px for 2 cards per row */
+    flex: 0 0 300px;
   }
 
   .carousel-button {
@@ -353,17 +439,40 @@
     width: 18px;
     height: 18px;
   }
+
+  .ub-title {
+    font-size: 1.6rem;
+  }
+
+  .ub-brand-carousel-wrapper {
+    height: 200px;
+  }
+
+  .ub-brand-item {
+    width: 90px;
+    margin: 0 90px;
+  }
+
+  .ub-brand-logo {
+    width: 240px;
+    height: 130px;
+  }
+
+  .ub-brand-view-more-text {
+    padding: 10px 25px;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 576px) {
   .products-container {
-    width: 100%; /* Fit 100% with smaller screens */
-    max-width: 410px; /* Adjusted to fit two 200px cards with 10px gap */
-    overflow-x: auto; /* Keep scrollable if content exceeds */
+    width: 100%;
+    max-width: 410px;
+    overflow-x: auto;
   }
 
   .product-item {
-    flex: 0 0 200px; /* Reduce to 200px for smaller screens */
+    flex: 0 0 200px;
   }
 
   .carousel-button {
@@ -376,8 +485,8 @@
   }
 
   .image-overlay {
-    width: 100%; /* Giãn nở theo màn hình */
-    max-width: 380px; /* Giới hạn tối đa */
+    width: 100%;
+    max-width: 380px;
     height: 130px;
   }
 
@@ -388,16 +497,16 @@
   .image1 {
     transform: rotate(0deg);
     border-radius: 15px;
-    object-fit: cover; /* Đảm bảo ảnh được cắt */
-    object-position: -25px 0; /* Giữ nguyên phần trên */
-    height: 100%; /* Đảm bảo ảnh lấp đầy container */
+    object-fit: cover;
+    object-position: -25px 0;
+    height: 100%;
   }
 
   .image2 {
     margin-top: 30px;
-    object-fit: cover; /* Đảm bảo ảnh được cắt */
-    object-position: -20px 0; /* Giữ nguyên phần trên */
-    height: 100%; /* Đảm bảo ảnh lấp đầy container */
+    object-fit: cover;
+    object-position: -20px 0;
+    height: 100%;
   }
 
   .above-image2 {
@@ -421,9 +530,31 @@
     width: 16px;
     height: 16px;
   }
+
+  .ub-title {
+    font-size: 1.3rem;
+  }
+
+  .ub-brand-carousel-wrapper {
+    height: 200px;
+  }
+
+  .ub-brand-item {
+    width: 70px;
+    margin: 0 80px;
+  }
+
+  .ub-brand-logo {
+    width: 200px;
+    height: 120px;
+  }
+
+  .ub-brand-view-more-text {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
 }
 
-/* New Responsive Section for width < 400px */
 @media (max-width: 400px) {
   .products-container {
     max-width: 380px;
@@ -475,6 +606,29 @@
     margin-left: 4px;
     width: 14px;
     height: 14px;
+  }
+
+  .ub-title {
+    font-size: 1.2rem;
+  }
+
+  .ub-brand-carousel-wrapper {
+    height: 180px;
+  }
+
+  .ub-brand-item {
+    width: 60px;
+    margin: 0 80px;
+  }
+
+  .ub-brand-logo {
+    width: 190px;
+    height: 110px;
+  }
+
+  .ub-brand-view-more-text {
+    padding: 10px 20px;
+    font-size: 0.9rem;
   }
 }
 
@@ -530,176 +684,7 @@
     width: 14px;
     height: 14px;
   }
-}
 
-/* Phân phối các thương hiệu độc quyền */
-.ub-unique-brands-section {
-  width: 100%;
-  margin: 2rem 0;
-  padding: 1rem 0;
-}
-
-.ub-brands-container {
-  position: relative;
-  width: 100%;
-  margin: 0 auto;
-  overflow: hidden;
-  background-image: url("/uniqueBrand.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.ub-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #26a69a;
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.ub-brand-carousel-wrapper {
-  position: relative;
-  height: 250px;
-  overflow: hidden;
-}
-
-.ub-brand-carousel {
-  display: flex;
-  align-items: center;
-  width: max-content;
-  animation: scrollBrands 30s linear infinite; /* tốc độ chạy của các item */
-}
-
-.ub-brand-item {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 120px;
-  height: 100%;
-  margin: 0 100px;
-}
-
-.ub-brand-logo {
-  width: 280px;
-  height: 160px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.ub-brand-view-more-btn {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.ub-brand-view-more-text {
-  padding: 10px 25px;
-  border-radius: 25px;
-  border: 2px solid #26a69a;
-  background-color: transparent;
-  color: #26a69a;
-  font-size: 1.2rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.ub-brand-view-more-text:hover {
-  background-color: #26a69a;
-  color: aliceblue;
-  border: 2px solid #54f5e4;
-}
-
-/* Animation cho carousel thương hiệu */
-@keyframes scrollBrands {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-/* Responsive cho Unique Brands */
-@media (max-width: 767px) {
-  .ub-title {
-    font-size: 1.6rem;
-  }
-
-  .ub-brand-carousel-wrapper {
-    height: 200px; /* Giảm chiều cao trên mobile */
-  }
-
-  .ub-brand-item {
-    width: 90px;
-    margin: 0 90px;
-  }
-
-  .ub-brand-logo {
-    width: 240px; /* Giảm kích thước trên mobile */
-    height: 130px;
-  }
-
-  .ub-brand-view-more-text {
-    padding: 10px 25px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .ub-title {
-    font-size: 1.3rem;
-  }
-
-  .ub-brand-carousel-wrapper {
-    height: 200px;
-  }
-
-  .ub-brand-item {
-    width: 70px;
-    margin: 0 80px;
-  }
-
-  .ub-brand-logo {
-    width: 200px;
-    height: 120px;
-  }
-
-  .ub-brand-view-more-text {
-    padding: 10px 20px;
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 400px) {
-  .ub-title {
-    font-size: 1.2rem;
-  }
-
-  .ub-brand-carousel-wrapper {
-    height: 180px;
-  }
-
-  .ub-brand-item {
-    width: 60px;
-    margin: 0 80px;
-  }
-
-  .ub-brand-logo {
-    width: 190px; /* Giảm thêm trên màn hình nhỏ */
-    height: 110px;
-  }
-
-  .ub-brand-view-more-text {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 376px) {
   .ub-title {
     font-size: 1.1rem;
   }
@@ -714,12 +699,107 @@
   }
 
   .ub-brand-logo {
-    width: 200px; /* Giảm thêm trên màn hình nhỏ */
+    width: 200px;
     height: 110px;
   }
 
   .ub-brand-view-more-text {
     padding: 10px 25px;
     font-size: 0.9rem;
+  }
+}
+
+/* Tablet / iPad Portrait and Landscape (768px - 1199px) */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .home-title {
+    font-size: 1.6rem;
+    margin-left: 15px;
+  }
+
+  .underlined-title {
+    font-size: 1.6rem;
+  }
+
+  .underlined-title::before,
+  .underlined-title::after {
+    height: 2.5px;
+  }
+
+  .image-overlay {
+    width: 100%;
+    max-width: 700px;
+    height: 250px;
+  }
+
+  .angled-image {
+    width: 47%;
+    height: 100%;
+  }
+
+  .image-text {
+    font-size: 2.5rem;
+  }
+
+  .below-image1 {
+    bottom: -70px;
+    left: 24%;
+  }
+
+  .between-images {
+    top: 68%;
+    left: 50%;
+  }
+
+  .above-image2 {
+    top: 15px;
+    right: 24%;
+  }
+
+  .products-container {
+    max-width: 700px;
+  }
+
+  .product-item {
+    flex: 0 0 335px; /* Điều chỉnh kích thước item cho 2 item (700px / 2 - 7px gap) */
+  }
+
+  .carousel-button {
+    font-size: 1.7rem;
+    padding: 0.7rem;
+  }
+
+  .all-products-home-text {
+    padding: 12px 25px;
+    font-size: 1.4rem;
+    width: 400px;
+  }
+
+  .all-products-home-text svg {
+    margin-left: 6px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .ub-title {
+    font-size: 1.9rem;
+  }
+
+  .ub-brand-carousel-wrapper {
+    height: 220px;
+  }
+
+  .ub-brand-item {
+    width: 110px;
+    margin: 0 90px;
+  }
+
+  .ub-brand-logo {
+    width: 250px;
+    height: 140px;
+  }
+
+  .ub-brand-view-more-text {
+    padding: 9px 22px;
+    font-size: 1.1rem;
   }
 }
