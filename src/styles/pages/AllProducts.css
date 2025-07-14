@@ -164,6 +164,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
+  margin-right: 10px;
 }
 
 .ap-card-item {
@@ -298,6 +299,7 @@ footer {
 
   .ap-cards {
     grid-template-columns: repeat(3, minmax(0px, 1fr));
+    margin-left: 5px;
   }
 }
 
@@ -343,6 +345,7 @@ footer {
 
   .ap-cards {
     grid-template-columns: repeat(2, minmax(0px, 1fr));
+    margin-left: 5px;
   }
 
   .ap-ad-container {
@@ -371,6 +374,7 @@ footer {
   .ap-cards {
     grid-template-columns: repeat(2, minmax(0px, 1fr));
     gap: 0px;
+    margin-left: 5px;
   }
   .ap-card-item {
     width: 95%;
@@ -388,6 +392,7 @@ footer {
     /* grid-template-columns: repeat(2, 1fr); */
     grid-template-columns: repeat(2, minmax(0px, 1fr));
     gap: 0px;
+    margin-left: 5px;
   }
   .ap-card-item {
     width: 95%;
@@ -406,6 +411,7 @@ footer {
     /* grid-template-columns: repeat(2, 1fr); */
     grid-template-columns: repeat(2, minmax(0px, 1fr));
     gap: 0px;
+    margin-left: 5px;
   }
   .ap-card-item {
     width: 95%;
