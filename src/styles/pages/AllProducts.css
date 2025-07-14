@@ -172,6 +172,32 @@
   box-sizing: border-box;
 }
 
+.ap-no-results {
+  text-align: center;
+  font-size: 2rem; /* Tăng kích thước chữ */
+  color: #333;
+  padding: 1.5rem;
+  margin-bottom: 1rem; /* Cách với danh sách sản phẩm */
+  background-color: #f8f9fa; /* Nền nhẹ */
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem; /* Khoảng cách giữa text và icon */
+  width: 800px;
+}
+
+.ap-no-results::before {
+  content: "😢";
+  font-size: 2.5rem; /* Tăng kích thước icon */
+}
+
+.ap-no-results span {
+  white-space: normal; /* Cho phép xuống dòng */
+  max-width: 100%; /* Giới hạn chiều rộng tối đa */
+  text-align: center;
+}
+
 .ap-table {
   background-color: #fff;
   border-radius: 8px;
@@ -237,6 +263,27 @@ footer {
   width: 100%;
 }
 
+/* Style cho nút Reset bộ lọc */
+.ap-reset-filter {
+  margin-bottom: 1.5rem;
+}
+
+.ap-reset-filter button {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ap-reset-filter button:hover {
+  background-color: #c82333;
+}
+
 /* Pagination Styling */
 .ap-pagination {
   display: flex;
@@ -300,6 +347,16 @@ footer {
   .ap-cards {
     grid-template-columns: repeat(3, minmax(0px, 1fr));
     margin-left: 5px;
+  }
+
+  .ap-no-results {
+    font-size: 1.8rem; /* Giảm một chút cho responsive */
+    padding: 1.2rem;
+    width: 700px;
+  }
+
+  .ap-no-results::before {
+    font-size: 2.2rem;
   }
 }
 
@@ -368,6 +425,21 @@ footer {
     padding: 0.4rem 0.8rem;
     font-size: 0.9rem;
   }
+
+  .ap-reset-filter button {
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
+
+  .ap-no-results {
+    font-size: 1.5rem; /* Giảm một chút cho responsive */
+    padding: 1rem;
+    width: 400px;
+  }
+
+  .ap-no-results::before {
+    font-size: 2rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -384,6 +456,21 @@ footer {
   }
   .ap-filter-section {
     width: 90%;
+  }
+
+  .ap-reset-filter button {
+    font-size: 0.85rem;
+    padding: 0.3rem;
+  }
+
+  .ap-no-results {
+    font-size: 1.2rem; /* Giảm thêm cho màn hình nhỏ */
+    padding: 0.8rem;
+    width: 300px;
+  }
+
+  .ap-no-results::before {
+    font-size: 1.8rem;
   }
 }
 
@@ -404,6 +491,21 @@ footer {
   .ap-filter-section {
     width: 90%;
   }
+
+  .ap-reset-filter button {
+    font-size: 0.85rem;
+    padding: 0.3rem;
+  }
+
+  .ap-no-results {
+    font-size: 1.1rem; /* Giảm thêm cho màn hình nhỏ */
+    padding: 0.7rem;
+    width: 300px;
+  }
+
+  .ap-no-results::before {
+    font-size: 1.6rem;
+  }
 }
 
 @media (max-width: 376px) {
@@ -422,5 +524,20 @@ footer {
   }
   .ap-filter-section {
     width: 90%;
+  }
+
+  .ap-reset-filter button {
+    font-size: 0.8rem;
+    padding: 0.3rem;
+  }
+
+  .ap-no-results {
+    font-size: 1rem; /* Giảm thêm cho màn hình rất nhỏ */
+    padding: 0.6rem;
+    width: 200px;
+  }
+
+  .ap-no-results::before {
+    font-size: 1.5rem;
   }
 }

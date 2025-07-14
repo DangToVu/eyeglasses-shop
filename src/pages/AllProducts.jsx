@@ -384,6 +384,21 @@ function AllProducts() {
     }
   };
 
+  const resetFilters = () => {
+    setFilters({
+      brands: [],
+      materials: [],
+      minPrice: 0,
+      maxPrice: Infinity,
+    });
+    setTempPriceRange({
+      minPrice: 0,
+      maxPrice: Infinity,
+    });
+    setSearchTerm("");
+    setCurrentPage(1); // Reset về trang 1 khi reset
+  };
+
   return (
     <div className="ap-page-wrapper">
       {isLoading && <LoadingScreen />}
@@ -472,7 +487,7 @@ function AllProducts() {
                     onClick={firstPage}
                     disabled={currentPage === 1}
                   >
-                    &lt;&lt;
+                    &lt; &lt;
                   </Button>
                   <Button
                     variant="secondary"
@@ -505,7 +520,7 @@ function AllProducts() {
                     onClick={lastPage}
                     disabled={currentPage === totalPages}
                   >
-                    &gt; &gt;
+                    &gt;&gt;
                   </Button>
                 </div>
               )}
@@ -527,6 +542,13 @@ function AllProducts() {
             <div className="ap-content">
               {/* Filter section (1/5 bên trái) */}
               <div className="ap-filter-section">
+                {/* Nút Reset bộ lọc */}
+                <div className="ap-reset-filter mb-3">
+                  <Button variant="secondary" onClick={resetFilters}>
+                    Reset bộ lọc
+                  </Button>
+                </div>
+
                 {/* Thanh tìm kiếm */}
                 <div className="ap-search-container mb-3">
                   <input
@@ -624,11 +646,17 @@ function AllProducts() {
               {/* Product cards section (4/5 bên phải) */}
               <div className="ap-cards-section">
                 <div className="ap-cards">
-                  {currentProducts.map((product) => (
-                    <div key={product.id} className="ap-card-item">
-                      <AllProductCard product={product} />
+                  {currentProducts.length === 0 ? (
+                    <div className="ap-no-results">
+                      Không thấy kết quả tìm kiếm 😢
                     </div>
-                  ))}
+                  ) : (
+                    currentProducts.map((product) => (
+                      <div key={product.id} className="ap-card-item">
+                        <AllProductCard product={product} />
+                      </div>
+                    ))
+                  )}
                 </div>
                 {totalPages > 1 && (
                   <div className="ap-pagination" key={currentPage}>
@@ -637,7 +665,7 @@ function AllProducts() {
                       onClick={firstPage}
                       disabled={currentPage === 1}
                     >
-                      &lt;&lt;
+                      &lt; &lt;
                     </Button>
                     <Button
                       variant="secondary"
@@ -670,7 +698,7 @@ function AllProducts() {
                       onClick={lastPage}
                       disabled={currentPage === totalPages}
                     >
-                      &gt; &gt;
+                      &gt;&gt;
                     </Button>
                   </div>
                 )}
