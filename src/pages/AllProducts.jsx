@@ -100,7 +100,22 @@ function AllProducts() {
       }));
       setCurrentPage(1); // Reset về trang 1 khi lọc
     }
-  }, [searchParams, filters.brands]); // Thêm filters.brands vào dependency array
+  }, [searchParams]);
+
+  // Hiển thị LoadingScreen khi thay đổi checkbox filter
+  const handleFilterChange = (category, value) => {
+    setIsLoading(true); // Hiển thị LoadingScreen khi bắt đầu lọc
+    setTimeout(() => {
+      setFilters((prev) => {
+        const updatedCategory = prev[category].includes(value)
+          ? prev[category].filter((v) => v !== value)
+          : [...prev[category], value];
+        return { ...prev, [category]: updatedCategory };
+      });
+      setCurrentPage(1); // Reset về trang 1 khi filter thay đổi
+      setIsLoading(false); // Tắt LoadingScreen sau khi hoàn tất
+    }, 100); // Delay nhỏ để đảm bảo LoadingScreen hiển thị
+  };
 
   const handleSave = () => {
     setSelectedProduct(null);
@@ -142,7 +157,7 @@ function AllProducts() {
         setBestSellingProducts(bestSellingResponse.data);
         const allProductsList = [
           ...regularResponse.data,
-          ...bestSellingResponse.data,
+          ...bestSellingProducts,
           ...allResponse.data,
         ];
         if (
@@ -283,7 +298,7 @@ function AllProducts() {
     })),
   ];
 
-  // Áp dụng filter và tìm kiếm cho user chưa đăng nhập
+  // Áp dụng filter và tìm kiếm cho user chưa đăng nhập, sử dụng searchTerm trực tiếp
   const filteredProducts = !isAdmin
     ? allProductsList.filter((product) => {
         const searchMatch =
@@ -356,16 +371,6 @@ function AllProducts() {
     ...new Set(allProductsList.map((p) => p.material).filter(Boolean)),
   ];
 
-  const handleFilterChange = (category, value) => {
-    setFilters((prev) => {
-      const updatedCategory = prev[category].includes(value)
-        ? prev[category].filter((v) => v !== value)
-        : [...prev[category], value];
-      return { ...prev, [category]: updatedCategory };
-    });
-    setCurrentPage(1); // Reset về trang 1 khi filter thay đổi
-  };
-
   const handlePriceFilter = async () => {
     setIsLoading(true); // Hiển thị LoadingScreen khi bắt đầu lọc
     try {
@@ -380,23 +385,27 @@ function AllProducts() {
     } catch (error) {
       toast.error("Lỗi khi lọc: " + error.message);
     } finally {
-      setIsLoading(false); // Tắt LoadingScreen sau khi lọc xong
+      setIsLoading(false); // Tắt LoadingScreen sau khi hoàn tất
     }
   };
 
   const resetFilters = () => {
-    setFilters({
-      brands: [],
-      materials: [],
-      minPrice: 0,
-      maxPrice: Infinity,
-    });
-    setTempPriceRange({
-      minPrice: 0,
-      maxPrice: Infinity,
-    });
-    setSearchTerm("");
-    setCurrentPage(1); // Reset về trang 1 khi reset
+    setIsLoading(true); // Hiển thị LoadingScreen khi reset
+    setTimeout(() => {
+      setFilters({
+        brands: [],
+        materials: [],
+        minPrice: 0,
+        maxPrice: Infinity,
+      });
+      setTempPriceRange({
+        minPrice: 0,
+        maxPrice: Infinity,
+      });
+      setSearchTerm("");
+      setCurrentPage(1); // Reset về trang 1 khi reset
+      setIsLoading(false); // Tắt LoadingScreen sau khi hoàn tất
+    }, 100); // Delay nhỏ để đảm bảo LoadingScreen hiển thị
   };
 
   return (
@@ -487,7 +496,7 @@ function AllProducts() {
                     onClick={firstPage}
                     disabled={currentPage === 1}
                   >
-                    &lt; &lt;
+                    &lt;&lt;
                   </Button>
                   <Button
                     variant="secondary"
@@ -665,7 +674,7 @@ function AllProducts() {
                       onClick={firstPage}
                       disabled={currentPage === 1}
                     >
-                      &lt; &lt;
+                      &lt;&lt;
                     </Button>
                     <Button
                       variant="secondary"
