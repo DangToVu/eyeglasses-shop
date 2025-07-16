@@ -27,6 +27,8 @@ function Home() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4); // Mặc định là 4 item
+  const brandWrapperRef = useRef(null); // Tham chiếu đến ub-brand-carousel-wrapper
+  const [isInView, setIsInView] = useState(false); // Theo dõi xem carousel có trong tầm nhìn không
 
   useEffect(() => {
     const handleResize = () => {
@@ -247,10 +249,31 @@ function Home() {
     }
   };
 
+  // Theo dõi khi carousel ra ngoài tầm nhìn
+  useEffect(() => {
+    const element = brandWrapperRef.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.2 } // Kích hoạt khi chỉ còn 20% phần tử trong tầm nhìn (80% vượt ra ngoài)
+    );
+
+    if (element) {
+      observer.observe(element);
+    }
+
+    return () => {
+      if (element) {
+        observer.unobserve(element); // Sử dụng biến element trong cleanup
+      }
+    };
+  }, []);
+
   useEffect(() => {
     let animationFrameId;
     const animateBrands = () => {
-      if (brandCarouselRef.current && !isHovered && !isDragging) {
+      if (brandCarouselRef.current && !isHovered && !isDragging && isInView) {
         brandCarouselRef.current.scrollLeft += 1;
         if (
           brandCarouselRef.current.scrollLeft >=
@@ -261,11 +284,11 @@ function Home() {
         animationFrameId = requestAnimationFrame(animateBrands);
       }
     };
-    if (!isHovered && !isDragging) {
+    if (!isHovered && !isDragging && isInView) {
       animationFrameId = requestAnimationFrame(animateBrands);
     }
     return () => cancelAnimationFrame(animationFrameId);
-  }, [isHovered, isDragging]);
+  }, [isHovered, isDragging, isInView]);
 
   return (
     <div className="page-wrapper">
@@ -280,12 +303,12 @@ function Home() {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
         >
-          <div className="ub-brands-container">
+          <div className="ub-brands-container" ref={brandWrapperRef}>
             <h2 className="ub-title">Phân phối các thương hiệu độc quyền</h2>
             <div className="ub-brand-carousel-wrapper">
               <div
                 className={`ub-brand-carousel ${
-                  isHovered || isDragging ? "paused" : ""
+                  isHovered || isDragging || !isInView ? "paused" : ""
                 }`}
                 ref={brandCarouselRef}
               >

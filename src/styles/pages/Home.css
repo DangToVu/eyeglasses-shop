@@ -95,36 +95,57 @@
 }
 
 .carousel-button {
-  background-color: rgba(0, 0, 0, 0.5);
-  border: none;
-  color: white;
-  font-size: 1.8rem;
-  padding: 0.8rem;
+  background-color: #e0e0e0;
+  border: 1px solid #b0b0b0;
+  color: #555;
+  font-size: 1.6rem;
+  padding: 0.7rem;
   border-radius: 50%;
   cursor: pointer;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .carousel-button:hover {
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: #d0d0d0;
+  color: #333;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-50%) scale(1.1);
 }
 
 .carousel-button:disabled {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: #f0f0f0;
+  border-color: #d0d0d0;
+  color: #aaa;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .carousel-button.left {
-  left: 0;
-  margin-left: 20px;
+  left: 10px;
+  margin-left: 0;
 }
 
 .carousel-button.right {
-  right: 0;
-  margin-right: 20px;
+  right: 10px;
+  margin-right: 0;
+}
+
+.carousel-button svg {
+  width: 1.3em;
+  height: 1.3em;
+  transition: transform 0.3s ease;
+}
+
+.carousel-button:hover svg {
+  transform: scale(1.15);
 }
 
 .image-section {
@@ -401,8 +422,8 @@
   }
 
   .carousel-button {
-    font-size: 1.7rem;
-    padding: 0.7rem;
+    font-size: 1.5rem;
+    padding: 0.6rem;
   }
 
   .all-products-home-text {
@@ -509,8 +530,8 @@
   }
 
   .carousel-button {
-    font-size: 1rem;
-    padding: 0.3rem;
+    font-size: 1.2rem;
+    padding: 0.5rem;
   }
 
   .underlined-title {
@@ -572,7 +593,7 @@
 
   .carousel-button {
     font-size: 1rem;
-    padding: 0.5rem;
+    padding: 0.4rem;
   }
 
   .underlined-title {
