@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Container, Button, Row, Col, Table } from "react-bootstrap";
-import { useSearchParams } from "react-router-dom"; // Chỉ sử dụng để đọc tham số
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
@@ -28,8 +28,10 @@ function AllProducts() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // Mặc định 10 cho admin
   const isAdmin = !!localStorage.getItem("token");
+  const [searchParams] = useSearchParams();
+  const isManagementMode = searchParams.get("management") === "true"; // Kiểm tra mode quản lý
 
-  // State cho filter và tìm kiếm (chỉ áp dụng cho user chưa đăng nhập)
+  // State cho filter và tìm kiếm (chỉ áp dụng khi không ở mode quản lý)
   const [filters, setFilters] = useState({
     brands: [],
     materials: [],
@@ -37,12 +39,10 @@ function AllProducts() {
     maxPrice: Infinity,
   });
   const [searchTerm, setSearchTerm] = useState("");
-  // State tạm để lưu giá khi kéo range, chưa áp dụng ngay
   const [tempPriceRange, setTempPriceRange] = useState({
     minPrice: 0,
     maxPrice: Infinity,
   });
-  const [searchParams] = useSearchParams(); // Chỉ lấy searchParams, bỏ setSearchParams
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -88,33 +88,37 @@ function AllProducts() {
       }
     };
     fetchProducts();
-  }, []); // Chỉ chạy một lần khi component mount
+  }, []);
 
-  // Áp dụng bộ lọc thương hiệu từ URL khi component mount hoặc searchParams thay đổi
   useEffect(() => {
     const brandParam = searchParams.get("brand");
-    if (brandParam && !filters.brands.includes(brandParam)) {
+    if (
+      brandParam &&
+      !filters.brands.includes(brandParam) &&
+      !isManagementMode
+    ) {
       setFilters((prev) => ({
         ...prev,
         brands: [brandParam],
       }));
-      setCurrentPage(1); // Reset về trang 1 khi lọc
+      setCurrentPage(1);
     }
-  }, [searchParams]);
+  }, [searchParams, isManagementMode]);
 
-  // Hiển thị LoadingScreen khi thay đổi checkbox filter
   const handleFilterChange = (category, value) => {
-    setIsLoading(true); // Hiển thị LoadingScreen khi bắt đầu lọc
-    setTimeout(() => {
-      setFilters((prev) => {
-        const updatedCategory = prev[category].includes(value)
-          ? prev[category].filter((v) => v !== value)
-          : [...prev[category], value];
-        return { ...prev, [category]: updatedCategory };
-      });
-      setCurrentPage(1); // Reset về trang 1 khi filter thay đổi
-      setIsLoading(false); // Tắt LoadingScreen sau khi hoàn tất
-    }, 100); // Delay nhỏ để đảm bảo LoadingScreen hiển thị
+    if (!isManagementMode) {
+      setIsLoading(true);
+      setTimeout(() => {
+        setFilters((prev) => {
+          const updatedCategory = prev[category].includes(value)
+            ? prev[category].filter((v) => v !== value)
+            : [...prev[category], value];
+          return { ...prev, [category]: updatedCategory };
+        });
+        setCurrentPage(1);
+        setIsLoading(false);
+      }, 100);
+    }
   };
 
   const handleSave = () => {
@@ -298,8 +302,7 @@ function AllProducts() {
     })),
   ];
 
-  // Áp dụng filter và tìm kiếm cho user chưa đăng nhập, sử dụng searchTerm trực tiếp
-  const filteredProducts = !isAdmin
+  const filteredProducts = !isManagementMode
     ? allProductsList.filter((product) => {
         const searchMatch =
           !searchTerm ||
@@ -329,8 +332,7 @@ function AllProducts() {
       })
     : allProductsList;
 
-  // Pagination logic
-  const effectiveItemsPerPage = !isAdmin ? 20 : itemsPerPage; // 20 cho user chưa đăng nhập, 10 cho admin
+  const effectiveItemsPerPage = isManagementMode ? itemsPerPage : 20;
   const indexOfLastItem = currentPage * effectiveItemsPerPage;
   const indexOfFirstItem = indexOfLastItem - effectiveItemsPerPage;
   const currentProducts = filteredProducts.slice(
@@ -339,17 +341,13 @@ function AllProducts() {
   );
   const totalPages = Math.ceil(filteredProducts.length / effectiveItemsPerPage);
 
-  const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    console.log("Paginating to page:", pageNumber);
-  };
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const nextPage = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
   const firstPage = () => setCurrentPage(1);
   const lastPage = () => setCurrentPage(totalPages);
 
-  // Dynamic page range (always 5 pages)
   const maxPagesToShow = 5;
   let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
   let endPage = startPage + maxPagesToShow - 1;
@@ -363,7 +361,6 @@ function AllProducts() {
     (i) => startPage + i
   );
 
-  // Lấy danh sách duy nhất của brand và material
   const uniqueBrands = [
     ...new Set(allProductsList.map((p) => p.brand).filter(Boolean)),
   ];
@@ -372,40 +369,43 @@ function AllProducts() {
   ];
 
   const handlePriceFilter = async () => {
-    setIsLoading(true); // Hiển thị LoadingScreen khi bắt đầu lọc
-    try {
-      // Thêm delay giả lập để đảm bảo LoadingScreen hiển thị
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Delay 500ms
-      setFilters((prev) => ({
-        ...prev,
-        minPrice: tempPriceRange.minPrice,
-        maxPrice: tempPriceRange.maxPrice,
-      }));
-      setCurrentPage(1); // Reset về trang 1 khi áp dụng lọc giá
-    } catch (error) {
-      toast.error("Lỗi khi lọc: " + error.message);
-    } finally {
-      setIsLoading(false); // Tắt LoadingScreen sau khi hoàn tất
+    if (!isManagementMode) {
+      setIsLoading(true);
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        setFilters((prev) => ({
+          ...prev,
+          minPrice: tempPriceRange.minPrice,
+          maxPrice: tempPriceRange.maxPrice,
+        }));
+        setCurrentPage(1);
+      } catch (error) {
+        toast.error("Lỗi khi lọc: " + error.message);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   const resetFilters = () => {
-    setIsLoading(true); // Hiển thị LoadingScreen khi reset
-    setTimeout(() => {
-      setFilters({
-        brands: [],
-        materials: [],
-        minPrice: 0,
-        maxPrice: Infinity,
-      });
-      setTempPriceRange({
-        minPrice: 0,
-        maxPrice: Infinity,
-      });
-      setSearchTerm("");
-      setCurrentPage(1); // Reset về trang 1 khi reset
-      setIsLoading(false); // Tắt LoadingScreen sau khi hoàn tất
-    }, 100); // Delay nhỏ để đảm bảo LoadingScreen hiển thị
+    if (!isManagementMode) {
+      setIsLoading(true);
+      setTimeout(() => {
+        setFilters({
+          brands: [],
+          materials: [],
+          minPrice: 0,
+          maxPrice: Infinity,
+        });
+        setTempPriceRange({
+          minPrice: 0,
+          maxPrice: Infinity,
+        });
+        setSearchTerm("");
+        setCurrentPage(1);
+        setIsLoading(false);
+      }, 100);
+    }
   };
 
   return (
@@ -421,7 +421,183 @@ function AllProducts() {
       <Header />
       <Container className="ap-main-container" fluid>
         <h2 className="ap-main-title my-4">Tất cả sản phẩm</h2>
-        {isAdmin && (
+
+        {/* Hiển thị giao diện khách chỉ khi không ở mode quản lý */}
+        {!isManagementMode && (
+          <>
+            <div className="ap-ad-container">
+              <img
+                src="/ad-image.jpg"
+                alt="Quảng cáo"
+                className="ap-ad-image"
+              />
+            </div>
+
+            <div className="ap-content">
+              <div className="ap-filter-section">
+                <div className="ap-reset-filter mb-3">
+                  <Button variant="secondary" onClick={resetFilters}>
+                    Reset bộ lọc
+                  </Button>
+                </div>
+
+                <div className="ap-search-container mb-3">
+                  <input
+                    type="text"
+                    className="ap-search-input"
+                    placeholder="Tìm theo tên, thương hiệu, mã, chất liệu, giá..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+
+                <div className="ap-price-filter mb-3">
+                  <label>
+                    Khoảng giá: {formatPrice(tempPriceRange.minPrice)} -{" "}
+                    {formatPrice(tempPriceRange.maxPrice)}
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="5000000"
+                    step="100000"
+                    value={tempPriceRange.minPrice}
+                    onChange={(e) =>
+                      setTempPriceRange({
+                        ...tempPriceRange,
+                        minPrice: Number(e.target.value),
+                      })
+                    }
+                    className="ap-range-input"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="5000000"
+                    step="100000"
+                    value={
+                      tempPriceRange.maxPrice === Infinity
+                        ? 5000000
+                        : tempPriceRange.maxPrice
+                    }
+                    onChange={(e) =>
+                      setTempPriceRange({
+                        ...tempPriceRange,
+                        maxPrice:
+                          Number(e.target.value) === 5000000
+                            ? Infinity
+                            : Number(e.target.value),
+                      })
+                    }
+                    className="ap-range-input"
+                  />
+                  <Button
+                    variant="primary"
+                    onClick={handlePriceFilter}
+                    className="mt-2"
+                  >
+                    Lọc
+                  </Button>
+                </div>
+
+                <h3>Lọc sản phẩm</h3>
+                <div className="ap-filter-group">
+                  <h4>Thương hiệu</h4>
+                  {uniqueBrands.map((brand) => (
+                    <div key={brand}>
+                      <input
+                        type="checkbox"
+                        id={`brand-${brand}`}
+                        checked={filters.brands.includes(brand)}
+                        onChange={() => handleFilterChange("brands", brand)}
+                      />
+                      <label htmlFor={`brand-${brand}`}>{brand}</label>
+                    </div>
+                  ))}
+                </div>
+                <div className="ap-filter-group">
+                  <h4>Chất liệu</h4>
+                  {uniqueMaterials.map((material) => (
+                    <div key={material}>
+                      <input
+                        type="checkbox"
+                        id={`material-${material}`}
+                        checked={filters.materials.includes(material)}
+                        onChange={() =>
+                          handleFilterChange("materials", material)
+                        }
+                      />
+                      <label htmlFor={`material-${material}`}>{material}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="ap-cards-section">
+                <div className="ap-cards">
+                  {currentProducts.length === 0 ? (
+                    <div className="ap-no-results">
+                      Không thấy kết quả tìm kiếm 😢
+                    </div>
+                  ) : (
+                    currentProducts.map((product) => (
+                      <div key={product.id} className="ap-card-item">
+                        <AllProductCard product={product} />
+                      </div>
+                    ))
+                  )}
+                </div>
+                {totalPages > 1 && (
+                  <div className="ap-pagination" key={currentPage}>
+                    <Button
+                      variant="secondary"
+                      onClick={firstPage}
+                      disabled={currentPage === 1}
+                    >
+                      &lt; &lt;
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={prevPage}
+                      disabled={currentPage === 1}
+                    >
+                      &lt;
+                    </Button>
+                    {pageNumbers.map((number) => (
+                      <Button
+                        key={number}
+                        variant={
+                          currentPage === number ? "primary" : "outline-primary"
+                        }
+                        onClick={() => paginate(number)}
+                        className="mx-1"
+                      >
+                        {number}
+                      </Button>
+                    ))}
+                    <Button
+                      variant="secondary"
+                      onClick={nextPage}
+                      disabled={currentPage === totalPages}
+                    >
+                      &gt;
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={lastPage}
+                      disabled={currentPage === totalPages}
+                    >
+                      &gt;&gt;
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Hiển thị form và table chỉ khi admin ở mode quản lý */}
+        {isAdmin && isManagementMode && (
           <div className="ap-layout">
             <div className="ap-form-container">
               <AllProductForm
@@ -496,7 +672,7 @@ function AllProducts() {
                     onClick={firstPage}
                     disabled={currentPage === 1}
                   >
-                    &lt;&lt;
+                    &lt; &lt;
                   </Button>
                   <Button
                     variant="secondary"
@@ -535,185 +711,6 @@ function AllProducts() {
               )}
             </div>
           </div>
-        )}
-        {!isAdmin && (
-          <>
-            {/* Phần hình ảnh quảng cáo */}
-            <div className="ap-ad-container">
-              <img
-                src="/ad-image.jpg"
-                alt="Quảng cáo"
-                className="ap-ad-image"
-              />
-            </div>
-
-            {/* Phần filter và danh sách sản phẩm */}
-            <div className="ap-content">
-              {/* Filter section (1/5 bên trái) */}
-              <div className="ap-filter-section">
-                {/* Nút Reset bộ lọc */}
-                <div className="ap-reset-filter mb-3">
-                  <Button variant="secondary" onClick={resetFilters}>
-                    Reset bộ lọc
-                  </Button>
-                </div>
-
-                {/* Thanh tìm kiếm */}
-                <div className="ap-search-container mb-3">
-                  <input
-                    type="text"
-                    className="ap-search-input"
-                    placeholder="Tìm theo tên, thương hiệu, mã, chất liệu, giá..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-
-                {/* Bộ lọc theo giá */}
-                <div className="ap-price-filter mb-3">
-                  <label>
-                    Khoảng giá: {formatPrice(tempPriceRange.minPrice)} -{" "}
-                    {formatPrice(tempPriceRange.maxPrice)}
-                  </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="5000000" // Giá lớn nhất giảm xuống 5 triệu
-                    step="100000" // Bước nhảy 100,000 VND
-                    value={tempPriceRange.minPrice}
-                    onChange={(e) =>
-                      setTempPriceRange({
-                        ...tempPriceRange,
-                        minPrice: Number(e.target.value),
-                      })
-                    }
-                    className="ap-range-input"
-                  />
-                  <input
-                    type="range"
-                    min="0"
-                    max="5000000" // Giá lớn nhất giảm xuống 5 triệu
-                    step="100000" // Bước nhảy 100,000 VND
-                    value={
-                      tempPriceRange.maxPrice === Infinity
-                        ? 5000000
-                        : tempPriceRange.maxPrice
-                    }
-                    onChange={(e) =>
-                      setTempPriceRange({
-                        ...tempPriceRange,
-                        maxPrice:
-                          Number(e.target.value) === 5000000
-                            ? Infinity
-                            : Number(e.target.value),
-                      })
-                    }
-                    className="ap-range-input"
-                  />
-                  <Button
-                    variant="primary"
-                    onClick={handlePriceFilter}
-                    className="mt-2"
-                  >
-                    Lọc
-                  </Button>
-                </div>
-
-                <h3>Lọc sản phẩm</h3>
-                <div className="ap-filter-group">
-                  <h4>Thương hiệu</h4>
-                  {uniqueBrands.map((brand) => (
-                    <div key={brand}>
-                      <input
-                        type="checkbox"
-                        id={`brand-${brand}`}
-                        checked={filters.brands.includes(brand)}
-                        onChange={() => handleFilterChange("brands", brand)}
-                      />
-                      <label htmlFor={`brand-${brand}`}>{brand}</label>
-                    </div>
-                  ))}
-                </div>
-                <div className="ap-filter-group">
-                  <h4>Chất liệu</h4>
-                  {uniqueMaterials.map((material) => (
-                    <div key={material}>
-                      <input
-                        type="checkbox"
-                        id={`material-${material}`}
-                        checked={filters.materials.includes(material)}
-                        onChange={() =>
-                          handleFilterChange("materials", material)
-                        }
-                      />
-                      <label htmlFor={`material-${material}`}>{material}</label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Product cards section (4/5 bên phải) */}
-              <div className="ap-cards-section">
-                <div className="ap-cards">
-                  {currentProducts.length === 0 ? (
-                    <div className="ap-no-results">
-                      Không thấy kết quả tìm kiếm 😢
-                    </div>
-                  ) : (
-                    currentProducts.map((product) => (
-                      <div key={product.id} className="ap-card-item">
-                        <AllProductCard product={product} />
-                      </div>
-                    ))
-                  )}
-                </div>
-                {totalPages > 1 && (
-                  <div className="ap-pagination" key={currentPage}>
-                    <Button
-                      variant="secondary"
-                      onClick={firstPage}
-                      disabled={currentPage === 1}
-                    >
-                      &lt;&lt;
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={prevPage}
-                      disabled={currentPage === 1}
-                    >
-                      &lt;
-                    </Button>
-                    {pageNumbers.map((number) => (
-                      <Button
-                        key={number}
-                        variant={
-                          currentPage === number ? "primary" : "outline-primary"
-                        }
-                        onClick={() => paginate(number)}
-                        className="mx-1"
-                      >
-                        {number}
-                      </Button>
-                    ))}
-                    <Button
-                      variant="secondary"
-                      onClick={nextPage}
-                      disabled={currentPage === totalPages}
-                    >
-                      &gt;
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={lastPage}
-                      disabled={currentPage === totalPages}
-                    >
-                      &gt;&gt;
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </>
         )}
       </Container>
       <Footer />
