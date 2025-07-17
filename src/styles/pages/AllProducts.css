@@ -80,7 +80,6 @@
   color: #333;
   box-sizing: border-box;
   outline: none;
-  transition: border-color 0.3s ease;
 }
 
 .ap-search-input:focus {
@@ -118,11 +117,6 @@
   background: #6f42c1;
   border-radius: 50%;
   cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.ap-range-input::-webkit-slider-thumb:hover {
-  background: #5a2ea6;
 }
 
 .ap-range-input::-moz-range-thumb {
@@ -131,11 +125,6 @@
   background: #6f42c1;
   border-radius: 50%;
   cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.ap-range-input::-moz-range-thumb:hover {
-  background: #5a2ea6;
 }
 
 .ap-price-filter button {
@@ -146,7 +135,6 @@
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
 .ap-price-filter button:hover {
@@ -170,6 +158,27 @@
 .ap-card-item {
   width: 100%;
   box-sizing: border-box;
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ap-card-item.loading {
+  background: linear-gradient(90deg, 30%, 70%);
+  animation: skeletonFade 1.2s infinite ease-in-out;
+}
+
+@keyframes skeletonFade {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .ap-no-results {
@@ -277,7 +286,6 @@ footer {
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
 .ap-reset-filter button:hover {
@@ -297,7 +305,6 @@ footer {
   padding: 0.5rem 1rem;
   font-size: 1rem;
   border-radius: 4px;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .ap-pagination button:disabled {
