@@ -23,6 +23,7 @@ function AllProducts() {
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFiltering, setIsFiltering] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteData, setDeleteData] = useState({ id: null, table: null });
   const [currentPage, setCurrentPage] = useState(1);
@@ -107,7 +108,7 @@ function AllProducts() {
 
   const handleFilterChange = (category, value) => {
     if (!isManagementMode) {
-      setIsLoading(true);
+      setIsFiltering(true);
       setTimeout(() => {
         setFilters((prev) => {
           const updatedCategory = prev[category].includes(value)
@@ -116,8 +117,8 @@ function AllProducts() {
           return { ...prev, [category]: updatedCategory };
         });
         setCurrentPage(1);
-        setIsLoading(false);
-      }, 100);
+        setIsFiltering(false);
+      }, 500);
     }
   };
 
@@ -370,7 +371,7 @@ function AllProducts() {
 
   const handlePriceFilter = async () => {
     if (!isManagementMode) {
-      setIsLoading(true);
+      setIsFiltering(true);
       try {
         await new Promise((resolve) => setTimeout(resolve, 500));
         setFilters((prev) => ({
@@ -382,14 +383,14 @@ function AllProducts() {
       } catch (error) {
         toast.error("Lỗi khi lọc: " + error.message);
       } finally {
-        setIsLoading(false);
+        setIsFiltering(false);
       }
     }
   };
 
   const resetFilters = () => {
     if (!isManagementMode) {
-      setIsLoading(true);
+      setIsFiltering(true);
       setTimeout(() => {
         setFilters({
           brands: [],
@@ -403,8 +404,15 @@ function AllProducts() {
         });
         setSearchTerm("");
         setCurrentPage(1);
-        setIsLoading(false);
-      }, 100);
+        setIsFiltering(false);
+      }, 500);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    if (!isManagementMode) {
+      setSearchTerm(e.target.value);
+      setCurrentPage(1);
     }
   };
 
@@ -447,7 +455,7 @@ function AllProducts() {
                     className="ap-search-input"
                     placeholder="Tìm theo tên, thương hiệu, mã, chất liệu, giá..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={handleSearchChange}
                   />
                 </div>
 
@@ -541,7 +549,12 @@ function AllProducts() {
                     </div>
                   ) : (
                     currentProducts.map((product) => (
-                      <div key={product.id} className="ap-card-item">
+                      <div
+                        key={product.id}
+                        className={`ap-card-item ${
+                          isFiltering ? "loading" : ""
+                        }`}
+                      >
                         <AllProductCard product={product} />
                       </div>
                     ))
@@ -554,7 +567,7 @@ function AllProducts() {
                       onClick={firstPage}
                       disabled={currentPage === 1}
                     >
-                      &lt; &lt;
+                      &lt;&lt;
                     </Button>
                     <Button
                       variant="secondary"
@@ -672,7 +685,7 @@ function AllProducts() {
                     onClick={firstPage}
                     disabled={currentPage === 1}
                   >
-                    &lt; &lt;
+                    &lt;&lt;
                   </Button>
                   <Button
                     variant="secondary"
