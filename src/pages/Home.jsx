@@ -26,19 +26,19 @@ function Home() {
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
-  const [itemsPerView, setItemsPerView] = useState(4); // Mặc định là 4 item
-  const brandWrapperRef = useRef(null); // Tham chiếu đến ub-brand-carousel-wrapper
-  const [isInView, setIsInView] = useState(false); // Theo dõi xem carousel có trong tầm nhìn không
+  const [itemsPerView, setItemsPerView] = useState(4);
+  const brandWrapperRef = useRef(null);
+  const [isInView, setIsInView] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768 && window.innerWidth <= 1199) {
-        setItemsPerView(2); // 2 item cho tablet/iPad
+        setItemsPerView(2);
       } else {
-        setItemsPerView(4); // 4 item cho các kích thước khác
+        setItemsPerView(4);
       }
     };
-    handleResize(); // Kiểm tra khi tải trang
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -51,7 +51,7 @@ function Home() {
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
           {
             headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
+              apikey: import.meta.env.VITE_SUPABASE_KEY, // Sửa lỗi từ VITE_SUPABASE_URL
             },
           }
         );
@@ -249,14 +249,13 @@ function Home() {
     }
   };
 
-  // Theo dõi khi carousel ra ngoài tầm nhìn
   useEffect(() => {
     const element = brandWrapperRef.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsInView(entry.isIntersecting);
       },
-      { threshold: 0.2 } // Kích hoạt khi chỉ còn 20% phần tử trong tầm nhìn (80% vượt ra ngoài)
+      { threshold: 0.2 }
     );
 
     if (element) {
@@ -265,7 +264,7 @@ function Home() {
 
     return () => {
       if (element) {
-        observer.unobserve(element); // Sử dụng biến element trong cleanup
+        observer.unobserve(element);
       }
     };
   }, []);
@@ -339,6 +338,7 @@ function Home() {
         </div>
 
         <h2
+          id="new-collection"
           className="home-title underlined-title my-4"
           style={{ "--underline-step": `${underlineStep}%` }}
         >
@@ -387,6 +387,7 @@ function Home() {
         </div>
 
         <h2
+          id="best-selling"
           className="home-title underlined-title my-4"
           style={{ "--underline-step": `${underlineStep}%` }}
         >
