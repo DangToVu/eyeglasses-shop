@@ -1,9 +1,9 @@
 .footer {
-  background: #26a69a; /* Xanh đậm trầm, tương tự màu nút "Tất cả sản phẩm" */
+  background: #26a69a;
   padding: 2.5rem 0;
   width: 100%;
   flex-shrink: 0;
-  border-top: 4px solid #26a69a; /* Xanh đậm trầm cho viền */
+  border-top: 4px solid #26a69a;
   box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.15);
   position: relative;
   overflow: hidden;
@@ -23,16 +23,16 @@
 .footer::before {
   content: "";
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
   background: radial-gradient(
     circle,
-    rgba(255, 255, 255, 0.2) 0%,
-    transparent 70%
+    rgba(255, 255, 255, 0.25) 0%,
+    /* Tăng opacity để nổi bật hơn */ transparent 70%
   );
-  animation: rotate 15s linear infinite;
+  animation: rotate 12s linear infinite; /* Giảm thời gian để animation nhanh hơn, dễ nhận thấy */
   z-index: 0;
 }
 
@@ -49,14 +49,14 @@
   padding: 0.8rem;
   margin: 0;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.2); /* Trắng mờ cho hiệu ứng kính */
+  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(5px);
 }
 
 .footer-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #ffffff; /* Trắng để nổi bật trên xanh đậm */
+  color: #ffffff;
   margin-bottom: 1.2rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -69,7 +69,7 @@
 }
 
 .footer-link {
-  color: #e0f7fa; /* Trắng xanh nhạt để tương phản */
+  color: #e0f7fa;
   font-size: 1rem;
   text-decoration: none;
   position: relative;
@@ -82,7 +82,7 @@
 }
 
 .footer-link:hover {
-  color: #0b4b22; /* Xanh đậm trầm khi hover */
+  color: #0b4b22;
 }
 
 .footer-link::before,
@@ -90,7 +90,7 @@
   content: "";
   position: absolute;
   height: 2px;
-  background-color: #26a69a; /* Xanh đậm trầm */
+  background-color: #26a69a;
   bottom: 0;
   transition: width 0.3s ease;
 }
@@ -117,18 +117,39 @@
 
 .social-icon {
   font-size: 2rem;
-  color: #e0f7fa; /* Trắng xanh nhạt */
+  color: #e0f7fa;
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .social-icon:hover {
   transform: scale(1.2) rotate(10deg);
-  color: #26a69a; /* Xanh đậm trầm khi hover */
+}
+
+.facebook-icon-img {
+  width: 2rem;
+  height: 2rem;
+  transition: transform 0.3s ease;
+}
+
+.social-icon:hover .facebook-icon-img {
+  transform: scale(1.2) rotate(10deg);
+}
+
+.zalo-icon-img {
+  width: 2rem;
+  height: 2rem;
+  transition: transform 0.3s ease;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+.social-icon:hover .zalo-icon-img {
+  transform: scale(1.2) rotate(10deg);
 }
 
 .footer-text {
   margin: 0;
-  color: #e0f7fa; /* Trắng xanh nhạt */
+  color: #e0f7fa;
   font-size: 0.95rem;
   font-style: italic;
 }
@@ -155,7 +176,6 @@
 
 /* Responsive */
 @media (max-width: 1200px) {
-  /* lg - Large screens */
   .footer {
     padding: 2.2rem 0;
   }
@@ -173,17 +193,29 @@
     font-size: 0.95rem;
   }
 
-  .social-icon {
-    font-size: 1.9rem;
+  .facebook-icon-img {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+
+  .zalo-icon-img {
+    width: 1.9rem;
+    height: 1.9rem;
   }
 
   .footer-text {
     font-size: 0.9rem;
   }
+
+  .footer::before {
+    width: 120%;
+    height: 120%;
+    top: -10%;
+    left: -10%;
+  }
 }
 
 @media (max-width: 992px) {
-  /* md - Medium screens */
   .footer {
     padding: 2rem 0;
   }
@@ -201,17 +233,29 @@
     font-size: 0.9rem;
   }
 
-  .social-icon {
-    font-size: 1.8rem;
+  .facebook-icon-img {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
+  .zalo-icon-img {
+    width: 1.8rem;
+    height: 1.8rem;
   }
 
   .footer-text {
     font-size: 0.85rem;
   }
+
+  .footer::before {
+    width: 120%;
+    height: 120%;
+    top: -10%;
+    left: -10%;
+  }
 }
 
 @media (max-width: 767px) {
-  /* Tablet */
   .footer {
     padding: 1.8rem 0;
   }
@@ -229,17 +273,29 @@
     font-size: 0.85rem;
   }
 
-  .social-icon {
-    font-size: 1.7rem;
+  .facebook-icon-img {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .zalo-icon-img {
+    width: 1.7rem;
+    height: 1.7rem;
   }
 
   .footer-text {
     font-size: 0.8rem;
   }
+
+  .footer::before {
+    width: 120%;
+    height: 120%;
+    top: -10%;
+    left: -10%;
+  }
 }
 
 @media (max-width: 576px) {
-  /* sm - Small screens */
   .footer {
     padding: 1.5rem 0;
   }
@@ -257,18 +313,68 @@
     font-size: 0.8rem;
   }
 
-  .social-icon {
-    font-size: 1.5rem;
-    gap: 1.2rem;
+  .facebook-icon-img {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .zalo-icon-img {
+    width: 1.5rem;
+    height: 1.5rem;
   }
 
   .footer-text {
     font-size: 0.75rem;
   }
+
+  .footer::before {
+    width: 280%;
+    height: 120%;
+    top: -10%;
+    left: -10%;
+  }
+}
+
+@media (max-width: 500px) {
+  .footer {
+    padding: 1rem 0;
+  }
+
+  .footer-col {
+    padding: 0.4rem;
+  }
+
+  .footer-title {
+    font-size: 0.9rem;
+  }
+
+  .footer-link {
+    font-size: 0.7rem;
+  }
+
+  .facebook-icon-img {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .zalo-icon-img {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .footer-text {
+    font-size: 0.65rem;
+  }
+
+  .footer::before {
+    width: 280%;
+    height: 120%;
+    top: -10%;
+    left: -10%;
+  }
 }
 
 @media (max-width: 480px) {
-  /* xs - Extra small screens */
   .footer {
     padding: 1.2rem 0;
   }
@@ -286,12 +392,24 @@
     font-size: 0.75rem;
   }
 
-  .social-icon {
-    font-size: 1.3rem;
-    gap: 1rem;
+  .facebook-icon-img {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
+  .zalo-icon-img {
+    width: 1.3rem;
+    height: 1.3rem;
   }
 
   .footer-text {
     font-size: 0.7rem;
+  }
+
+  .footer::before {
+    width: 280%;
+    height: 120%;
+    top: -10%;
+    left: -10%;
   }
 }

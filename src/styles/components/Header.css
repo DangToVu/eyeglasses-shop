@@ -1,19 +1,28 @@
 .header {
-  background-color: #ffffff;
+  background: linear-gradient(
+    90deg,
+    #ffffff,
+    #eef7f9,
+    #dcf3f7,
+    #eef7f9,
+    #ffffff
+  );
+  background-size: 200% 100%;
+  animation: waveFlow 5s ease-in-out infinite;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 0.5rem 0;
   position: sticky;
   top: 0;
   z-index: 1000;
-  transition: transform 0.3s ease-in-out; /* Hiệu ứng mượt khi ẩn/hiện */
+  transition: transform 0.3s ease-in-out;
 }
 
 .header.visible {
-  transform: translateY(0); /* Hiện header */
+  transform: translateY(0);
 }
 
 .header.hidden {
-  transform: translateY(-100%); /* Ẩn header lên trên */
+  transform: translateY(-100%);
 }
 
 .header-container {
@@ -105,4 +114,17 @@
 
 .dropdown-item-logout:active {
   background-color: #e9ecef;
+}
+
+/* Animation cho hiệu ứng sóng di chuyển trái qua phải */
+@keyframes waveFlow {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
 }

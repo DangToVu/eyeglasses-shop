@@ -1,5 +1,4 @@
 import { Container, Row, Col } from "react-bootstrap";
-import { FaFacebook, FaComment } from "react-icons/fa";
 import "../styles/components/Footer.css";
 
 function Footer() {
@@ -45,7 +44,11 @@ function Footer() {
                 rel="noopener noreferrer"
                 className="social-icon"
               >
-                <FaFacebook />
+                <img
+                  src="/facebook-icon.png"
+                  alt="Facebook"
+                  className="facebook-icon-img"
+                />
               </a>
               <a
                 href="https://zalo.me"
@@ -53,7 +56,11 @@ function Footer() {
                 rel="noopener noreferrer"
                 className="social-icon"
               >
-                <FaComment />
+                <img
+                  src="/zalo-icon.png"
+                  alt="Zalo"
+                  className="zalo-icon-img"
+                />
               </a>
             </div>
           </Col>
