@@ -16,6 +16,7 @@ function AllProductCard({ product }) {
         src={product.image || product.image_url}
         alt={product.name}
         className="all-prod-card-image"
+        loading="lazy" // Thêm lazy loading
       />
       <Card.Body className="all-prod-card-body">
         <Card.Title className="all-prod-card-title">{product.name}</Card.Title>

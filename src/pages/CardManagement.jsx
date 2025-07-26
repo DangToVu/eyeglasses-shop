@@ -1,3 +1,4 @@
+import { useEffect } from "react"; // Import useEffect
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Header from "../components/Header.jsx";
@@ -5,6 +6,11 @@ import Footer from "../components/Footer.jsx";
 import "../styles/pages/CardManagement.css";
 
 function CardManagement() {
+  // Cuộn lên đầu trang khi component mount
+  useEffect(() => {
+    window.scrollTo(0, 0); // Cuộn lên đầu trang
+  }, []); // Chạy chỉ một lần khi component được mount
+
   return (
     <div className="page-wrapper">
       <Header />

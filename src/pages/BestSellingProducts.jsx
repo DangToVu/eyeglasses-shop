@@ -56,7 +56,6 @@ function BestSellingProducts() {
           }
         );
         setBestSellingProducts(response.data);
-        // Chỉ reset currentPage khi cần (ví dụ: sau khi thêm sản phẩm mới)
         if (
           bestSellingProducts.length === 0 ||
           response.data.length < bestSellingProducts.length
@@ -120,7 +119,6 @@ function BestSellingProducts() {
         setBestSellingProducts(
           bestSellingProducts.filter((p) => p.id !== deleteData.id)
         );
-        // Chỉ reset currentPage nếu trang hiện tại không còn hợp lệ
         if (
           currentPage > Math.ceil(bestSellingProducts.length / itemsPerPage)
         ) {
@@ -231,9 +229,10 @@ function BestSellingProducts() {
                         alt={product.name}
                         width="50"
                         style={{ borderRadius: "4px" }}
+                        loading="lazy" // Thêm lazy loading
                         onError={() =>
                           console.log("Lỗi tải ảnh:", product.image_url)
-                        }
+                        } // Sửa lỗi 'e' không sử dụng
                       />
                     </td>
                     <td>
