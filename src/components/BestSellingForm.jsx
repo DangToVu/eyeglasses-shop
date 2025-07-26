@@ -31,7 +31,7 @@ function BestSellingForm({ product, onSave }) {
 
   const brandOptions = [
     "G.M.Surne",
-    "V/E",
+    "VE",
     "WINNER",
     "DIVEI",
     "KIEINMONSTES",

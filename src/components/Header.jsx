@@ -1,3 +1,4 @@
+// Header.jsx
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { BiCog } from "react-icons/bi";
@@ -43,6 +44,11 @@ function Header() {
     setShowDropdown(false);
   };
 
+  const handleLogin = () => {
+    navigate("/login");
+    setShowDropdown(false);
+  };
+
   return (
     <header className={`header ${isVisible ? "visible" : "hidden"}`}>
       <div className="header-container">
@@ -73,7 +79,7 @@ function Header() {
                   <Link
                     to="/login"
                     className="dropdown-item"
-                    onClick={() => setShowDropdown(false)}
+                    onClick={handleLogin} // Sử dụng hàm riêng để điều khiển
                   >
                     Đăng nhập
                   </Link>

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Person, Lock } from "react-bootstrap-icons";
 import "../styles/components/LoginForm.css";
-import LoadingScreen from "../components/LoadingScreen"; // Import LoadingScreen
+import LoadingScreen from "../components/LoadingScreen";
 
 function LoginForm() {
   const [email, setEmail] = useState(
@@ -17,8 +17,9 @@ function LoginForm() {
   const [rememberMe, setRememberMe] = useState(
     !!localStorage.getItem("savedUsername")
   );
-  const [isLoading, setIsLoading] = useState(false); // State cho loading
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -33,7 +34,7 @@ function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Bắt đầu hiển thị loading
+    setIsLoading(true);
     try {
       const response = await axios.post(
         `${
@@ -44,33 +45,46 @@ function LoginForm() {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
             "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
           },
         }
       );
-      localStorage.setItem("token", response.data.access_token);
+
+      const { access_token, expires_in } = response.data;
+      const expirationTime = Date.now() + expires_in * 1000; // Chuyển đổi sang milliseconds
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("token_expires_at", expirationTime); // Lưu thời gian hết hạn
+
       if (rememberMe) {
         localStorage.setItem("savedUsername", email);
       } else {
         localStorage.removeItem("savedUsername");
       }
+
       toast.success("Đăng nhập thành công!");
-      navigate("/card-management");
+
+      const from = location.state?.from?.pathname || "/card-management";
+      navigate(from);
     } catch (error) {
-      toast.error(
-        "Đăng nhập thất bại: " +
-          (error.response?.data?.message || error.message)
-      );
+      let errorMessage = "Đăng nhập thất bại!";
+      if (error.response) {
+        errorMessage += ` ${
+          error.response.data.message || "Email hoặc mật khẩu không đúng."
+        }`;
+      } else if (error.message) {
+        errorMessage += ` ${error.message}`;
+      }
+      toast.error(errorMessage);
     } finally {
-      setIsLoading(false); // Kết thúc loading dù thành công hay thất bại
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="lf-container">
-      {isLoading && <LoadingScreen />}{" "}
-      {/* Hiển thị loading khi isLoading là true */}
+      {isLoading && <LoadingScreen />}
       <Form onSubmit={handleSubmit} className="lf-form">
-        <h3 className="lf-title">Login</h3>
+        <h3 className="lf-title">Đăng nhập</h3>
         <Form.Group className="lf-form-group">
           <Form.Label>Email</Form.Label>
           <div className="lf-input-icon">
@@ -117,7 +131,7 @@ function LoginForm() {
           />
         </Form.Group>
         <Button type="submit" variant="primary" className="lf-login-btn">
-          LOGIN
+          Đăng nhập
         </Button>
       </Form>
     </div>

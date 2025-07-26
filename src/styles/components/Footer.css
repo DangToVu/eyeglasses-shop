@@ -8,6 +8,7 @@
   position: relative;
   overflow: hidden;
   animation: footerSlideIn 0.8s ease-out forwards;
+  margin-top: 10vh;
 }
 
 .footer-wave {

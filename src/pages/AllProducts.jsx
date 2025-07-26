@@ -184,104 +184,110 @@ function AllProducts() {
   };
 
   const handleDelete = (id, table) => {
-    setDeleteData({ id, table });
-    setShowConfirm(true);
+    if (isAdmin && isManagementMode) {
+      setDeleteData({ id, table });
+      setShowConfirm(true);
+    }
   };
 
   const confirmDelete = async () => {
-    setIsLoading(true);
-    setShowConfirm(false);
+    if (isAdmin && isManagementMode) {
+      setIsLoading(true);
+      setShowConfirm(false);
 
-    setTimeout(async () => {
-      try {
-        let productToDelete = null;
-        let imagePath = "";
-        let bucket = "";
+      setTimeout(async () => {
+        try {
+          let productToDelete = null;
+          let imagePath = "";
+          let bucket = "";
 
-        if (deleteData.table === "products") {
-          productToDelete = regularProducts.find((p) => p.id === deleteData.id);
-          bucket = "product-images";
-        } else if (deleteData.table === "best_selling_glasses") {
-          productToDelete = bestSellingProducts.find(
-            (p) => p.id === deleteData.id
-          );
-          bucket = "best-selling-images";
-        } else if (deleteData.table === "all_product") {
-          productToDelete = allProducts.find((p) => p.id === deleteData.id);
-          bucket = "all-product-images";
-        }
-
-        if (productToDelete) {
-          if (productToDelete.image_url) {
-            imagePath = productToDelete.image_url.substring(
-              productToDelete.image_url.lastIndexOf("/") + 1
+          if (deleteData.table === "products") {
+            productToDelete = regularProducts.find(
+              (p) => p.id === deleteData.id
             );
-          } else if (productToDelete.image) {
-            imagePath = productToDelete.image.substring(
-              productToDelete.image.lastIndexOf("/") + 1
+            bucket = "product-images";
+          } else if (deleteData.table === "best_selling_glasses") {
+            productToDelete = bestSellingProducts.find(
+              (p) => p.id === deleteData.id
             );
+            bucket = "best-selling-images";
+          } else if (deleteData.table === "all_product") {
+            productToDelete = allProducts.find((p) => p.id === deleteData.id);
+            bucket = "all-product-images";
           }
-          if (imagePath && bucket) {
-            await axios.delete(
-              `${
-                import.meta.env.VITE_SUPABASE_URL
-              }/storage/v1/object/${bucket}/${imagePath}`,
-              {
-                headers: {
-                  apikey: import.meta.env.VITE_SUPABASE_KEY,
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-              }
+
+          if (productToDelete) {
+            if (productToDelete.image_url) {
+              imagePath = productToDelete.image_url.substring(
+                productToDelete.image_url.lastIndexOf("/") + 1
+              );
+            } else if (productToDelete.image) {
+              imagePath = productToDelete.image.substring(
+                productToDelete.image.lastIndexOf("/") + 1
+              );
+            }
+            if (imagePath && bucket) {
+              await axios.delete(
+                `${
+                  import.meta.env.VITE_SUPABASE_URL
+                }/storage/v1/object/${bucket}/${imagePath}`,
+                {
+                  headers: {
+                    apikey: import.meta.env.VITE_SUPABASE_KEY,
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                }
+              );
+            }
+          }
+
+          await axios.delete(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
+              deleteData.table
+            }?id=eq.${deleteData.id}`,
+            {
+              headers: {
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Prefer: "return=representation",
+              },
+            }
+          );
+
+          if (deleteData.table === "products") {
+            setRegularProducts(
+              regularProducts.filter((p) => p.id !== deleteData.id)
             );
+          } else if (deleteData.table === "best_selling_glasses") {
+            setBestSellingProducts(
+              bestSellingProducts.filter((p) => p.id !== deleteData.id)
+            );
+          } else if (deleteData.table === "all_product") {
+            setAllProducts(allProducts.filter((p) => p.id !== deleteData.id));
           }
-        }
-
-        await axios.delete(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
-            deleteData.table
-          }?id=eq.${deleteData.id}`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-              Prefer: "return=representation",
-            },
+          const allProductsList = [
+            ...regularProducts,
+            ...bestSellingProducts,
+            ...allProducts,
+          ].filter((p) => p.id !== deleteData.id);
+          if (currentPage > Math.ceil(allProductsList.length / itemsPerPage)) {
+            setCurrentPage(1);
+            console.log(
+              "Deleted, resetting to page 1, currentPage:",
+              currentPage
+            );
+          } else {
+            console.log("Deleted, giữ currentPage:", currentPage);
           }
-        );
-
-        if (deleteData.table === "products") {
-          setRegularProducts(
-            regularProducts.filter((p) => p.id !== deleteData.id)
-          );
-        } else if (deleteData.table === "best_selling_glasses") {
-          setBestSellingProducts(
-            bestSellingProducts.filter((p) => p.id !== deleteData.id)
-          );
-        } else if (deleteData.table === "all_product") {
-          setAllProducts(allProducts.filter((p) => p.id !== deleteData.id));
+          toast.success("Xóa sản phẩm thành công!");
+        } catch (error) {
+          toast.error("Lỗi khi xóa: " + error.message);
+        } finally {
+          setIsLoading(false);
+          setDeleteData({ id: null, table: null });
         }
-        const allProductsList = [
-          ...regularProducts,
-          ...bestSellingProducts,
-          ...allProducts,
-        ].filter((p) => p.id !== deleteData.id);
-        if (currentPage > Math.ceil(allProductsList.length / itemsPerPage)) {
-          setCurrentPage(1);
-          console.log(
-            "Deleted, resetting to page 1, currentPage:",
-            currentPage
-          );
-        } else {
-          console.log("Deleted, giữ currentPage:", currentPage);
-        }
-        toast.success("Xóa sản phẩm thành công!");
-      } catch (error) {
-        toast.error("Lỗi khi xóa: " + error.message);
-      } finally {
-        setIsLoading(false);
-        setDeleteData({ id: null, table: null });
-      }
-    }, 10);
+      }, 10);
+    }
   };
 
   const cancelDelete = () => {
