@@ -97,14 +97,34 @@ function AllProductForm({ product, onSave, table }) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      let imageUrl = product ? product.image_url : "";
+      let imageUrl = product ? product.image : ""; // Sử dụng 'image' thay vì 'image_url'
       let bucket = "";
       if (table === "products") bucket = "product-images";
       else if (table === "best_selling_glasses") bucket = "best-selling-images";
       else if (table === "all_product") bucket = "all-product-images";
 
       if (image) {
-        const compressedImage = await compressImage(image); // Nén ảnh mà không giới hạn kích thước
+        // Nếu có ảnh cũ và tải ảnh mới, xóa ảnh cũ trước
+        if (product && product.image) {
+          // Sử dụng 'image' thay vì 'image_url'
+          const oldImagePath = product.image.substring(
+            product.image.lastIndexOf("/") + 1
+          );
+          await axios.delete(
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/storage/v1/object/${bucket}/${oldImagePath}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+              },
+            }
+          );
+        }
+
+        // Upload ảnh mới sau khi xóa ảnh cũ (nếu có)
+        const compressedImage = await compressImage(image);
         const formData = new FormData();
         formData.append("file", compressedImage);
         await axios.post(
@@ -129,7 +149,7 @@ function AllProductForm({ product, onSave, table }) {
         product_id: productId,
         price: parseFloat(price.replace(/[^0-9]/g, "")),
         description,
-        image_url: imageUrl,
+        image: imageUrl, // Sử dụng 'image' thay vì 'image_url'
         brand,
         material,
       };

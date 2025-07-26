@@ -99,7 +99,26 @@ function BestSellingForm({ product, onSave }) {
     try {
       let imageUrl = product ? product.image_url : "";
       if (image) {
-        const compressedImage = await compressImage(image); // Nén ảnh mà không giới hạn kích thước
+        // Nếu có ảnh cũ và tải ảnh mới, xóa ảnh cũ trước
+        if (product && product.image_url) {
+          const oldImagePath = product.image_url.substring(
+            product.image_url.lastIndexOf("/") + 1
+          );
+          await axios.delete(
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/storage/v1/object/best-selling-images/${oldImagePath}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+              },
+            }
+          );
+        }
+
+        // Upload ảnh mới sau khi xóa ảnh cũ (nếu có)
+        const compressedImage = await compressImage(image);
         const formData = new FormData();
         formData.append("file", compressedImage);
         await axios.post(

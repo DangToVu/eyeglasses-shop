@@ -99,7 +99,26 @@ function ProductForm({ product, onSave }) {
     try {
       let imageUrl = product ? product.image : "";
       if (image) {
-        const compressedImage = await compressImage(image); // Nén ảnh mà không giới hạn kích thước
+        // Nếu có ảnh cũ và tải ảnh mới, xóa ảnh cũ trước
+        if (product && product.image) {
+          const oldImagePath = product.image.substring(
+            product.image.lastIndexOf("/") + 1
+          );
+          await axios.delete(
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/storage/v1/object/product-images/${oldImagePath}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+              },
+            }
+          );
+        }
+
+        // Upload ảnh mới sau khi xóa ảnh cũ (nếu có)
+        const compressedImage = await compressImage(image);
         const formData = new FormData();
         formData.append("file", compressedImage);
         await axios.post(
