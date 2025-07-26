@@ -2,6 +2,7 @@
   padding: 2rem 0;
   max-width: 1200px; /* Giới hạn chiều rộng tối đa */
   margin: 0 auto; /* Căn giữa container */
+  min-height: 90vh;
 }
 
 .card-management-title {
