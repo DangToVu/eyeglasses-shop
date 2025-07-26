@@ -16,6 +16,7 @@ function BestSellingCard({ product }) {
         src={product.image_url}
         alt={product.name}
         className="best-img"
+        loading="lazy" // Thêm lazy loading
       />
       <Card.Body className="best-body">
         <Card.Title className="best-title">{product.name}</Card.Title>

@@ -51,7 +51,7 @@ function Home() {
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
           {
             headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY, // Sửa lỗi từ VITE_SUPABASE_URL
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
             },
           }
         );
@@ -319,6 +319,7 @@ function Home() {
                         .replace(/\./g, "")}.jpg`}
                       alt={`${brand} logo`}
                       className="ub-brand-logo"
+                      loading="lazy" // Thêm lazy loading
                     />
                     <div className="ub-brand-view-more-btn">
                       <Link
@@ -374,6 +375,7 @@ function Home() {
                 src="/image1.png"
                 alt="Image 1"
                 className="angled-image image1"
+                loading="lazy" // Thêm lazy loading
               />
               <div className="image-text between-images">&</div>
               <div className="image-text above-image2">Độc đáo</div>
@@ -381,6 +383,7 @@ function Home() {
                 src="/image2.png"
                 alt="Image 2"
                 className="angled-image image2"
+                loading="lazy" // Thêm lazy loading
               />
             </div>
           </div>

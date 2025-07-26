@@ -15,6 +15,26 @@ const formatCurrency = (value) => {
   }).format(cleanValue);
 };
 
+// Hàm nén ảnh trước khi upload (không giới hạn chiều dài/rộng, chỉ nén chất lượng)
+const compressImage = (file) => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width; // Giữ nguyên chiều rộng
+      canvas.height = img.height; // Giữ nguyên chiều cao
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => resolve(new File([blob], file.name, { type: "image/jpeg" })),
+        "image/jpeg",
+        0.8 // Chất lượng nén (0-1)
+      );
+    };
+  });
+};
+
 function BestSellingForm({ product, onSave }) {
   const [name, setName] = useState(product ? product.name : "");
   const [productId, setProductId] = useState(product ? product.product_id : "");
@@ -22,12 +42,12 @@ function BestSellingForm({ product, onSave }) {
   const [description, setDescription] = useState(
     product ? product.description : ""
   );
-  const [image, setImage] = useState(null); // Mặc định luôn là null, không fetch ảnh
+  const [image, setImage] = useState(null);
   const [brand, setBrand] = useState(product ? product.brand : "");
   const [material, setMaterial] = useState(product ? product.material : "");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const fileInputRef = useRef(null); // Ref để reset file input
+  const fileInputRef = useRef(null);
 
   const brandOptions = [
     "G.M.Surne",
@@ -43,21 +63,19 @@ function BestSellingForm({ product, onSave }) {
   ];
   const materialOptions = ["Kim loại", "Titan", "Nhựa"];
 
-  // Reset form về trạng thái ban đầu
   const resetForm = () => {
     setName("");
     setProductId("");
     setPrice("");
     setDescription("");
-    setImage(null); // Clear ảnh khi reset
+    setImage(null);
     setBrand("");
     setMaterial("");
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Reset file input
+      fileInputRef.current.value = "";
     }
   };
 
-  // Cập nhật dữ liệu form khi product thay đổi
   useEffect(() => {
     if (product) {
       setName(product.name);
@@ -66,9 +84,9 @@ function BestSellingForm({ product, onSave }) {
       setDescription(product.description || "");
       setBrand(product.brand || "");
       setMaterial(product.material || "");
-      setImage(null); // Luôn đặt image về null khi fetch dữ liệu sản phẩm
+      setImage(null);
       if (fileInputRef.current) {
-        fileInputRef.current.value = ""; // Reset file input khi load sản phẩm
+        fileInputRef.current.value = "";
       }
     } else {
       resetForm();
@@ -81,12 +99,32 @@ function BestSellingForm({ product, onSave }) {
     try {
       let imageUrl = product ? product.image_url : "";
       if (image) {
+        // Nếu có ảnh cũ và tải ảnh mới, xóa ảnh cũ trước
+        if (product && product.image_url) {
+          const oldImagePath = product.image_url.substring(
+            product.image_url.lastIndexOf("/") + 1
+          );
+          await axios.delete(
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/storage/v1/object/best-selling-images/${oldImagePath}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+              },
+            }
+          );
+        }
+
+        // Upload ảnh mới sau khi xóa ảnh cũ (nếu có)
+        const compressedImage = await compressImage(image);
         const formData = new FormData();
-        formData.append("file", image);
+        formData.append("file", compressedImage);
         await axios.post(
           `${
             import.meta.env.VITE_SUPABASE_URL
-          }/storage/v1/object/best-selling-images/${image.name}`,
+          }/storage/v1/object/best-selling-images/${compressedImage.name}`,
           formData,
           {
             headers: {
@@ -97,7 +135,7 @@ function BestSellingForm({ product, onSave }) {
         );
         imageUrl = `${
           import.meta.env.VITE_SUPABASE_URL
-        }/storage/v1/object/public/best-selling-images/${image.name}`;
+        }/storage/v1/object/public/best-selling-images/${compressedImage.name}`;
       }
 
       const productData = {
@@ -127,7 +165,7 @@ function BestSellingForm({ product, onSave }) {
           }
         );
         toast.success("Cập nhật sản phẩm bán chạy thành công!");
-        resetForm(); // Clear form sau khi cập nhật thành công
+        resetForm();
       } else {
         await axios.post(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}`,
@@ -142,7 +180,7 @@ function BestSellingForm({ product, onSave }) {
           }
         );
         toast.success("Thêm sản phẩm bán chạy thành công!");
-        resetForm(); // Clear form sau khi thêm thành công, bao gồm trường ảnh
+        resetForm();
       }
       onSave();
     } catch (error) {
@@ -153,8 +191,8 @@ function BestSellingForm({ product, onSave }) {
   };
 
   const handleCancel = () => {
-    resetForm(); // Xóa dữ liệu trong form
-    onSave(); // Gọi onSave để cập nhật lại trạng thái, có thể làm mới danh sách
+    resetForm();
+    onSave();
   };
 
   const handlePriceChange = (e) => {
@@ -257,9 +295,15 @@ function BestSellingForm({ product, onSave }) {
           <Form.Control
             type="file"
             accept="image/*"
-            onChange={(e) => setImage(e.target.files[0])}
+            onChange={async (e) => {
+              const file = e.target.files[0];
+              if (file) {
+                const compressedImage = await compressImage(file); // Nén ảnh
+                setImage(compressedImage);
+              }
+            }}
             className="bsf-form-input"
-            ref={fileInputRef} // Gắn ref vào input file
+            ref={fileInputRef}
           />
         </Form.Group>
         <Button type="submit" variant="primary" className="bsf-form-btn">

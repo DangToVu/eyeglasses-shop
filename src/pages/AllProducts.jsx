@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Container, Button, Row, Col, Table } from "react-bootstrap";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
@@ -31,6 +31,7 @@ function AllProducts() {
   const isAdmin = !!localStorage.getItem("token");
   const [searchParams] = useSearchParams();
   const isManagementMode = searchParams.get("management") === "true"; // Kiểm tra mode quản lý
+  const location = useLocation(); // Sử dụng để phát hiện lần đầu tải trang
 
   // State cho filter và tìm kiếm (chỉ áp dụng khi không ở mode quản lý)
   const [filters, setFilters] = useState({
@@ -44,6 +45,9 @@ function AllProducts() {
     minPrice: 0,
     maxPrice: Infinity,
   });
+
+  // Thêm ref để tham chiếu đến phần hiển thị sản phẩm
+  const cardsSectionRef = useRef(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -105,6 +109,24 @@ function AllProducts() {
       setCurrentPage(1);
     }
   }, [searchParams, isManagementMode]);
+
+  // Cuộn lên đầu trang khi tải trang lần đầu
+  useEffect(() => {
+    // Sử dụng setTimeout và requestAnimationFrame để đảm bảo cuộn sau khi trang tải hoàn toàn
+    const timer = setTimeout(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }, 100); // Delay 100ms để đảm bảo DOM đã sẵn sàng
+    return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount
+  }, [location.pathname]);
+
+  // Cuộn đến phần sản phẩm khi thay đổi trang, filter hoặc search
+  useEffect(() => {
+    if (!isManagementMode && cardsSectionRef.current) {
+      cardsSectionRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [currentPage, filters, searchTerm, isManagementMode]);
 
   const handleFilterChange = (category, value) => {
     if (!isManagementMode) {
@@ -444,6 +466,7 @@ function AllProducts() {
                 src="/ad-image.jpg"
                 alt="Quảng cáo"
                 className="ap-ad-image"
+                loading="lazy"
               />
             </div>
 
@@ -547,7 +570,10 @@ function AllProducts() {
                 </div>
               </div>
 
-              <div className="ap-cards-section">
+              <div
+                className="ap-cards-section"
+                ref={cardsSectionRef} // Tham chiếu đến phần sản phẩm
+              >
                 <div className="ap-cards">
                   {currentProducts.length === 0 ? (
                     <div className="ap-no-results">
@@ -654,6 +680,7 @@ function AllProducts() {
                           alt={product.name}
                           width="50"
                           style={{ borderRadius: "4px" }}
+                          loading="lazy"
                           onError={() =>
                             console.log(
                               "Lỗi tải ảnh:",

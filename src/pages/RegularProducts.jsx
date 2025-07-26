@@ -56,7 +56,6 @@ function RegularProducts() {
           }
         );
         setProducts(response.data);
-        // Chỉ reset currentPage khi cần (ví dụ: sau khi thêm sản phẩm mới)
         if (products.length === 0 || response.data.length < products.length) {
           setCurrentPage(1);
           console.log("Saved, resetting to page 1, currentPage:", currentPage);
@@ -113,7 +112,6 @@ function RegularProducts() {
           }
         );
         setProducts(products.filter((p) => p.id !== deleteData.id));
-        // Chỉ reset currentPage nếu trang hiện tại không còn hợp lệ
         if (currentPage > Math.ceil(products.length / itemsPerPage)) {
           setCurrentPage(1);
           console.log(
@@ -219,9 +217,10 @@ function RegularProducts() {
                         alt={product.name}
                         width="50"
                         style={{ borderRadius: "4px" }}
+                        loading="lazy"
                         onError={() =>
                           console.log("Lỗi tải ảnh:", product.image)
-                        }
+                        } // Loại bỏ biến 'e' không cần thiết
                       />
                     </td>
                     <td>
