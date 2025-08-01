@@ -15,21 +15,47 @@ const formatCurrency = (value) => {
   }).format(cleanValue);
 };
 
-// Hàm nén ảnh trước khi upload (không giới hạn chiều dài/rộng, chỉ nén chất lượng)
+// Hàm nén và resize ảnh nếu dung lượng lớn hơn 1MB
 const compressImage = (file) => {
   return new Promise((resolve) => {
+    // Kiểm tra dung lượng file (1MB = 1 * 1024 * 1024 bytes)
+    const maxSize = 1 * 1024 * 1024;
+    if (file.size <= maxSize) {
+      // Nếu dung lượng <= 1MB, trả về file gốc
+      resolve(file);
+      return;
+    }
+
+    // Nếu dung lượng > 1MB, resize và nén ảnh
     const img = new Image();
     img.src = URL.createObjectURL(file);
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      canvas.width = img.width; // Giữ nguyên chiều rộng
-      canvas.height = img.height; // Giữ nguyên chiều cao
+      const maxDimension = 1920; // Kích thước tối đa (width hoặc height)
+      let width = img.width;
+      let height = img.height;
+
+      // Resize giữ tỷ lệ
+      if (width > height) {
+        if (width > maxDimension) {
+          height = Math.round((height * maxDimension) / width);
+          width = maxDimension;
+        }
+      } else {
+        if (height > maxDimension) {
+          width = Math.round((width * maxDimension) / height);
+          height = maxDimension;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
       const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, width, height);
       canvas.toBlob(
         (blob) => resolve(new File([blob], file.name, { type: "image/jpeg" })),
         "image/jpeg",
-        0.8 // Chất lượng nén (0-1)
+        0.8 // Chất lượng nén (0-1), sử dụng 0.8 để cân bằng tốc độ và chất lượng
       );
     };
   });
@@ -98,41 +124,54 @@ function BestSellingForm({ product, onSave }) {
     setIsLoading(true);
     try {
       let imageUrl = product ? product.image_url : "";
+      let deleteOldImagePromise = Promise.resolve(); // Default to resolved promise
+
       if (image) {
-        // Nếu có ảnh cũ và tải ảnh mới, xóa ảnh cũ trước
+        // Nếu có ảnh cũ, bắt đầu xóa bất đồng bộ
         if (product && product.image_url) {
           const oldImagePath = product.image_url.substring(
             product.image_url.lastIndexOf("/") + 1
           );
-          await axios.delete(
+          deleteOldImagePromise = axios
+            .delete(
+              `${
+                import.meta.env.VITE_SUPABASE_URL
+              }/storage/v1/object/best-selling-images/${oldImagePath}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  apikey: import.meta.env.VITE_SUPABASE_KEY,
+                },
+              }
+            )
+            .catch((err) => {
+              console.warn("Failed to delete old image:", err.message);
+              // Không ném lỗi để tiếp tục upload ảnh mới
+            });
+        }
+
+        // Nén và upload ảnh mới đồng thời với xóa ảnh cũ
+        const compressedImage = await compressImage(image);
+        const formData = new FormData();
+        formData.append("file", compressedImage);
+
+        // Chờ cả xóa ảnh cũ và upload ảnh mới
+        await Promise.all([
+          deleteOldImagePromise,
+          axios.post(
             `${
               import.meta.env.VITE_SUPABASE_URL
-            }/storage/v1/object/best-selling-images/${oldImagePath}`,
+            }/storage/v1/object/best-selling-images/${compressedImage.name}`,
+            formData,
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
                 apikey: import.meta.env.VITE_SUPABASE_KEY,
               },
             }
-          );
-        }
+          ),
+        ]);
 
-        // Upload ảnh mới sau khi xóa ảnh cũ (nếu có)
-        const compressedImage = await compressImage(image);
-        const formData = new FormData();
-        formData.append("file", compressedImage);
-        await axios.post(
-          `${
-            import.meta.env.VITE_SUPABASE_URL
-          }/storage/v1/object/best-selling-images/${compressedImage.name}`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-            },
-          }
-        );
         imageUrl = `${
           import.meta.env.VITE_SUPABASE_URL
         }/storage/v1/object/public/best-selling-images/${compressedImage.name}`;
@@ -298,7 +337,7 @@ function BestSellingForm({ product, onSave }) {
             onChange={async (e) => {
               const file = e.target.files[0];
               if (file) {
-                const compressedImage = await compressImage(file); // Nén ảnh
+                const compressedImage = await compressImage(file);
                 setImage(compressedImage);
               }
             }}

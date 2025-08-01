@@ -88,34 +88,44 @@ function BestSellingProducts() {
         const productToDelete = bestSellingProducts.find(
           (p) => p.id === deleteData.id
         );
+        let deleteImagePromise = Promise.resolve();
         if (productToDelete && productToDelete.image_url) {
           const imageUrl = productToDelete.image_url;
           const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-          await axios.delete(
-            `${
-              import.meta.env.VITE_SUPABASE_URL
-            }/storage/v1/object/best-selling-images/${imagePath}`,
+          deleteImagePromise = axios
+            .delete(
+              `${
+                import.meta.env.VITE_SUPABASE_URL
+              }/storage/v1/object/best-selling-images/${imagePath}`,
+              {
+                headers: {
+                  apikey: import.meta.env.VITE_SUPABASE_KEY,
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            )
+            .catch((err) => {
+              console.warn("Failed to delete image:", err.message);
+              // Không ném lỗi để tiếp tục xóa sản phẩm
+            });
+        }
+
+        await Promise.all([
+          deleteImagePromise,
+          axios.delete(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
+              deleteData.table
+            }?id=eq.${deleteData.id}`,
             {
               headers: {
                 apikey: import.meta.env.VITE_SUPABASE_KEY,
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Prefer: "return=representation",
               },
             }
-          );
-        }
+          ),
+        ]);
 
-        await axios.delete(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
-            deleteData.table
-          }?id=eq.${deleteData.id}`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-              Prefer: "return=representation",
-            },
-          }
-        );
         setBestSellingProducts(
           bestSellingProducts.filter((p) => p.id !== deleteData.id)
         );
@@ -229,10 +239,11 @@ function BestSellingProducts() {
                         alt={product.name}
                         width="50"
                         style={{ borderRadius: "4px" }}
-                        loading="lazy" // Thêm lazy loading
-                        onError={() =>
-                          console.log("Lỗi tải ảnh:", product.image_url)
-                        } // Sửa lỗi 'e' không sử dụng
+                        loading="lazy"
+                        onError={(e) => {
+                          e.target.src = "/path/to/fallback-image.jpg"; // Fallback image
+                          console.log("Lỗi tải ảnh:", product.image_url);
+                        }}
                       />
                     </td>
                     <td>
