@@ -112,13 +112,12 @@ function AllProducts() {
 
   // Cuộn lên đầu trang khi tải trang lần đầu
   useEffect(() => {
-    // Sử dụng setTimeout và requestAnimationFrame để đảm bảo cuộn sau khi trang tải hoàn toàn
     const timer = setTimeout(() => {
       requestAnimationFrame(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
-    }, 100); // Delay 100ms để đảm bảo DOM đã sẵn sàng
-    return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount
+    }, 100);
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   // Cuộn đến phần sản phẩm khi thay đổi trang, filter hoặc search
@@ -184,7 +183,7 @@ function AllProducts() {
         setBestSellingProducts(bestSellingResponse.data);
         const allProductsList = [
           ...regularResponse.data,
-          ...bestSellingProducts,
+          ...bestSellingResponse.data,
           ...allResponse.data,
         ];
         if (
@@ -238,18 +237,13 @@ function AllProducts() {
             bucket = "all-product-images";
           }
 
-          if (productToDelete) {
-            if (productToDelete.image_url) {
-              imagePath = productToDelete.image_url.substring(
-                productToDelete.image_url.lastIndexOf("/") + 1
-              );
-            } else if (productToDelete.image) {
-              imagePath = productToDelete.image.substring(
-                productToDelete.image.lastIndexOf("/") + 1
-              );
-            }
-            if (imagePath && bucket) {
-              await axios.delete(
+          let deleteImagePromise = Promise.resolve();
+          if (productToDelete && productToDelete.image_url) {
+            imagePath = productToDelete.image_url.substring(
+              productToDelete.image_url.lastIndexOf("/") + 1
+            );
+            deleteImagePromise = axios
+              .delete(
                 `${
                   import.meta.env.VITE_SUPABASE_URL
                 }/storage/v1/object/${bucket}/${imagePath}`,
@@ -259,22 +253,28 @@ function AllProducts() {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                   },
                 }
-              );
-            }
+              )
+              .catch((err) => {
+                console.warn("Failed to delete image:", err.message);
+                // Không ném lỗi để tiếp tục xóa sản phẩm
+              });
           }
 
-          await axios.delete(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
-              deleteData.table
-            }?id=eq.${deleteData.id}`,
-            {
-              headers: {
-                apikey: import.meta.env.VITE_SUPABASE_KEY,
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-                Prefer: "return=representation",
-              },
-            }
-          );
+          await Promise.all([
+            deleteImagePromise,
+            axios.delete(
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
+                deleteData.table
+              }?id=eq.${deleteData.id}`,
+              {
+                headers: {
+                  apikey: import.meta.env.VITE_SUPABASE_KEY,
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  Prefer: "return=representation",
+                },
+              }
+            ),
+          ]);
 
           if (deleteData.table === "products") {
             setRegularProducts(
@@ -322,12 +322,10 @@ function AllProducts() {
     ...bestSellingProducts.map((p) => ({
       ...p,
       table: "best_selling_glasses",
-      image: p.image_url,
     })),
     ...allProducts.map((p) => ({
       ...p,
       table: "all_product",
-      image: p.image_url,
     })),
   ];
 
@@ -570,10 +568,7 @@ function AllProducts() {
                 </div>
               </div>
 
-              <div
-                className="ap-cards-section"
-                ref={cardsSectionRef} // Tham chiếu đến phần sản phẩm
-              >
+              <div className="ap-cards-section" ref={cardsSectionRef}>
                 <div className="ap-cards">
                   {currentProducts.length === 0 ? (
                     <div className="ap-no-results">
@@ -641,7 +636,6 @@ function AllProducts() {
           </>
         )}
 
-        {/* Hiển thị form và table chỉ khi admin ở mode quản lý */}
         {isAdmin && isManagementMode && (
           <div className="ap-layout">
             <div className="ap-form-container">
@@ -676,17 +670,15 @@ function AllProducts() {
                       <td>{product.material || "-"}</td>
                       <td>
                         <img
-                          src={product.image || product.image_url}
+                          src={product.image_url}
                           alt={product.name}
                           width="50"
                           style={{ borderRadius: "4px" }}
                           loading="lazy"
-                          onError={() =>
-                            console.log(
-                              "Lỗi tải ảnh:",
-                              product.image || product.image_url
-                            )
-                          }
+                          onError={(e) => {
+                            e.target.src = "/path/to/fallback-image.jpg";
+                            console.log("Lỗi tải ảnh:", product.image_url);
+                          }}
                         />
                       </td>
                       <td>

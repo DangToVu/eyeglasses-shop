@@ -83,20 +83,25 @@ function RegularProducts() {
     setTimeout(async () => {
       try {
         const productToDelete = products.find((p) => p.id === deleteData.id);
-        if (productToDelete && productToDelete.image) {
-          const imageUrl = productToDelete.image;
+        if (productToDelete && productToDelete.image_url) {
+          const imageUrl = productToDelete.image_url;
           const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-          await axios.delete(
-            `${
-              import.meta.env.VITE_SUPABASE_URL
-            }/storage/v1/object/product-images/${imagePath}`,
-            {
-              headers: {
-                apikey: import.meta.env.VITE_SUPABASE_KEY,
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
-          );
+          await axios
+            .delete(
+              `${
+                import.meta.env.VITE_SUPABASE_URL
+              }/storage/v1/object/product-images/${imagePath}`,
+              {
+                headers: {
+                  apikey: import.meta.env.VITE_SUPABASE_KEY,
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            )
+            .catch((err) => {
+              console.warn("Failed to delete image:", err.message);
+              // Không ném lỗi để tiếp tục xóa sản phẩm
+            });
         }
 
         await axios.delete(
@@ -213,14 +218,15 @@ function RegularProducts() {
                     <td>{product.material || "-"}</td>
                     <td>
                       <img
-                        src={product.image}
+                        src={product.image_url} // Updated from product.image to product.image_url
                         alt={product.name}
                         width="50"
                         style={{ borderRadius: "4px" }}
                         loading="lazy"
-                        onError={() =>
-                          console.log("Lỗi tải ảnh:", product.image)
-                        } // Loại bỏ biến 'e' không cần thiết
+                        onError={(e) => {
+                          e.target.src = "/path/to/fallback-image.jpg"; // Fallback image for broken links
+                          console.log("Lỗi tải ảnh:", product.image_url);
+                        }}
                       />
                     </td>
                     <td>

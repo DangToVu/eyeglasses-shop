@@ -13,10 +13,14 @@ function ProductCard({ product }) {
     <Card className="prod-card">
       <Card.Img
         variant="top"
-        src={product.image}
+        src={product.image_url} // Updated from product.image to product.image_url
         alt={product.name}
         className="prod-img"
-        loading="lazy" // Thêm lazy loading
+        loading="lazy"
+        onError={(e) => {
+          e.target.src = "/path/to/fallback-image.jpg"; // Fallback image for broken links
+          console.log("Lỗi tải ảnh:", product.image_url);
+        }}
       />
       <Card.Body className="prod-body">
         <Card.Title className="prod-title">{product.name}</Card.Title>
