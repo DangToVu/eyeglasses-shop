@@ -58,7 +58,6 @@ function AllProducts() {
           {
             headers: {
               apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
             },
           }
         );
@@ -81,7 +80,6 @@ function AllProducts() {
           {
             headers: {
               apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
             },
           }
         );
@@ -239,6 +237,7 @@ function AllProducts() {
 
           let deleteImagePromise = Promise.resolve();
           if (productToDelete && productToDelete.image_url) {
+            // Sử dụng 'image_url'
             imagePath = productToDelete.image_url.substring(
               productToDelete.image_url.lastIndexOf("/") + 1
             );
@@ -256,7 +255,6 @@ function AllProducts() {
               )
               .catch((err) => {
                 console.warn("Failed to delete image:", err.message);
-                // Không ném lỗi để tiếp tục xóa sản phẩm
               });
           }
 
@@ -670,7 +668,7 @@ function AllProducts() {
                       <td>{product.material || "-"}</td>
                       <td>
                         <img
-                          src={product.image_url}
+                          src={product.image_url} // Sử dụng 'image_url' thay vì 'image'
                           alt={product.name}
                           width="50"
                           style={{ borderRadius: "4px" }}
