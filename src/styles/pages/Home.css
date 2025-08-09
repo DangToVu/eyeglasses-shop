@@ -11,6 +11,22 @@
   flex: 1 0 auto;
 }
 
+.glasses-long-panel-section {
+  width: 100%;
+  margin: 0rem 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.glasses-long-panel-img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 10px;
+}
+
 .home-title {
   font-size: 1.8rem;
   font-weight: 700;
@@ -278,7 +294,7 @@
 .ub-unique-brands-section {
   width: 100%;
   margin: 2rem 0;
-  padding: 1rem 0;
+  padding: 0rem 0;
 }
 
 .ub-brands-container {
@@ -370,6 +386,10 @@
 
 /* Tablet / iPad Portrait and Landscape (768px - 1199px) */
 @media (max-width: 1199px) {
+  .glasses-long-panel-img {
+    height: 300px;
+  }
+
   .home-title {
     font-size: 1.6rem;
     margin-left: 15px;
@@ -464,6 +484,10 @@
 }
 
 @media (max-width: 767px) {
+  .glasses-long-panel-img {
+    height: 200px;
+  }
+
   .home-title {
     font-size: 1.2rem;
     font-weight: 700;
@@ -582,6 +606,10 @@
 }
 
 @media (max-width: 576px) {
+  .glasses-long-panel-img {
+    height: 180px;
+  }
+
   .products-container {
     width: 100%;
     max-width: 410px;
@@ -673,6 +701,10 @@
 }
 
 @media (max-width: 400px) {
+  .glasses-long-panel-img {
+    height: 160px;
+  }
+
   .products-container {
     max-width: 380px;
   }
@@ -750,6 +782,10 @@
 }
 
 @media (max-width: 376px) {
+  .glasses-long-panel-img {
+    height: 150px;
+  }
+
   .products-container {
     max-width: 345px;
   }

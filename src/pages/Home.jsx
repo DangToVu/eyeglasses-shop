@@ -293,6 +293,14 @@ function Home() {
       {isLoading && <LoadingScreen />}
       <Header />
       <Container className="home-container">
+        <div className="glasses-long-panel-section">
+          <img
+            src="/glasses_long_panel.jpg"
+            alt="Glasses Long Panel Advertisement"
+            className="glasses-long-panel-img"
+            loading="lazy"
+          />
+        </div>
         <div
           className="ub-unique-brands-section"
           onMouseEnter={handleMouseEnter}
