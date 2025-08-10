@@ -74,7 +74,7 @@
   box-shadow: 1px 5px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 0.5rem 0;
-  min-width: 150px;
+  min-width: 180px; /* Tăng từ 150px để chứa "Tất cả sản phẩm" */
   display: block;
 }
 
@@ -86,6 +86,7 @@
   text-decoration: none;
   display: block;
   border-radius: 20px;
+  white-space: nowrap; /* Ngăn xuống dòng */
 }
 
 .dropdown-item-logout {
@@ -96,6 +97,7 @@
   text-decoration: none;
   display: block;
   border-radius: 20px;
+  white-space: nowrap; /* Ngăn xuống dòng */
 }
 
 .dropdown-item:hover {
@@ -126,5 +128,98 @@
   }
   100% {
     background-position: 0% 0%;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .header-logo {
+    height: 40px;
+  }
+
+  .header-icon {
+    font-size: 1.6rem;
+  }
+
+  .dropdown-menu {
+    min-width: 160px; /* Tăng từ 130px */
+    border-radius: 6px;
+    padding: 0.4rem 0;
+  }
+
+  .dropdown-item,
+  .dropdown-item-logout {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 576px) {
+  .header-logo {
+    height: 35px;
+  }
+
+  .header-icon {
+    font-size: 1.4rem;
+  }
+
+  .dropdown-menu {
+    min-width: 140px; /* Tăng từ 120px */
+    border-radius: 5px;
+    padding: 0.3rem 0;
+  }
+
+  .dropdown-item,
+  .dropdown-item-logout {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.7rem;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 400px) {
+  .header-logo {
+    height: 30px;
+  }
+
+  .header-icon {
+    font-size: 1.3rem;
+  }
+
+  .dropdown-menu {
+    min-width: 130px; /* Tăng từ 110px */
+    border-radius: 4px;
+    padding: 0.3rem 0;
+  }
+
+  .dropdown-item,
+  .dropdown-item-logout {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 376px) {
+  .header-logo {
+    height: 28px;
+  }
+
+  .header-icon {
+    font-size: 1.2rem;
+  }
+
+  .dropdown-menu {
+    min-width: 120px; /* Tăng từ 100px */
+    border-radius: 4px;
+    padding: 0.2rem 0;
+  }
+
+  .dropdown-item,
+  .dropdown-item-logout {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    white-space: nowrap;
   }
 }
