@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Container, Button } from "react-bootstrap";
 import { ArrowRight } from "react-bootstrap-icons";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
@@ -29,6 +29,7 @@ function Home() {
   const [itemsPerView, setItemsPerView] = useState(4);
   const brandWrapperRef = useRef(null);
   const [isInView, setIsInView] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleResize = () => {
@@ -105,6 +106,25 @@ function Home() {
       )
     );
   }, [bestSellingIndex, bestSellingProducts.length, itemsPerView]);
+
+  // Xử lý cuộn đến section từ state sau khi chuyển hướng
+  useEffect(() => {
+    if (location.state?.scrollTo && !isLoading) {
+      const sectionId = location.state.scrollTo;
+      const element = document.getElementById(sectionId);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+          // Xóa state sau khi cuộn để tránh lặp lại
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
+        }, 300); // Tăng thời gian chờ lên 300ms để đảm bảo dữ liệu và DOM đã tải xong
+      }
+    }
+  }, [location.state, isLoading]);
 
   const scrollLeft = () => {
     if (productsContainerRef.current && products.length > 0) {

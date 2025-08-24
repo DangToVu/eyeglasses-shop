@@ -19,20 +19,32 @@ function Header() {
     if (token) setIsLoggedIn(true);
 
     let lastScrollY = window.scrollY;
+    let scrollTimeout = null;
+    const threshold = 5; // Khoảng cách cuộn tối thiểu để thay đổi trạng thái
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        setIsVisible(true);
+
+      // Xóa timeout trước đó để tránh xử lý liên tục
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
       }
-      lastScrollY = currentScrollY;
+
+      // Đặt timeout để xử lý sau khi ngừng cuộn 50ms
+      scrollTimeout = setTimeout(() => {
+        if (Math.abs(currentScrollY - lastScrollY) > threshold) {
+          setIsVisible(currentScrollY < lastScrollY); // Cuộn lên: hiện, cuộn xuống: ẩn
+          lastScrollY = currentScrollY;
+        }
+      }, 50);
     };
 
     window.addEventListener("scroll", handleScroll);
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -45,7 +57,7 @@ function Header() {
     navigate("/");
     setShowDropdown(false);
     setShowLogoutConfirm(false);
-    toast.success("Đăng xuất thành công"); // Thêm toast thông báo
+    toast.success("Đăng xuất thành công");
   };
 
   const cancelLogout = () => {
@@ -68,7 +80,7 @@ function Header() {
   };
 
   return (
-    <div>
+    <div className="header-wrapper">
       {showLogoutConfirm && (
         <ConfirmBox
           message="Bạn có chắc chắn muốn đăng xuất không?"
