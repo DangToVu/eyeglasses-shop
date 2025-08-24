@@ -31,9 +31,9 @@
   background: radial-gradient(
     circle,
     rgba(255, 255, 255, 0.25) 0%,
-    /* Tăng opacity để nổi bật hơn */ transparent 70%
+    transparent 70%
   );
-  animation: rotate 12s linear infinite; /* Giảm thời gian để animation nhanh hơn, dễ nhận thấy */
+  animation: rotate 12s linear infinite;
   z-index: 0;
 }
 

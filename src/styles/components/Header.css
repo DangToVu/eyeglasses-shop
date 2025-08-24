@@ -1,3 +1,7 @@
+.header-wrapper {
+  margin-bottom: 60px; /* Thêm margin-bottom để tránh header che nội dung phía dưới */
+}
+
 .header {
   background: linear-gradient(
     90deg,
@@ -11,9 +15,11 @@
   animation: waveFlow 5s ease-in-out infinite;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 0.5rem 0;
-  position: sticky;
+  position: fixed; /* Giữ position fixed */
   top: 0;
-  z-index: 1000;
+  left: 0;
+  width: 100%; /* Đảm bảo header chiếm toàn bộ chiều ngang */
+  z-index: 2000; /* Giữ z-index cao để đè lên các phần tử khác */
   transition: transform 0.3s ease-in-out;
 }
 
@@ -74,8 +80,9 @@
   box-shadow: 1px 5px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 0.5rem 0;
-  min-width: 180px; /* Tăng từ 150px để chứa "Tất cả sản phẩm" */
+  min-width: 180px;
   display: block;
+  z-index: 2100; /* Đặt cao hơn header để dropdown đè lên */
 }
 
 .dropdown-item {
@@ -86,7 +93,7 @@
   text-decoration: none;
   display: block;
   border-radius: 20px;
-  white-space: nowrap; /* Ngăn xuống dòng */
+  white-space: nowrap;
 }
 
 .dropdown-item-logout {
@@ -97,7 +104,7 @@
   text-decoration: none;
   display: block;
   border-radius: 20px;
-  white-space: nowrap; /* Ngăn xuống dòng */
+  white-space: nowrap;
 }
 
 .dropdown-item:hover {
@@ -133,6 +140,10 @@
 
 /* Responsive adjustments */
 @media (max-width: 767px) {
+  .header-wrapper {
+    margin-bottom: 50px; /* Giảm margin-bottom trên màn hình nhỏ hơn */
+  }
+
   .header-logo {
     height: 40px;
   }
@@ -142,7 +153,7 @@
   }
 
   .dropdown-menu {
-    min-width: 160px; /* Tăng từ 130px */
+    min-width: 160px;
     border-radius: 6px;
     padding: 0.4rem 0;
   }
@@ -156,6 +167,10 @@
 }
 
 @media (max-width: 576px) {
+  .header-wrapper {
+    margin-bottom: 45px; /* Giảm thêm margin-bottom */
+  }
+
   .header-logo {
     height: 35px;
   }
@@ -165,7 +180,7 @@
   }
 
   .dropdown-menu {
-    min-width: 140px; /* Tăng từ 120px */
+    min-width: 140px;
     border-radius: 5px;
     padding: 0.3rem 0;
   }
@@ -179,6 +194,10 @@
 }
 
 @media (max-width: 400px) {
+  .header-wrapper {
+    margin-bottom: 40px; /* Giảm thêm margin-bottom */
+  }
+
   .header-logo {
     height: 30px;
   }
@@ -188,7 +207,7 @@
   }
 
   .dropdown-menu {
-    min-width: 130px; /* Tăng từ 110px */
+    min-width: 130px;
     border-radius: 4px;
     padding: 0.3rem 0;
   }
@@ -202,6 +221,10 @@
 }
 
 @media (max-width: 376px) {
+  .header-wrapper {
+    margin-bottom: 35px; /* Giảm thêm margin-bottom */
+  }
+
   .header-logo {
     height: 28px;
   }
@@ -211,7 +234,7 @@
   }
 
   .dropdown-menu {
-    min-width: 120px; /* Tăng từ 100px */
+    min-width: 120px;
     border-radius: 4px;
     padding: 0.2rem 0;
   }

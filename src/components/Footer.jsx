@@ -1,11 +1,37 @@
 import { Container, Row, Col } from "react-bootstrap";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/components/Footer.css";
 
 function Footer() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    // Kiểm tra xem đang ở trang Home hay không
+    const isHomePage = location.pathname === "/";
+
+    if (isHomePage) {
+      // Nếu đang ở trang Home, cuộn trực tiếp đến section
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Nếu không ở trang Home, chuyển hướng đến trang Home với state để cuộn
+      navigate("/", { state: { scrollTo: sectionId } });
+    }
+  };
+
+  const handleAllProducts = () => {
+    // Kiểm tra xem đang ở trang AllProducts hay không
+    const isAllProductsPage = location.pathname === "/products/all";
+
+    if (isAllProductsPage) {
+      // Nếu đang ở trang AllProducts, cuộn lên đầu trang
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      // Nếu không ở trang AllProducts, chuyển hướng đến trang AllProducts
+      navigate("/products/all");
     }
   };
 
@@ -31,6 +57,11 @@ function Footer() {
                   className="footer-link"
                 >
                   Sản phẩm bán chạy
+                </button>
+              </li>
+              <li>
+                <button onClick={handleAllProducts} className="footer-link">
+                  Tất cả sản phẩm
                 </button>
               </li>
             </ul>
