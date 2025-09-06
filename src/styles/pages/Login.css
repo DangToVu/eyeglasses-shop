@@ -5,9 +5,295 @@
   flex-direction: column;
 }
 
-.login-page .login-form {
-  flex: 1;
+.login-page .lf-container {
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #f5f5f5;
+  padding: 1rem;
+  margin-top: -3.1rem;
+  margin-bottom: -3.1rem;
+}
+
+.login-page .lf-form {
+  max-width: 400px;
+  width: 100%;
+  padding: 2rem;
+  background: linear-gradient(135deg, #ffffff, #f9f9f9);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.login-page .lf-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 0rem;
+}
+
+.login-page .lf-form-group {
+  text-align: left;
+}
+
+.login-page .lf-form-group label {
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.login-page .lf-input-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login-page .lf-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #007bff;
+  font-size: 1.1rem;
+  z-index: 1;
+}
+
+.login-page .lf-form-input {
+  width: 100%;
+  padding: 0.75rem 2.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-page .lf-form-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.login-page .lf-password-group {
+  position: relative;
+}
+
+.login-page .lf-password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.login-page .lf-password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #666;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+  z-index: 1;
+}
+
+.login-page .lf-password-toggle:hover {
+  color: #007bff;
+}
+
+.login-page .lf-checkbox-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 0;
+  padding-left: 0.5rem;
+}
+
+.login-page .lf-remember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #333;
+  margin-left: -8px;
+}
+
+.login-page .lf-login-btn {
+  width: 100%;
+  padding: 0.9rem;
+  font-size: 1.1rem;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.login-page .lf-login-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.login-page .lf-login-btn:active {
+  background-color: #003d80;
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-page .lf-container {
+    margin-top: -3.1rem;
+  }
+
+  .login-page .lf-form {
+    max-width: 90%;
+    padding: 1.5rem;
+    margin: 1rem 0;
+  }
+
+  .login-page .lf-title {
+    font-size: 1.8rem;
+  }
+
+  .login-page .lf-form-input {
+    padding: 0.6rem 2rem;
+    font-size: 0.9rem;
+  }
+
+  .login-page .lf-icon {
+    font-size: 1rem;
+    left: 8px;
+  }
+
+  .login-page .lf-password-toggle {
+    font-size: 1rem;
+    right: 8px;
+  }
+
+  .login-page .lf-remember-me {
+    font-size: 0.85rem;
+  }
+
+  .login-page .lf-login-btn {
+    font-size: 1rem;
+    padding: 0.7rem;
+  }
+
+  .login-page .lf-checkbox-group {
+    padding-left: 0.3rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .login-page .lf-container {
+    margin-top: -3.1rem;
+  }
+
+  .login-page .lf-form {
+    max-width: 450px;
+    padding: 1.8rem;
+  }
+
+  .login-page .lf-title {
+    font-size: 2rem;
+  }
+
+  .login-page .lf-form-input {
+    padding: 0.7rem 2.5rem;
+  }
+
+  .login-page .lf-login-btn {
+    font-size: 1.1rem;
+    padding: 0.8rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .login-page .lf-container {
+    margin-top: -3.1rem;
+  }
+
+  .login-page .lf-form {
+    max-width: 500px;
+    padding: 2.2rem;
+  }
+
+  .login-page .lf-title {
+    font-size: 2.3rem;
+  }
+
+  .login-page .lf-form-input {
+    padding: 0.8rem 2.5rem;
+  }
+
+  .login-page .lf-login-btn {
+    font-size: 1.2rem;
+    padding: 0.9rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .login-page .lf-form {
+    max-width: 400px;
+    padding: 2rem;
+  }
+}
+
+/* Xử lý chế độ ngang/dọc trên mobile */
+@media (max-width: 480px) and (orientation: portrait) {
+  .login-page .lf-container {
+    margin-top: -3.1rem;
+  }
+
+  .login-page .lf-form {
+    padding: 1rem;
+  }
+
+  .login-page .lf-title {
+    font-size: 1.6rem;
+  }
+
+  .login-page .lf-form-input {
+    padding: 0.5rem 1.5rem;
+  }
+
+  .login-page .lf-login-btn {
+    font-size: 0.9rem;
+    padding: 0.6rem;
+  }
+
+  .login-page .lf-checkbox-group {
+    padding-left: 0.3rem;
+  }
+}
+
+@media (max-width: 480px) and (orientation: landscape) {
+  .login-page .lf-form {
+    max-width: 70%;
+    padding: 1rem;
+  }
+
+  .login-page .lf-title {
+    font-size: 1.4rem;
+  }
+
+  .login-page .lf-form-input {
+    padding: 0.5rem 1.5rem;
+  }
+
+  .login-page .lf-login-btn {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
+
+  .login-page .lf-checkbox-group {
+    padding-left: 0.3rem;
+  }
 }
