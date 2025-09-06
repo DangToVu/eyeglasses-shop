@@ -5,6 +5,7 @@ import Login from "./pages/Login.jsx";
 import RegularProducts from "./pages/RegularProducts.jsx";
 import BestSellingProducts from "./pages/BestSellingProducts.jsx";
 import AllProducts from "./pages/AllProducts.jsx";
+import SignUp from "./pages/SignUp.jsx"; // Thêm SignUp
 import AuthGuard from "./guards/AuthGuard.jsx"; // Import AuthGuard
 import { ToastContainer } from "react-toastify";
 
@@ -14,6 +15,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} /> {/* Trang công khai */}
         <Route path="/login" element={<Login />} /> {/* Trang công khai */}
+        <Route path="/signup" element={<SignUp />} /> {/* Trang công khai */}
         <Route path="/products/all" element={<AllProducts />} />{" "}
         {/* Trang công khai */}
         {/* Route bảo vệ bằng AuthGuard */}
