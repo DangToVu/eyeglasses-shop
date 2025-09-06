@@ -5,7 +5,7 @@
   align-items: center;
   background-color: #f5f5f5;
   padding: 1rem;
-  margin-top: -6.1rem;
+  margin-top: -5.1rem;
   margin-bottom: -3.1rem;
 }
 
@@ -101,9 +101,9 @@
 .lf-checkbox-group {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Di chuyển sang trái */
+  justify-content: flex-start;
   margin-bottom: 0;
-  padding-left: 0.5rem; /* Đảm bảo thẳng hàng với label */
+  padding-left: 0.5rem;
 }
 
 .lf-remember-me {
@@ -141,6 +141,10 @@
 
 /* Responsive */
 @media (max-width: 480px) {
+  .lf-container {
+    margin-top: -3.1rem;
+  }
+
   .lf-form {
     max-width: 90%;
     padding: 1.5rem;
@@ -176,11 +180,15 @@
   }
 
   .lf-checkbox-group {
-    padding-left: 0.3rem; /* Điều chỉnh cho mobile */
+    padding-left: 0.3rem;
   }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
+  .lf-container {
+    margin-top: -3.1rem;
+  }
+
   .lf-form {
     max-width: 450px;
     padding: 1.8rem;
@@ -201,6 +209,10 @@
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
+  .lf-container {
+    margin-top: -3.1rem;
+  }
+
   .lf-form {
     max-width: 500px;
     padding: 2.2rem;
@@ -229,6 +241,10 @@
 
 /* Xử lý chế độ ngang/dọc trên mobile */
 @media (max-width: 480px) and (orientation: portrait) {
+  .lf-container {
+    margin-top: -3.1rem;
+  }
+
   .lf-form {
     padding: 1rem;
   }

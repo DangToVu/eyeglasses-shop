@@ -1,0 +1,28 @@
+.yeti-container {
+  width: 250px;
+  height: 250px;
+  position: relative;
+  margin: 0 auto 0rem; /* Center the Yeti and add spacing below */
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .yeti-container {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+@media (max-width: 480px) and (orientation: portrait) {
+  .yeti-container {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 480px) and (orientation: landscape) {
+  .yeti-container {
+    width: 120px;
+    height: 120px;
+  }
+}
