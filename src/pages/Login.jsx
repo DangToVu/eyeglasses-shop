@@ -9,12 +9,12 @@ import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import YetiAnimation from "../components/YetiAnimation.jsx";
-import "../styles/pages/Login.css"; // Import CSS gộp
+import "../styles/pages/Login.css";
 
 function Login() {
   useEffect(() => {
     window.scrollTo(0, 0); // Cuộn lên đầu trang khi component mount
-  }, []); // Chạy chỉ một lần khi component được mount
+  }, []);
 
   const [email, setEmail] = useState(
     localStorage.getItem("savedUsername") || ""
@@ -103,7 +103,7 @@ function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post(
+      const { data, error } = await axios.post(
         `${
           import.meta.env.VITE_SUPABASE_URL
         }/auth/v1/token?grant_type=password`,
@@ -112,37 +112,38 @@ function Login() {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
             "Content-Type": "application/json",
-            "X-Requested-With": "XMLHttpRequest",
           },
         }
       );
 
-      const { access_token, expires_in } = response.data;
-      const expirationTime = Date.now() + expires_in * 1000;
-      localStorage.setItem("token", access_token);
-      localStorage.setItem("token_expires_at", expirationTime);
+      if (error) throw error;
 
-      if (rememberMe) {
-        localStorage.setItem("savedUsername", email);
-      } else {
-        localStorage.removeItem("savedUsername");
+      if (data.access_token) {
+        const { access_token, expires_in } = data;
+        const expirationTime = Date.now() + expires_in * 1000;
+        localStorage.setItem("token", access_token);
+        localStorage.setItem("token_expires_at", expirationTime);
+
+        if (rememberMe) {
+          localStorage.setItem("savedUsername", email);
+        } else {
+          localStorage.removeItem("savedUsername");
+        }
+
+        toast.success("Đăng nhập thành công!");
+        setYetiProps((prev) => ({
+          ...prev,
+          triggerSuccess: true,
+          triggerFail: false,
+        }));
+
+        const from = location.state?.from?.pathname || "/card-management";
+        navigate(from);
       }
-
-      toast.success("Đăng nhập thành công!");
-      setYetiProps((prev) => ({
-        ...prev,
-        triggerSuccess: true,
-        triggerFail: false,
-      }));
-
-      const from = location.state?.from?.pathname || "/card-management";
-      navigate(from);
     } catch (error) {
       let errorMessage = "Đăng nhập thất bại!";
-      if (error.response) {
-        errorMessage += ` ${
-          error.response.data.message || "Email hoặc mật khẩu không đúng."
-        }`;
+      if (error.response?.data?.message) {
+        errorMessage += ` ${error.response.data.message}`;
       } else if (error.message) {
         errorMessage += ` ${error.message}`;
       }
@@ -161,6 +162,15 @@ function Login() {
           triggerFail: false,
         }));
       }, 2000);
+    }
+  };
+
+  const handleSignupRedirect = () => {
+    const isSignupPage = location.pathname === "/signup";
+    if (!isSignupPage) {
+      navigate("/signup");
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -235,6 +245,12 @@ function Login() {
           >
             Đăng nhập
           </Button>
+          <div className="lf-signup-link">
+            Bạn chưa có tài khoản?{" "}
+            <button onClick={handleSignupRedirect} className="signup-link">
+              Đăng ký ngay
+            </button>
+          </div>
         </Form>
       </div>
       <Footer />

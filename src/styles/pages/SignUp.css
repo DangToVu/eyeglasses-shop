@@ -105,21 +105,25 @@
   color: #007bff;
 }
 
-.login-page .lf-checkbox-group {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 0;
-  padding-left: 0.5rem;
-}
-
-.login-page .lf-remember-me {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.login-page .lf-signup-link {
   font-size: 0.95rem;
   color: #333;
-  margin-left: -8px;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.login-page .lf-signup-link .login-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.login-page .lf-signup-link .login-link:hover {
+  text-decoration: underline;
 }
 
 .login-page .lf-login-btn {
@@ -144,27 +148,6 @@
 .login-page .lf-login-btn:active {
   background-color: #003d80;
   transform: translateY(0);
-}
-
-.login-page .lf-signup-link {
-  font-size: 0.95rem;
-  color: #333;
-  text-align: center;
-  margin-top: 1rem;
-}
-
-.login-page .lf-signup-link .signup-link {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: 500;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-.login-page .lf-signup-link .signup-link:hover {
-  text-decoration: underline;
 }
 
 /* Responsive */
@@ -198,21 +181,13 @@
     right: 8px;
   }
 
-  .login-page .lf-remember-me {
+  .login-page .lf-signup-link {
     font-size: 0.85rem;
   }
 
   .login-page .lf-login-btn {
     font-size: 1rem;
     padding: 0.7rem;
-  }
-
-  .login-page .lf-checkbox-group {
-    padding-left: 0.3rem;
-  }
-
-  .login-page .lf-signup-link {
-    font-size: 0.85rem;
   }
 }
 
@@ -294,10 +269,6 @@
     padding: 0.6rem;
   }
 
-  .login-page .lf-checkbox-group {
-    padding-left: 0.3rem;
-  }
-
   .login-page .lf-signup-link {
     font-size: 0.8rem;
   }
@@ -320,10 +291,6 @@
   .login-page .lf-login-btn {
     font-size: 0.85rem;
     padding: 0.5rem;
-  }
-
-  .login-page .lf-checkbox-group {
-    padding-left: 0.3rem;
   }
 
   .login-page .lf-signup-link {

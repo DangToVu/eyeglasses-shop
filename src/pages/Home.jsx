@@ -370,7 +370,7 @@ function Home() {
           className="home-title underlined-title my-4"
           style={{ "--underline-step": `${underlineStep}%` }}
         >
-          Bộ sưu tập mới nhất
+          Sản phẩm nổi bật
         </h2>
         <div className="carousel-wrapper">
           <button className="carousel-button left" onClick={scrollLeft}>
