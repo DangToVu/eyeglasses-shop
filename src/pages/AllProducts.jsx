@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { Container, Button, Row, Col, Table } from "react-bootstrap";
-import { useSearchParams, useLocation } from "react-router-dom";
+import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import AllProductForm from "../components/AllProductForm.jsx";
 import AllProductCard from "../components/AllProductCard.jsx";
+import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import "../styles/pages/AllProducts.css";
 import LoadingScreen from "../components/LoadingScreen";
 import ConfirmBox from "../components/ConfirmBox";
@@ -28,10 +29,11 @@ function AllProducts() {
   const [deleteData, setDeleteData] = useState({ id: null, table: null });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // Mặc định 10 cho admin
-  const isAdmin = !!localStorage.getItem("token");
+  const { userRole, isLoading: authLoading } = useAuthCheck();
   const [searchParams] = useSearchParams();
-  const isManagementMode = searchParams.get("management") === "true"; // Kiểm tra mode quản lý
-  const location = useLocation(); // Sử dụng để phát hiện lần đầu tải trang
+  const isManagementMode = searchParams.get("management") === "true";
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // State cho filter và tìm kiếm (chỉ áp dụng khi không ở mode quản lý)
   const [filters, setFilters] = useState({
@@ -49,27 +51,45 @@ function AllProducts() {
   // Thêm ref để tham chiếu đến phần hiển thị sản phẩm
   const cardsSectionRef = useRef(null);
 
+  // Kiểm tra quyền admin khi ở management mode
+  useEffect(() => {
+    if (isManagementMode && !authLoading) {
+      if (!userRole || userRole !== "admin") {
+        toast.error("Bạn không có quyền truy cập trang quản lý này!");
+        navigate("/");
+      }
+    }
+  }, [isManagementMode, userRole, authLoading, navigate]);
+
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
+        // Header cho giao diện khách (không cần Authorization)
+        const publicHeaders = {
+          apikey: import.meta.env.VITE_SUPABASE_KEY,
+          "Content-Type": "application/json",
+        };
+
+        // Header cho admin (bao gồm Authorization)
+        const adminHeaders = {
+          apikey: import.meta.env.VITE_SUPABASE_KEY,
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+          "Content-Type": "application/json",
+        };
+
+        // Chọn header dựa trên isManagementMode
+        const headers = isManagementMode ? adminHeaders : publicHeaders;
+
         const allResponse = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-            },
-          }
+          { headers }
         );
         setAllProducts(allResponse.data);
 
         const regularResponse = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-            },
-          }
+          { headers }
         );
         setRegularProducts(regularResponse.data);
 
@@ -77,11 +97,7 @@ function AllProducts() {
           `${
             import.meta.env.VITE_SUPABASE_URL
           }/rest/v1/best_selling_glasses?select=*`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-            },
-          }
+          { headers }
         );
         setBestSellingProducts(bestSellingResponse.data);
       } catch (error) {
@@ -91,7 +107,7 @@ function AllProducts() {
       }
     };
     fetchProducts();
-  }, []);
+  }, [isManagementMode]);
 
   useEffect(() => {
     const brandParam = searchParams.get("brand");
@@ -146,24 +162,21 @@ function AllProducts() {
     setIsLoading(true);
     const fetchProducts = async () => {
       try {
+        const headers = {
+          apikey: import.meta.env.VITE_SUPABASE_KEY,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        };
+
         const allResponse = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-            },
-          }
+          { headers }
         );
         setAllProducts(allResponse.data);
 
         const regularResponse = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-            },
-          }
+          { headers }
         );
         setRegularProducts(regularResponse.data);
 
@@ -171,12 +184,7 @@ function AllProducts() {
           `${
             import.meta.env.VITE_SUPABASE_URL
           }/rest/v1/best_selling_glasses?select=*`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-            },
-          }
+          { headers }
         );
         setBestSellingProducts(bestSellingResponse.data);
         const allProductsList = [
@@ -203,110 +211,105 @@ function AllProducts() {
   };
 
   const handleDelete = (id, table) => {
-    if (isAdmin && isManagementMode) {
+    if (userRole === "admin" && isManagementMode) {
       setDeleteData({ id, table });
       setShowConfirm(true);
     }
   };
 
   const confirmDelete = async () => {
-    if (isAdmin && isManagementMode) {
+    if (userRole === "admin" && isManagementMode) {
       setIsLoading(true);
       setShowConfirm(false);
 
-      setTimeout(async () => {
-        try {
-          let productToDelete = null;
-          let imagePath = "";
-          let bucket = "";
+      try {
+        let productToDelete = null;
+        let imagePath = "";
+        let bucket = "";
 
-          if (deleteData.table === "products") {
-            productToDelete = regularProducts.find(
-              (p) => p.id === deleteData.id
-            );
-            bucket = "product-images";
-          } else if (deleteData.table === "best_selling_glasses") {
-            productToDelete = bestSellingProducts.find(
-              (p) => p.id === deleteData.id
-            );
-            bucket = "best-selling-images";
-          } else if (deleteData.table === "all_product") {
-            productToDelete = allProducts.find((p) => p.id === deleteData.id);
-            bucket = "all-product-images";
-          }
+        if (deleteData.table === "products") {
+          productToDelete = regularProducts.find((p) => p.id === deleteData.id);
+          bucket = "product-images";
+        } else if (deleteData.table === "best_selling_glasses") {
+          productToDelete = bestSellingProducts.find(
+            (p) => p.id === deleteData.id
+          );
+          bucket = "best-selling-images";
+        } else if (deleteData.table === "all_product") {
+          productToDelete = allProducts.find((p) => p.id === deleteData.id);
+          bucket = "all-product-images";
+        }
 
-          let deleteImagePromise = Promise.resolve();
-          if (productToDelete && productToDelete.image_url) {
-            // Sử dụng 'image_url'
-            imagePath = productToDelete.image_url.substring(
-              productToDelete.image_url.lastIndexOf("/") + 1
-            );
-            deleteImagePromise = axios
-              .delete(
-                `${
-                  import.meta.env.VITE_SUPABASE_URL
-                }/storage/v1/object/${bucket}/${imagePath}`,
-                {
-                  headers: {
-                    apikey: import.meta.env.VITE_SUPABASE_KEY,
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
-                }
-              )
-              .catch((err) => {
-                console.warn("Failed to delete image:", err.message);
-              });
-          }
-
-          await Promise.all([
-            deleteImagePromise,
-            axios.delete(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
-                deleteData.table
-              }?id=eq.${deleteData.id}`,
+        let deleteImagePromise = Promise.resolve();
+        if (productToDelete && productToDelete.image_url) {
+          imagePath = productToDelete.image_url.substring(
+            productToDelete.image_url.lastIndexOf("/") + 1
+          );
+          deleteImagePromise = axios
+            .delete(
+              `${
+                import.meta.env.VITE_SUPABASE_URL
+              }/storage/v1/object/${bucket}/${imagePath}`,
               {
                 headers: {
                   apikey: import.meta.env.VITE_SUPABASE_KEY,
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  Prefer: "return=representation",
                 },
               }
-            ),
-          ]);
-
-          if (deleteData.table === "products") {
-            setRegularProducts(
-              regularProducts.filter((p) => p.id !== deleteData.id)
-            );
-          } else if (deleteData.table === "best_selling_glasses") {
-            setBestSellingProducts(
-              bestSellingProducts.filter((p) => p.id !== deleteData.id)
-            );
-          } else if (deleteData.table === "all_product") {
-            setAllProducts(allProducts.filter((p) => p.id !== deleteData.id));
-          }
-          const allProductsList = [
-            ...regularProducts,
-            ...bestSellingProducts,
-            ...allProducts,
-          ].filter((p) => p.id !== deleteData.id);
-          if (currentPage > Math.ceil(allProductsList.length / itemsPerPage)) {
-            setCurrentPage(1);
-            console.log(
-              "Deleted, resetting to page 1, currentPage:",
-              currentPage
-            );
-          } else {
-            console.log("Deleted, giữ currentPage:", currentPage);
-          }
-          toast.success("Xóa sản phẩm thành công!");
-        } catch (error) {
-          toast.error("Lỗi khi xóa: " + error.message);
-        } finally {
-          setIsLoading(false);
-          setDeleteData({ id: null, table: null });
+            )
+            .catch((err) => {
+              console.warn("Failed to delete image:", err.message);
+            });
         }
-      }, 10);
+
+        await Promise.all([
+          deleteImagePromise,
+          axios.delete(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
+              deleteData.table
+            }?id=eq.${deleteData.id}`,
+            {
+              headers: {
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Prefer: "return=representation",
+              },
+            }
+          ),
+        ]);
+
+        if (deleteData.table === "products") {
+          setRegularProducts(
+            regularProducts.filter((p) => p.id !== deleteData.id)
+          );
+        } else if (deleteData.table === "best_selling_glasses") {
+          setBestSellingProducts(
+            bestSellingProducts.filter((p) => p.id !== deleteData.id)
+          );
+        } else if (deleteData.table === "all_product") {
+          setAllProducts(allProducts.filter((p) => p.id !== deleteData.id));
+        }
+        const allProductsList = [
+          ...regularProducts,
+          ...bestSellingProducts,
+          ...allProducts,
+        ].filter((p) => p.id !== deleteData.id);
+        if (currentPage > Math.ceil(allProductsList.length / itemsPerPage)) {
+          setCurrentPage(1);
+          console.log(
+            "Deleted, resetting to page 1, currentPage:",
+            currentPage
+          );
+        } else {
+          console.log("Deleted, giữ currentPage:", currentPage);
+        }
+        toast.success("Xóa sản phẩm thành công!");
+      } catch (error) {
+        toast.error("Lỗi khi xóa: " + error.message);
+      } finally {
+        setIsLoading(false);
+        setDeleteData({ id: null, table: null });
+      }
     }
   };
 
@@ -442,7 +445,7 @@ function AllProducts() {
 
   return (
     <div className="ap-page-wrapper">
-      {isLoading && <LoadingScreen />}
+      {(isLoading || authLoading) && <LoadingScreen />}
       {showConfirm && (
         <ConfirmBox
           message="Bạn có chắc chắn muốn xóa sản phẩm này không?"
@@ -634,7 +637,7 @@ function AllProducts() {
           </>
         )}
 
-        {isAdmin && isManagementMode && (
+        {userRole === "admin" && isManagementMode && (
           <div className="ap-layout">
             <div className="ap-form-container">
               <AllProductForm
@@ -668,7 +671,7 @@ function AllProducts() {
                       <td>{product.material || "-"}</td>
                       <td>
                         <img
-                          src={product.image_url} // Sử dụng 'image_url' thay vì 'image'
+                          src={product.image_url}
                           alt={product.name}
                           width="50"
                           style={{ borderRadius: "4px" }}
