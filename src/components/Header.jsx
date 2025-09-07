@@ -30,7 +30,14 @@ function Header() {
 
       scrollTimeout = setTimeout(() => {
         if (Math.abs(currentScrollY - lastScrollY) > threshold) {
-          setIsVisible(currentScrollY < lastScrollY); // Cuộn lên: hiện, cuộn xuống: ẩn
+          if (currentScrollY < lastScrollY) {
+            // Cuộn lên: hiện header
+            setIsVisible(true);
+          } else {
+            // Cuộn xuống: ẩn header và đóng dropdown
+            setIsVisible(false);
+            setShowDropdown(false);
+          }
           lastScrollY = currentScrollY;
         }
       }, 50);
