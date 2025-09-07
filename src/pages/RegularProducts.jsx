@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
 import { Container, Button, Table } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import ProductForm from "../components/ProductForm.jsx";
+import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import "../styles/pages/RegularProducts.css";
 import LoadingScreen from "../components/LoadingScreen";
 import ConfirmBox from "../components/ConfirmBox";
 
 function RegularProducts() {
+  const { userRole, isLoading: authLoading } = useAuthCheck();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +23,15 @@ function RegularProducts() {
   const itemsPerPage = 10;
 
   useEffect(() => {
+    if (!authLoading && userRole !== "admin") {
+      toast.error("Bạn không có quyền truy cập trang này!");
+      navigate("/");
+    }
+  }, [authLoading, userRole, navigate]);
+
+  useEffect(() => {
+    if (userRole !== "admin") return;
+
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
@@ -39,7 +52,7 @@ function RegularProducts() {
       }
     };
     fetchProducts();
-  }, []);
+  }, [userRole]);
 
   const handleSave = () => {
     setSelectedProduct(null);
@@ -100,7 +113,6 @@ function RegularProducts() {
             )
             .catch((err) => {
               console.warn("Failed to delete image:", err.message);
-              // Không ném lỗi để tiếp tục xóa sản phẩm
             });
         }
 
@@ -146,7 +158,6 @@ function RegularProducts() {
     setDeleteData({ id: null, table: null });
   };
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
@@ -162,7 +173,6 @@ function RegularProducts() {
   const firstPage = () => setCurrentPage(1);
   const lastPage = () => setCurrentPage(totalPages);
 
-  // Dynamic page range (always 5 pages)
   const maxPagesToShow = 5;
   let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
   let endPage = startPage + maxPagesToShow - 1;
@@ -175,6 +185,9 @@ function RegularProducts() {
   const pageNumbers = [...Array(endPage - startPage + 1).keys()].map(
     (i) => startPage + i
   );
+
+  if (authLoading) return <LoadingScreen />;
+  if (userRole !== "admin") return null;
 
   return (
     <div className="regular-page-wrapper">
@@ -218,13 +231,13 @@ function RegularProducts() {
                     <td>{product.material || "-"}</td>
                     <td>
                       <img
-                        src={product.image_url} // Updated from product.image to product.image_url
+                        src={product.image_url}
                         alt={product.name}
                         width="50"
                         style={{ borderRadius: "4px" }}
                         loading="lazy"
                         onError={(e) => {
-                          e.target.src = "/path/to/fallback-image.jpg"; // Fallback image for broken links
+                          e.target.src = "/path/to/fallback-image.jpg";
                           console.log("Lỗi tải ảnh:", product.image_url);
                         }}
                       />

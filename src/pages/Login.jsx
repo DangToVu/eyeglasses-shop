@@ -137,8 +137,7 @@ function Login() {
           triggerFail: false,
         }));
 
-        const from = location.state?.from?.pathname || "/card-management";
-        navigate(from);
+        navigate("/");
       }
     } catch (error) {
       let errorMessage = "Đăng nhập thất bại!";

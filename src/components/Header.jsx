@@ -2,22 +2,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { BiCog } from "react-icons/bi";
 import ConfirmBox from "../components/ConfirmBox";
+import LoadingScreen from "../components/LoadingScreen";
+import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/components/Header.css";
 import logo from "../../public/logo.png";
 
 function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { userRole, isLoading, resetAuth } = useAuthCheck();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) setIsLoggedIn(true);
-
     let lastScrollY = window.scrollY;
     let scrollTimeout = null;
     const threshold = 5; // Khoảng cách cuộn tối thiểu để thay đổi trạng thái
@@ -25,12 +24,10 @@ function Header() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Xóa timeout trước đó để tránh xử lý liên tục
       if (scrollTimeout) {
         clearTimeout(scrollTimeout);
       }
 
-      // Đặt timeout để xử lý sau khi ngừng cuộn 50ms
       scrollTimeout = setTimeout(() => {
         if (Math.abs(currentScrollY - lastScrollY) > threshold) {
           setIsVisible(currentScrollY < lastScrollY); // Cuộn lên: hiện, cuộn xuống: ẩn
@@ -53,10 +50,11 @@ function Header() {
 
   const confirmLogout = () => {
     localStorage.removeItem("token");
-    setIsLoggedIn(false);
-    navigate("/");
+    localStorage.removeItem("token_expires_at");
+    resetAuth(); // Đặt lại userRole và isLoading
     setShowDropdown(false);
     setShowLogoutConfirm(false);
+    navigate("/");
     toast.success("Đăng xuất thành công");
   };
 
@@ -81,6 +79,7 @@ function Header() {
 
   return (
     <div className="header-wrapper">
+      {isLoading && <LoadingScreen />}
       {showLogoutConfirm && (
         <ConfirmBox
           message="Bạn có chắc chắn muốn đăng xuất không?"
@@ -108,11 +107,13 @@ function Header() {
                   >
                     Tất cả sản phẩm
                   </Link>
-                  {isLoggedIn ? (
+                  {userRole ? (
                     <>
-                      <div className="dropdown-item" onClick={handleManage}>
-                        Quản lý
-                      </div>
+                      {userRole === "admin" && (
+                        <div className="dropdown-item" onClick={handleManage}>
+                          Quản lý
+                        </div>
+                      )}
                       <div
                         className="dropdown-item-logout"
                         onClick={handleLogout}

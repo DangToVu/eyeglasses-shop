@@ -1,15 +1,26 @@
-import { useEffect } from "react"; // Import useEffect
+import { useEffect } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
+import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import "../styles/pages/CardManagement.css";
 
 function CardManagement() {
-  // Cuộn lên đầu trang khi component mount
+  const { userRole, isLoading } = useAuthCheck();
+  const navigate = useNavigate();
+
   useEffect(() => {
-    window.scrollTo(0, 0); // Cuộn lên đầu trang
-  }, []); // Chạy chỉ một lần khi component được mount
+    window.scrollTo(0, 0); // Scroll to top
+    if (!isLoading && userRole !== "admin") {
+      toast.error("Bạn không có quyền truy cập trang này!");
+      navigate("/");
+    }
+  }, [isLoading, userRole, navigate]);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (userRole !== "admin") return null;
 
   return (
     <div className="page-wrapper">

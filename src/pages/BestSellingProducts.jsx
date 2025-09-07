@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
 import { Container, Button, Table } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import BestSellingForm from "../components/BestSellingForm.jsx";
+import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import "../styles/pages/BestSellingProducts.css";
 import LoadingScreen from "../components/LoadingScreen";
 import ConfirmBox from "../components/ConfirmBox";
 
 function BestSellingProducts() {
+  const { userRole, isLoading: authLoading } = useAuthCheck();
+  const navigate = useNavigate();
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +23,15 @@ function BestSellingProducts() {
   const itemsPerPage = 10;
 
   useEffect(() => {
+    if (!authLoading && userRole !== "admin") {
+      toast.error("Bạn không có quyền truy cập trang này!");
+      navigate("/");
+    }
+  }, [authLoading, userRole, navigate]);
+
+  useEffect(() => {
+    if (userRole !== "admin") return;
+
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
@@ -39,7 +52,7 @@ function BestSellingProducts() {
       }
     };
     fetchProducts();
-  }, []);
+  }, [userRole]);
 
   const handleSave = () => {
     setSelectedProduct(null);
@@ -106,7 +119,6 @@ function BestSellingProducts() {
             )
             .catch((err) => {
               console.warn("Failed to delete image:", err.message);
-              // Không ném lỗi để tiếp tục xóa sản phẩm
             });
         }
 
@@ -160,7 +172,6 @@ function BestSellingProducts() {
     setDeleteData({ id: null, table: null });
   };
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProducts = bestSellingProducts.slice(
@@ -179,7 +190,6 @@ function BestSellingProducts() {
   const firstPage = () => setCurrentPage(1);
   const lastPage = () => setCurrentPage(totalPages);
 
-  // Dynamic page range (always 5 pages)
   const maxPagesToShow = 5;
   let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
   let endPage = startPage + maxPagesToShow - 1;
@@ -192,6 +202,9 @@ function BestSellingProducts() {
   const pageNumbers = [...Array(endPage - startPage + 1).keys()].map(
     (i) => startPage + i
   );
+
+  if (authLoading) return <LoadingScreen />;
+  if (userRole !== "admin") return null;
 
   return (
     <div className="best-selling-page-wrapper">
@@ -241,7 +254,7 @@ function BestSellingProducts() {
                         style={{ borderRadius: "4px" }}
                         loading="lazy"
                         onError={(e) => {
-                          e.target.src = "/path/to/fallback-image.jpg"; // Fallback image
+                          e.target.src = "/path/to/fallback-image.jpg";
                           console.log("Lỗi tải ảnh:", product.image_url);
                         }}
                       />
