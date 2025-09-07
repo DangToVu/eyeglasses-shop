@@ -43,7 +43,7 @@ function CardManagement() {
             </Link>
           </Col>
           <Col xs={12} className="mb-3 d-flex justify-content-center">
-            <Link to="/products/all?management=true" className="card-link">
+            <Link to="/products/all-management" className="card-link">
               <Button variant="info" className="card-select-btn">
                 Quản lý tất cả sản phẩm
               </Button>
