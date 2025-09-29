@@ -7,6 +7,7 @@ import BestSellingProducts from "./pages/BestSellingProducts.jsx";
 import AllProducts from "./pages/AllProducts.jsx";
 import AllProductsCustomer from "./pages/AllProductsCustomer.jsx";
 import SignUp from "./pages/SignUp.jsx";
+import NotFound404 from "./pages/NotFound404.jsx";
 import AuthGuard from "./guards/AuthGuard.jsx";
 import { ToastContainer } from "react-toastify";
 
@@ -27,6 +28,7 @@ function App() {
           />
           <Route path="/products/all-management" element={<AllProducts />} />
         </Route>
+        <Route path="*" element={<NotFound404 />} />
       </Routes>
       <ToastContainer position="bottom-right" autoClose={3000} closeOnClick />
     </div>
