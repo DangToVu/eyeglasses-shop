@@ -10,6 +10,7 @@ import BestSellingCard from "../components/BestSellingCard.jsx";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "../styles/pages/Home.css";
 import LoadingScreen from "../components/LoadingScreen";
+import ProductDetailModal from "../components/ProductDetailModal.jsx";
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -30,6 +31,8 @@ function Home() {
   const brandWrapperRef = useRef(null);
   const [isInView, setIsInView] = useState(false);
   const location = useLocation();
+  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [selectedProduct, setSelectedProduct] = useState(null); // State for selected product
 
   useEffect(() => {
     const handleResize = () => {
@@ -107,7 +110,6 @@ function Home() {
     );
   }, [bestSellingIndex, bestSellingProducts.length, itemsPerView]);
 
-  // Xử lý cuộn đến section từ state sau khi chuyển hướng
   useEffect(() => {
     if (location.state?.scrollTo && !isLoading) {
       const sectionId = location.state.scrollTo;
@@ -115,13 +117,12 @@ function Home() {
       if (element) {
         setTimeout(() => {
           element.scrollIntoView({ behavior: "smooth" });
-          // Xóa state sau khi cuộn để tránh lặp lại
           window.history.replaceState(
             {},
             document.title,
             window.location.pathname
           );
-        }, 300); // Tăng thời gian chờ lên 300ms để đảm bảo dữ liệu và DOM đã tải xong
+        }, 300);
       }
     }
   }, [location.state, isLoading]);
@@ -308,6 +309,12 @@ function Home() {
     return () => cancelAnimationFrame(animationFrameId);
   }, [isHovered, isDragging, isInView]);
 
+  // Function to handle product card click and show modal
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    setShowModal(true);
+  };
+
   return (
     <div className="page-wrapper">
       {isLoading && <LoadingScreen />}
@@ -384,7 +391,11 @@ function Home() {
             onTouchEnd={() => handleTouchEnd(false)}
           >
             {visibleProducts.map((product) => (
-              <div key={product.id} className="product-item">
+              <div
+                key={product.id}
+                className="product-item"
+                onClick={() => handleProductClick(product)}
+              >
                 <ProductCard product={product} />
               </div>
             ))}
@@ -438,7 +449,11 @@ function Home() {
             onTouchEnd={() => handleTouchEnd(true)}
           >
             {visibleBestSelling.map((product) => (
-              <div key={product.id} className="product-item">
+              <div
+                key={product.id}
+                className="product-item"
+                onClick={() => handleProductClick(product)}
+              >
                 <BestSellingCard product={product} />
               </div>
             ))}
@@ -459,6 +474,11 @@ function Home() {
           </Link>
         </div>
       </Container>
+      <ProductDetailModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        product={selectedProduct}
+      />
       <Footer />
     </div>
   );
