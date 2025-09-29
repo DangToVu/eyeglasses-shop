@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import AllProductCard from "../components/AllProductCard.jsx";
+import ProductDetailModal from "../components/ProductDetailModal.jsx"; // Import the new modal component
 import "../styles/pages/AllProductsCustomer.css";
 import LoadingScreen from "../components/LoadingScreen";
 
@@ -23,6 +24,8 @@ function AllProductsCustomer() {
   const [isFiltering, setIsFiltering] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchParams] = useSearchParams();
+  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [selectedProduct, setSelectedProduct] = useState(null); // State for selected product
   const location = useLocation();
 
   // State cho filter và tìm kiếm
@@ -159,6 +162,12 @@ function AllProductsCustomer() {
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
+  };
+
+  // Function to handle product card click and show modal
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    setShowModal(true);
   };
 
   const allProductsList = [
@@ -358,6 +367,7 @@ function AllProductsCustomer() {
                   <div
                     key={product.id}
                     className={`ap-card-item ${isFiltering ? "loading" : ""}`}
+                    onClick={() => handleProductClick(product)}
                   >
                     <AllProductCard product={product} />
                   </div>
@@ -411,6 +421,11 @@ function AllProductsCustomer() {
           </div>
         </div>
       </Container>
+      <ProductDetailModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        product={selectedProduct}
+      />
       <Footer />
     </div>
   );
