@@ -16,7 +16,6 @@ function ProductDetailModal({ show, onHide, product }) {
   const imageRef = useRef(null);
   const fullScreenImageRef = useRef(null);
   const containerRef = useRef(null);
-  const modalContentRef = useRef(null);
 
   useEffect(() => {
     if (isFullScreen && containerRef.current) {
@@ -40,24 +39,6 @@ function ProductDetailModal({ show, onHide, product }) {
   }, [zoomLevel, isFullScreen]);
 
   if (!product || !show) return null;
-
-  const handleOverlayClick = (e) => {
-    if (
-      modalContentRef.current &&
-      !modalContentRef.current.contains(e.target)
-    ) {
-      onHide();
-    }
-    if (
-      isFullScreen &&
-      containerRef.current &&
-      !containerRef.current.contains(e.target)
-    ) {
-      setIsFullScreen(false);
-      setZoomLevel(1);
-      setPosition({ x: 0, y: 0 });
-    }
-  };
 
   const handleImageClick = () => {
     setIsFullScreen(true);
@@ -134,8 +115,8 @@ function ProductDetailModal({ show, onHide, product }) {
   };
 
   return createPortal(
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-content-wrapper" ref={modalContentRef}>
+    <div className="modal-overlay">
+      <div className="modal-content-wrapper">
         <div className="modal-header">
           <h2 className="modal-title">{product.name}</h2>
           <button className="modal-close-button" onClick={onHide}>
