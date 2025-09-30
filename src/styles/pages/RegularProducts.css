@@ -32,13 +32,50 @@
 }
 
 .regular-btn {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  margin: 0 0.25rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  margin: 0 0.3rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.regular-btn:hover {
-  opacity: 0.9;
+/* Style for Edit (Sửa) button */
+.regular-btn.edit-btn {
+  background: linear-gradient(90deg, #28a745, #218838);
+  color: #fff;
+}
+
+.regular-btn.edit-btn:hover {
+  background: linear-gradient(90deg, #218838, #1e7e34);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Style for Delete (Xóa) button */
+.regular-btn.delete-btn {
+  background: linear-gradient(90deg, #dc3545, #c82333);
+  color: #fff;
+}
+
+.regular-btn.delete-btn:hover {
+  background: linear-gradient(90deg, #c82333, #bd2130);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Style for Multi-Delete (Xóa đã chọn) button */
+.regular-btn.mb-3 {
+  background: linear-gradient(90deg, #dc3545, #c82333);
+  color: #fff;
+}
+
+.regular-btn.mb-3:hover {
+  background: linear-gradient(90deg, #c82333, #bd2130);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 .regular-product-layout {
@@ -74,6 +111,127 @@ footer {
   width: 100%;
 }
 
+.summary-labels {
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #555;
+}
+
+.summary-labels span {
+  padding: 5px 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.regular-table th:first-child,
+.regular-table td:first-child {
+  width: 50px;
+  text-align: center;
+}
+
+.regular-table th input[type="checkbox"],
+.regular-table td input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.regular-table th input[type="checkbox"] {
+  accent-color: #007bff;
+}
+
+.regular-table td input[type="checkbox"] {
+  accent-color: #007bff;
+}
+
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+/* Pagination Styling */
+.pagination-regular {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  gap: 0.5rem;
+}
+
+.pagination-regular button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-regular button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pagination-regular button:not(:disabled):hover {
+  background: linear-gradient(90deg, #0056b3, #003d80);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.pagination-regular .btn-primary {
+  background: linear-gradient(90deg, #007bff, #0056b3) !important;
+  color: #fff !important;
+  font-weight: bold;
+  border: none !important;
+}
+
+.pagination-regular .btn-outline-primary {
+  background: linear-gradient(90deg, #e9ecef, #dee2e6) !important;
+  color: #007bff !important;
+  border: none !important;
+}
+
+.pagination-regular .mx-1 {
+  margin: 0 0.25rem;
+}
+
+/* Items per page selector styling */
+.items-per-page-selector {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.items-per-page-selector .form-label {
+  margin-right: 0.5rem;
+  font-weight: 500;
+}
+
+.items-per-page-selector .form-select {
+  padding: 0.4rem 1rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  transition: border-color 0.3s ease;
+}
+
+.items-per-page-selector .form-select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Selected count styling */
+.selected-count {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: 500;
+}
+
 @media (max-width: 767px) {
   .regular-product-layout {
     flex-direction: column;
@@ -91,50 +249,27 @@ footer {
     font-size: 0.9rem;
   }
   .regular-btn {
-    padding: 0.3rem 0.7rem;
-    font-size: 0.8rem;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.85rem;
   }
-}
-
-/* Pagination Styling */
-.pagination-regular {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1rem;
-  gap: 0.5rem;
-}
-
-.pagination-regular button {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border-radius: 4px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.pagination-regular button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.pagination-regular button:not(:disabled):hover {
-  background-color: #0056b3;
-  color: #fff;
-}
-
-.pagination-regular .btn-primary {
-  background-color: #007bff !important;
-  color: #fff !important;
-  font-weight: bold;
-  border: none !important;
-}
-
-.pagination-regular .btn-outline-primary {
-  background-color: transparent !important;
-  color: #007bff !important;
-  border-color: #007bff !important;
-}
-
-.pagination-regular .mx-1 {
-  margin: 0 0.25rem;
+  .pagination-regular button {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.9rem;
+  }
+  .items-per-page-selector {
+    justify-content: center;
+  }
+  .items-per-page-selector .form-select {
+    width: 100px;
+  }
+  .selected-count {
+    text-align: center;
+  }
+  .summary-labels {
+    text-align: center;
+  }
+  .summary-labels span {
+    display: block;
+    width: 100%;
+  }
 }

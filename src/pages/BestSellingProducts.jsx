@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Button, Table } from "react-bootstrap";
+import { Container, Button, Table, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -18,9 +18,10 @@ function BestSellingProducts() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [deleteData, setDeleteData] = useState({ id: null, table: null });
+  const [deleteData, setDeleteData] = useState({ ids: [], table: null });
+  const [selectedProducts, setSelectedProducts] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     if (!authLoading && userRole !== "admin") {
@@ -88,8 +89,20 @@ function BestSellingProducts() {
   };
 
   const handleDelete = (id, table) => {
-    setDeleteData({ id, table });
+    setDeleteData({ ids: [id], table });
     setShowConfirm(true);
+  };
+
+  const handleMultiDelete = () => {
+    if (selectedProducts.size > 0) {
+      setDeleteData({
+        ids: Array.from(selectedProducts),
+        table: "best_selling_glasses",
+      });
+      setShowConfirm(true);
+    } else {
+      toast.warning("Vui lòng chọn ít nhất một sản phẩm để xóa!");
+    }
   };
 
   const confirmDelete = async () => {
@@ -98,52 +111,59 @@ function BestSellingProducts() {
 
     setTimeout(async () => {
       try {
-        const productToDelete = bestSellingProducts.find(
-          (p) => p.id === deleteData.id
-        );
-        let deleteImagePromise = Promise.resolve();
-        if (productToDelete && productToDelete.image_url) {
-          const imageUrl = productToDelete.image_url;
-          const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-          deleteImagePromise = axios
-            .delete(
-              `${
-                import.meta.env.VITE_SUPABASE_URL
-              }/storage/v1/object/best-selling-images/${imagePath}`,
+        for (const id of deleteData.ids) {
+          const productToDelete = bestSellingProducts.find((p) => p.id === id);
+          let deleteImagePromise = Promise.resolve();
+          if (productToDelete && productToDelete.image_url) {
+            const imageUrl = productToDelete.image_url;
+            const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+            deleteImagePromise = axios
+              .delete(
+                `${
+                  import.meta.env.VITE_SUPABASE_URL
+                }/storage/v1/object/best-selling-images/${imagePath}`,
+                {
+                  headers: {
+                    apikey: import.meta.env.VITE_SUPABASE_KEY,
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                }
+              )
+              .catch((err) => {
+                console.warn("Failed to delete image:", err.message);
+              });
+          }
+
+          await Promise.all([
+            deleteImagePromise,
+            axios.delete(
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
+                deleteData.table
+              }?id=eq.${id}`,
               {
                 headers: {
                   apikey: import.meta.env.VITE_SUPABASE_KEY,
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  Prefer: "return=representation",
                 },
               }
-            )
-            .catch((err) => {
-              console.warn("Failed to delete image:", err.message);
-            });
+            ),
+          ]);
         }
-
-        await Promise.all([
-          deleteImagePromise,
-          axios.delete(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
-              deleteData.table
-            }?id=eq.${deleteData.id}`,
-            {
-              headers: {
-                apikey: import.meta.env.VITE_SUPABASE_KEY,
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-                Prefer: "return=representation",
-              },
-            }
-          ),
-        ]);
-
-        setBestSellingProducts(
-          bestSellingProducts.filter((p) => p.id !== deleteData.id)
+        const updatedProducts = bestSellingProducts.filter(
+          (p) => !deleteData.ids.includes(p.id)
         );
-        if (
-          currentPage > Math.ceil(bestSellingProducts.length / itemsPerPage)
-        ) {
+        setBestSellingProducts(updatedProducts);
+        setSelectedProducts(new Set());
+
+        // Logic để quay về trang trước nếu trang hiện tại bị xóa hết
+        const totalPagesAfterDelete = Math.ceil(
+          updatedProducts.length / itemsPerPage
+        );
+        if (currentPage > totalPagesAfterDelete && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+          console.log("Deleted, moving to previous page:", currentPage - 1);
+        } else if (currentPage > totalPagesAfterDelete && currentPage === 1) {
           setCurrentPage(1);
           console.log(
             "Deleted, resetting to page 1, currentPage:",
@@ -152,7 +172,10 @@ function BestSellingProducts() {
         } else {
           console.log("Deleted, keeping currentPage:", currentPage);
         }
-        toast.success("Xóa sản phẩm và ảnh thành công!");
+
+        toast.success(
+          `Xóa ${deleteData.ids.length} sản phẩm và ảnh thành công!`
+        );
       } catch (error) {
         toast.error(
           "Lỗi khi xóa: " +
@@ -162,14 +185,44 @@ function BestSellingProducts() {
         );
       } finally {
         setIsLoading(false);
-        setDeleteData({ id: null, table: null });
+        setDeleteData({ ids: [], table: null });
       }
     }, 10);
   };
 
   const cancelDelete = () => {
     setShowConfirm(false);
-    setDeleteData({ id: null, table: null });
+    setDeleteData({ ids: [], table: null });
+  };
+
+  const toggleSelectProduct = (id) => {
+    const newSelectedProducts = new Set(selectedProducts);
+    if (newSelectedProducts.has(id)) {
+      newSelectedProducts.delete(id);
+    } else {
+      newSelectedProducts.add(id);
+    }
+    setSelectedProducts(newSelectedProducts);
+  };
+
+  const toggleSelectAll = () => {
+    const newSelectedProducts = new Set();
+    if (selectedProducts.size !== currentProducts.length) {
+      currentProducts.forEach((product) => newSelectedProducts.add(product.id));
+    }
+    setSelectedProducts(newSelectedProducts);
+  };
+
+  const handleItemsPerPageChange = (e) => {
+    const newItemsPerPage = parseInt(e.target.value, 10);
+    setItemsPerPage(newItemsPerPage);
+    const totalPages = Math.ceil(bestSellingProducts.length / newItemsPerPage);
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages > 0 ? totalPages : 1);
+      console.log("Items per page changed, adjusted to page:", totalPages);
+    } else {
+      console.log("Items per page changed, keeping currentPage:", currentPage);
+    }
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -224,9 +277,36 @@ function BestSellingProducts() {
             <BestSellingForm product={selectedProduct} onSave={handleSave} />
           </div>
           <div className="best-selling-product-list-container">
+            <div className="summary-labels">
+              <span>Tổng sản phẩm: {bestSellingProducts.length}</span>
+            </div>
+            {selectedProducts.size > 0 && (
+              <>
+                <Button
+                  variant="danger"
+                  className="best-selling-btn mb-3"
+                  onClick={handleMultiDelete}
+                >
+                  Xóa đã chọn
+                </Button>
+                <div className="selected-count">
+                  Đã chọn {selectedProducts.size} sản phẩm
+                </div>
+              </>
+            )}
             <Table striped bordered hover className="best-selling-table mt-4">
               <thead>
                 <tr>
+                  <th>
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedProducts.size === currentProducts.length &&
+                        currentProducts.length > 0
+                      }
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
                   <th>Tên</th>
                   <th>Mã sản phẩm</th>
                   <th>Giá</th>
@@ -240,6 +320,13 @@ function BestSellingProducts() {
               <tbody>
                 {currentProducts.map((product) => (
                   <tr key={product.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.has(product.id)}
+                        onChange={() => toggleSelectProduct(product.id)}
+                      />
+                    </td>
                     <td>{product.name}</td>
                     <td>{product.product_id || "-"}</td>
                     <td>{product.price}</td>
@@ -262,14 +349,14 @@ function BestSellingProducts() {
                     <td>
                       <Button
                         variant="warning"
-                        className="best-selling-btn me-2"
+                        className="best-selling-btn edit-btn"
                         onClick={() => setSelectedProduct(product)}
                       >
                         Sửa
                       </Button>
                       <Button
                         variant="danger"
-                        className="best-selling-btn"
+                        className="best-selling-btn delete-btn"
                         onClick={() =>
                           handleDelete(product.id, "best_selling_glasses")
                         }
@@ -325,6 +412,20 @@ function BestSellingProducts() {
                 </Button>
               </div>
             )}
+            <div className="items-per-page-selector">
+              <Form.Label>Số dòng mỗi trang:</Form.Label>
+              <Form.Select
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+                className="ms-2"
+                style={{ display: "inline-block", width: "auto" }}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </Form.Select>
+            </div>
           </div>
         </div>
       </Container>
