@@ -64,7 +64,9 @@ const compressImage = (file) => {
 function BestSellingForm({ product, onSave }) {
   const [name, setName] = useState(product ? product.name : "");
   const [productId, setProductId] = useState(product ? product.product_id : "");
-  const [price, setPrice] = useState(product ? product.price.toString() : "");
+  const [price, setPrice] = useState(
+    product ? product.price?.toString() || "" : ""
+  );
   const [description, setDescription] = useState(
     product ? product.description : ""
   );
@@ -72,6 +74,7 @@ function BestSellingForm({ product, onSave }) {
   const [brand, setBrand] = useState(product ? product.brand : "");
   const [material, setMaterial] = useState(product ? product.material : "");
   const [isLoading, setIsLoading] = useState(false);
+  const [skipPrice, setSkipPrice] = useState(product ? !product.price : false);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -97,6 +100,7 @@ function BestSellingForm({ product, onSave }) {
     setImage(null);
     setBrand("");
     setMaterial("");
+    setSkipPrice(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -106,10 +110,11 @@ function BestSellingForm({ product, onSave }) {
     if (product) {
       setName(product.name);
       setProductId(product.product_id || "");
-      setPrice(formatCurrency(product.price.toString()));
+      setPrice(product.price?.toString() || "");
       setDescription(product.description || "");
       setBrand(product.brand || "");
       setMaterial(product.material || "");
+      setSkipPrice(!product.price);
       setImage(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -180,7 +185,9 @@ function BestSellingForm({ product, onSave }) {
       const productData = {
         name,
         product_id: productId,
-        price: parseFloat(price.replace(/[^0-9]/g, "")),
+        price: skipPrice
+          ? null
+          : parseFloat(price.replace(/[^0-9]/g, "")) || null,
         description,
         image_url: imageUrl,
         brand,
@@ -278,10 +285,21 @@ function BestSellingForm({ product, onSave }) {
             type="text"
             value={price}
             onChange={handlePriceChange}
-            required
+            required={!skipPrice}
+            disabled={skipPrice}
             className="bsf-form-input"
           />
         </Form.Group>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => setSkipPrice(!skipPrice)}
+          disabled={false}
+          className="bsf-form-btn bsf-mt-2 skip-price-btn"
+          style={{ padding: "0.4rem 0.6rem", fontSize: "0.85rem" }}
+        >
+          {skipPrice ? "Nhập giá" : "Không nhập giá"}
+        </Button>
         <Form.Group className="bsf-form-group">
           <Form.Label>Mô tả</Form.Label>
           <Form.Control

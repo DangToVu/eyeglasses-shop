@@ -316,7 +316,7 @@ function RegularProducts() {
                     </td>
                     <td>{product.name}</td>
                     <td>{product.product_id || "-"}</td>
-                    <td>{product.price}</td>
+                    <td>{product.price !== null ? product.price : "-"}</td>
                     <td>{product.description || "-"}</td>
                     <td>{product.brand || "-"}</td>
                     <td>{product.material || "-"}</td>
