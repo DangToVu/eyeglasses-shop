@@ -24,8 +24,12 @@ function BestSellingCard({ product }) {
           Thương hiệu: {product.brand || "-"}
           <br />
           Mã sản phẩm: {product.product_id || "-"}
-          <br />
-          Giá: {formatCurrency(product.price)}
+          {product.price !== null && (
+            <>
+              <br />
+              Giá: {formatCurrency(product.price)}
+            </>
+          )}
           <br />
           Chất liệu: {product.material || "-"}
         </Card.Text>
