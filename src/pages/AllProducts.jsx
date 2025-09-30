@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Button, Table } from "react-bootstrap";
+import { Container, Button, Table, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -18,9 +18,10 @@ function AllProducts() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [deleteData, setDeleteData] = useState({ id: null, table: null });
+  const [deleteData, setDeleteData] = useState({ ids: [], table: null });
+  const [selectedProducts, setSelectedProducts] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const { userRole, isLoading: authLoading } = useAuthCheck();
   const navigate = useNavigate();
 
@@ -127,8 +128,20 @@ function AllProducts() {
 
   const handleDelete = (id, table) => {
     if (userRole === "admin") {
-      setDeleteData({ id, table });
+      setDeleteData({ ids: [id], table });
       setShowConfirm(true);
+    }
+  };
+
+  const handleMultiDelete = () => {
+    if (userRole === "admin" && selectedProducts.size > 0) {
+      setDeleteData({
+        ids: Array.from(selectedProducts),
+        table: null, // Sẽ xác định table trong confirmDelete
+      });
+      setShowConfirm(true);
+    } else {
+      toast.warning("Vui lòng chọn ít nhất một sản phẩm để xóa!");
     }
   };
 
@@ -138,99 +151,143 @@ function AllProducts() {
       setShowConfirm(false);
 
       try {
-        let productToDelete = null;
-        let imagePath = "";
-        let bucket = "";
+        for (const id of deleteData.ids) {
+          let productToDelete = null;
+          let imagePath = "";
+          let bucket = "";
 
-        if (deleteData.table === "products") {
-          productToDelete = regularProducts.find((p) => p.id === deleteData.id);
-          bucket = "product-images";
-        } else if (deleteData.table === "best_selling_glasses") {
-          productToDelete = bestSellingProducts.find(
-            (p) => p.id === deleteData.id
-          );
-          bucket = "best-selling-images";
-        } else if (deleteData.table === "all_product") {
-          productToDelete = allProducts.find((p) => p.id === deleteData.id);
-          bucket = "all-product-images";
-        }
+          if (regularProducts.some((p) => p.id === id)) {
+            productToDelete = regularProducts.find((p) => p.id === id);
+            bucket = "product-images";
+          } else if (bestSellingProducts.some((p) => p.id === id)) {
+            productToDelete = bestSellingProducts.find((p) => p.id === id);
+            bucket = "best-selling-images";
+          } else if (allProducts.some((p) => p.id === id)) {
+            productToDelete = allProducts.find((p) => p.id === id);
+            bucket = "all-product-images";
+          }
 
-        let deleteImagePromise = Promise.resolve();
-        if (productToDelete && productToDelete.image_url) {
-          imagePath = productToDelete.image_url.substring(
-            productToDelete.image_url.lastIndexOf("/") + 1
-          );
-          deleteImagePromise = axios
-            .delete(
+          let deleteImagePromise = Promise.resolve();
+          if (productToDelete && productToDelete.image_url) {
+            imagePath = productToDelete.image_url.substring(
+              productToDelete.image_url.lastIndexOf("/") + 1
+            );
+            deleteImagePromise = axios
+              .delete(
+                `${
+                  import.meta.env.VITE_SUPABASE_URL
+                }/storage/v1/object/${bucket}/${imagePath}`,
+                {
+                  headers: {
+                    apikey: import.meta.env.VITE_SUPABASE_KEY,
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                }
+              )
+              .catch((err) => {
+                console.warn("Failed to delete image:", err.message);
+              });
+          }
+
+          const table = regularProducts.some((p) => p.id === id)
+            ? "products"
+            : bestSellingProducts.some((p) => p.id === id)
+            ? "best_selling_glasses"
+            : "all_product";
+
+          await Promise.all([
+            deleteImagePromise,
+            axios.delete(
               `${
                 import.meta.env.VITE_SUPABASE_URL
-              }/storage/v1/object/${bucket}/${imagePath}`,
+              }/rest/v1/${table}?id=eq.${id}`,
               {
                 headers: {
                   apikey: import.meta.env.VITE_SUPABASE_KEY,
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  Prefer: "return=representation",
                 },
               }
-            )
-            .catch((err) => {
-              console.warn("Failed to delete image:", err.message);
-            });
+            ),
+          ]);
+
+          if (table === "products") {
+            setRegularProducts(regularProducts.filter((p) => p.id !== id));
+          } else if (table === "best_selling_glasses") {
+            setBestSellingProducts(
+              bestSellingProducts.filter((p) => p.id !== id)
+            );
+          } else if (table === "all_product") {
+            setAllProducts(allProducts.filter((p) => p.id !== id));
+          }
         }
 
-        await Promise.all([
-          deleteImagePromise,
-          axios.delete(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
-              deleteData.table
-            }?id=eq.${deleteData.id}`,
-            {
-              headers: {
-                apikey: import.meta.env.VITE_SUPABASE_KEY,
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-                Prefer: "return=representation",
-              },
-            }
-          ),
-        ]);
-
-        if (deleteData.table === "products") {
-          setRegularProducts(
-            regularProducts.filter((p) => p.id !== deleteData.id)
-          );
-        } else if (deleteData.table === "best_selling_glasses") {
-          setBestSellingProducts(
-            bestSellingProducts.filter((p) => p.id !== deleteData.id)
-          );
-        } else if (deleteData.table === "all_product") {
-          setAllProducts(allProducts.filter((p) => p.id !== deleteData.id));
-        }
         const allProductsList = [
           ...regularProducts,
           ...bestSellingProducts,
           ...allProducts,
-        ].filter((p) => p.id !== deleteData.id);
-        if (currentPage > Math.ceil(allProductsList.length / itemsPerPage)) {
+        ].filter((p) => !deleteData.ids.includes(p.id));
+        setSelectedProducts(new Set());
+
+        const totalPagesAfterDelete = Math.ceil(
+          allProductsList.length / itemsPerPage
+        );
+        if (currentPage > totalPagesAfterDelete && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+          console.log("Deleted, moving to previous page:", currentPage - 1);
+        } else if (currentPage > totalPagesAfterDelete && currentPage === 1) {
           setCurrentPage(1);
           console.log(
             "Deleted, resetting to page 1, currentPage:",
             currentPage
           );
         } else {
-          console.log("Deleted, giữ currentPage:", currentPage);
+          console.log("Deleted, keeping currentPage:", currentPage);
         }
-        toast.success("Xóa sản phẩm thành công!");
+
+        toast.success(`Xóa ${deleteData.ids.length} sản phẩm thành công!`);
       } catch (error) {
         toast.error("Lỗi khi xóa: " + error.message);
       } finally {
         setIsLoading(false);
-        setDeleteData({ id: null, table: null });
+        setDeleteData({ ids: [], table: null });
       }
     }
   };
 
   const cancelDelete = () => {
     setShowConfirm(false);
-    setDeleteData({ id: null, table: null });
+    setDeleteData({ ids: [], table: null });
+  };
+
+  const toggleSelectProduct = (id) => {
+    const newSelectedProducts = new Set(selectedProducts);
+    if (newSelectedProducts.has(id)) {
+      newSelectedProducts.delete(id);
+    } else {
+      newSelectedProducts.add(id);
+    }
+    setSelectedProducts(newSelectedProducts);
+  };
+
+  const toggleSelectAll = () => {
+    const newSelectedProducts = new Set();
+    if (selectedProducts.size !== currentProducts.length) {
+      currentProducts.forEach((product) => newSelectedProducts.add(product.id));
+    }
+    setSelectedProducts(newSelectedProducts);
+  };
+
+  const handleItemsPerPageChange = (e) => {
+    const newItemsPerPage = parseInt(e.target.value, 10);
+    setItemsPerPage(newItemsPerPage);
+    const totalPages = Math.ceil(filteredProducts.length / newItemsPerPage);
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages > 0 ? totalPages : 1);
+      console.log("Items per page changed, adjusted to page:", totalPages);
+    } else {
+      console.log("Items per page changed, keeping currentPage:", currentPage);
+    }
   };
 
   const allProductsList = [
@@ -239,10 +296,7 @@ function AllProducts() {
       ...p,
       table: "best_selling_glasses",
     })),
-    ...allProducts.map((p) => ({
-      ...p,
-      table: "all_product",
-    })),
+    ...allProducts.map((p) => ({ ...p, table: "all_product" })),
   ];
 
   const filteredProducts = allProductsList;
@@ -298,9 +352,36 @@ function AllProducts() {
             />
           </div>
           <div className="ap-list-container">
+            <div className="summary-labels">
+              <span>Tổng sản phẩm: {filteredProducts.length}</span>
+            </div>
+            {selectedProducts.size > 0 && (
+              <>
+                <Button
+                  variant="danger"
+                  className="ap-btn mb-3"
+                  onClick={handleMultiDelete}
+                >
+                  Xóa đã chọn
+                </Button>
+                <div className="selected-count">
+                  Đã chọn {selectedProducts.size} sản phẩm
+                </div>
+              </>
+            )}
             <Table striped bordered hover className="ap-table mt-4">
               <thead>
                 <tr>
+                  <th>
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedProducts.size === currentProducts.length &&
+                        currentProducts.length > 0
+                      }
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
                   <th>Tên</th>
                   <th>Mã sản phẩm</th>
                   <th>Giá</th>
@@ -314,6 +395,13 @@ function AllProducts() {
               <tbody>
                 {currentProducts.map((product) => (
                   <tr key={product.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.has(product.id)}
+                        onChange={() => toggleSelectProduct(product.id)}
+                      />
+                    </td>
                     <td>{product.name}</td>
                     <td>{product.product_id || "-"}</td>
                     <td>{product.price}</td>
@@ -336,14 +424,14 @@ function AllProducts() {
                     <td>
                       <Button
                         variant="warning"
-                        className="ap-btn me-2"
+                        className="ap-btn edit-btn"
                         onClick={() => setSelectedProduct(product)}
                       >
                         Sửa
                       </Button>
                       <Button
                         variant="danger"
-                        className="ap-btn"
+                        className="ap-btn delete-btn"
                         onClick={() => handleDelete(product.id, product.table)}
                       >
                         Xóa
@@ -397,6 +485,20 @@ function AllProducts() {
                 </Button>
               </div>
             )}
+            <div className="items-per-page-selector">
+              <Form.Label>Số dòng mỗi trang:</Form.Label>
+              <Form.Select
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+                className="ms-2"
+                style={{ display: "inline-block", width: "auto" }}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </Form.Select>
+            </div>
           </div>
         </div>
       </Container>

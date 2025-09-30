@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Button, Table } from "react-bootstrap";
+import { Container, Button, Table, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -18,9 +18,10 @@ function RegularProducts() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [deleteData, setDeleteData] = useState({ id: null, table: null });
+  const [deleteData, setDeleteData] = useState({ ids: [], table: null });
+  const [selectedProducts, setSelectedProducts] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     if (!authLoading && userRole !== "admin") {
@@ -85,8 +86,17 @@ function RegularProducts() {
   };
 
   const handleDelete = (id, table) => {
-    setDeleteData({ id, table });
+    setDeleteData({ ids: [id], table });
     setShowConfirm(true);
+  };
+
+  const handleMultiDelete = () => {
+    if (selectedProducts.size > 0) {
+      setDeleteData({ ids: Array.from(selectedProducts), table: "products" });
+      setShowConfirm(true);
+    } else {
+      toast.warning("Vui lòng chọn ít nhất một sản phẩm để xóa!");
+    }
   };
 
   const confirmDelete = async () => {
@@ -95,41 +105,55 @@ function RegularProducts() {
 
     setTimeout(async () => {
       try {
-        const productToDelete = products.find((p) => p.id === deleteData.id);
-        if (productToDelete && productToDelete.image_url) {
-          const imageUrl = productToDelete.image_url;
-          const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-          await axios
-            .delete(
-              `${
-                import.meta.env.VITE_SUPABASE_URL
-              }/storage/v1/object/product-images/${imagePath}`,
-              {
-                headers: {
-                  apikey: import.meta.env.VITE_SUPABASE_KEY,
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-              }
-            )
-            .catch((err) => {
-              console.warn("Failed to delete image:", err.message);
-            });
-        }
-
-        await axios.delete(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
-            deleteData.table
-          }?id=eq.${deleteData.id}`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-              Prefer: "return=representation",
-            },
+        for (const id of deleteData.ids) {
+          const productToDelete = products.find((p) => p.id === id);
+          if (productToDelete && productToDelete.image_url) {
+            const imageUrl = productToDelete.image_url;
+            const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+            await axios
+              .delete(
+                `${
+                  import.meta.env.VITE_SUPABASE_URL
+                }/storage/v1/object/product-images/${imagePath}`,
+                {
+                  headers: {
+                    apikey: import.meta.env.VITE_SUPABASE_KEY,
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                }
+              )
+              .catch((err) => {
+                console.warn("Failed to delete image:", err.message);
+              });
           }
+
+          await axios.delete(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
+              deleteData.table
+            }?id=eq.${id}`,
+            {
+              headers: {
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Prefer: "return=representation",
+              },
+            }
+          );
+        }
+        const updatedProducts = products.filter(
+          (p) => !deleteData.ids.includes(p.id)
         );
-        setProducts(products.filter((p) => p.id !== deleteData.id));
-        if (currentPage > Math.ceil(products.length / itemsPerPage)) {
+        setProducts(updatedProducts);
+        setSelectedProducts(new Set());
+
+        // Logic để quay về trang trước nếu trang hiện tại bị xóa hết
+        const totalPagesAfterDelete = Math.ceil(
+          updatedProducts.length / itemsPerPage
+        );
+        if (currentPage > totalPagesAfterDelete && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+          console.log("Deleted, moving to previous page:", currentPage - 1);
+        } else if (currentPage > totalPagesAfterDelete && currentPage === 1) {
           setCurrentPage(1);
           console.log(
             "Deleted, resetting to page 1, currentPage:",
@@ -138,7 +162,10 @@ function RegularProducts() {
         } else {
           console.log("Deleted, keeping currentPage:", currentPage);
         }
-        toast.success("Xóa sản phẩm và ảnh thành công!");
+
+        toast.success(
+          `Xóa ${deleteData.ids.length} sản phẩm và ảnh thành công!`
+        );
       } catch (error) {
         toast.error(
           "Lỗi khi xóa: " +
@@ -148,14 +175,44 @@ function RegularProducts() {
         );
       } finally {
         setIsLoading(false);
-        setDeleteData({ id: null, table: null });
+        setDeleteData({ ids: [], table: null });
       }
     }, 10);
   };
 
   const cancelDelete = () => {
     setShowConfirm(false);
-    setDeleteData({ id: null, table: null });
+    setDeleteData({ ids: [], table: null });
+  };
+
+  const toggleSelectProduct = (id) => {
+    const newSelectedProducts = new Set(selectedProducts);
+    if (newSelectedProducts.has(id)) {
+      newSelectedProducts.delete(id);
+    } else {
+      newSelectedProducts.add(id);
+    }
+    setSelectedProducts(newSelectedProducts);
+  };
+
+  const toggleSelectAll = () => {
+    const newSelectedProducts = new Set();
+    if (selectedProducts.size !== currentProducts.length) {
+      currentProducts.forEach((product) => newSelectedProducts.add(product.id));
+    }
+    setSelectedProducts(newSelectedProducts);
+  };
+
+  const handleItemsPerPageChange = (e) => {
+    const newItemsPerPage = parseInt(e.target.value, 10);
+    setItemsPerPage(newItemsPerPage);
+    const totalPages = Math.ceil(products.length / newItemsPerPage);
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages > 0 ? totalPages : 1);
+      console.log("Items per page changed, adjusted to page:", totalPages);
+    } else {
+      console.log("Items per page changed, keeping currentPage:", currentPage);
+    }
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -207,9 +264,36 @@ function RegularProducts() {
             <ProductForm product={selectedProduct} onSave={handleSave} />
           </div>
           <div className="regular-product-list-container">
+            <div className="summary-labels">
+              <span>Tổng sản phẩm: {products.length}</span>
+            </div>
+            {selectedProducts.size > 0 && (
+              <>
+                <Button
+                  variant="danger"
+                  className="regular-btn mb-3"
+                  onClick={handleMultiDelete}
+                >
+                  Xóa đã chọn
+                </Button>
+                <div className="selected-count">
+                  Đã chọn {selectedProducts.size} sản phẩm
+                </div>
+              </>
+            )}
             <Table striped bordered hover className="regular-table mt-4">
               <thead>
                 <tr>
+                  <th>
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedProducts.size === currentProducts.length &&
+                        currentProducts.length > 0
+                      }
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
                   <th>Tên</th>
                   <th>Mã sản phẩm</th>
                   <th>Giá</th>
@@ -223,6 +307,13 @@ function RegularProducts() {
               <tbody>
                 {currentProducts.map((product) => (
                   <tr key={product.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.has(product.id)}
+                        onChange={() => toggleSelectProduct(product.id)}
+                      />
+                    </td>
                     <td>{product.name}</td>
                     <td>{product.product_id || "-"}</td>
                     <td>{product.price}</td>
@@ -245,14 +336,14 @@ function RegularProducts() {
                     <td>
                       <Button
                         variant="warning"
-                        className="regular-btn me-2"
+                        className="regular-btn edit-btn"
                         onClick={() => setSelectedProduct(product)}
                       >
                         Sửa
                       </Button>
                       <Button
                         variant="danger"
-                        className="regular-btn"
+                        className="regular-btn delete-btn"
                         onClick={() => handleDelete(product.id, "products")}
                       >
                         Xóa
@@ -306,6 +397,20 @@ function RegularProducts() {
                 </Button>
               </div>
             )}
+            <div className="items-per-page-selector">
+              <Form.Label>Số dòng mỗi trang:</Form.Label>
+              <Form.Select
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+                className="ms-2"
+                style={{ display: "inline-block", width: "auto" }}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </Form.Select>
+            </div>
           </div>
         </div>
       </Container>
