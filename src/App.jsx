@@ -9,6 +9,9 @@ import AllProductsCustomer from "./pages/AllProductsCustomer.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import NotFound404 from "./pages/NotFound404.jsx";
 import AuthGuard from "./guards/AuthGuard.jsx";
+import UserProfile from "./pages/UserProfile.jsx";
+import AdminProfile from "./pages/AdminProfile.jsx";
+import FavoriteProduct from "./pages/FavoriteProduct.jsx";
 import { ToastContainer } from "react-toastify";
 
 function App() {
@@ -19,6 +22,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/products/all" element={<AllProductsCustomer />} />
+        <Route path="/favorite-products" element={<FavoriteProduct />} />
         <Route element={<AuthGuard />}>
           <Route path="/card-management" element={<CardManagement />} />
           <Route path="/products/regular" element={<RegularProducts />} />
@@ -27,6 +31,8 @@ function App() {
             element={<BestSellingProducts />}
           />
           <Route path="/products/all-management" element={<AllProducts />} />
+          <Route path="/user-profile" element={<UserProfile />} />
+          <Route path="/admin-profile" element={<AdminProfile />} />
         </Route>
         <Route path="*" element={<NotFound404 />} />
       </Routes>

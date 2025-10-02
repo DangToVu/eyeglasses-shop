@@ -1,6 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { BiCog } from "react-icons/bi";
+import {
+  BiCog,
+  BiUser,
+  BiShieldQuarter,
+  BiHome,
+  BiStore,
+  BiWrench,
+  BiLogIn,
+  BiLogOut,
+  BiHeart,
+} from "react-icons/bi";
 import ConfirmBox from "../components/ConfirmBox";
 import LoadingScreen from "../components/LoadingScreen";
 import useAuthCheck from "../hooks/useAuthCheck.jsx";
@@ -84,6 +94,29 @@ function Header() {
     setShowDropdown(false);
   };
 
+  const handleHome = () => {
+    navigate("/");
+    setShowDropdown(false);
+  };
+
+  const handleUserProfile = () => {
+    if (userRole === "customer") {
+      navigate("/user-profile");
+    } else if (userRole === "admin") {
+      navigate("/admin-profile");
+    }
+    setShowDropdown(false);
+  };
+
+  const handleFavoriteProducts = () => {
+    if (!userRole) {
+      toast.error("Vui lòng đăng nhập để truy cập sản phẩm ưu thích!");
+    } else {
+      navigate("/favorite-products");
+    }
+    setShowDropdown(false);
+  };
+
   return (
     <div className="header-wrapper">
       {isLoading && <LoadingScreen />}
@@ -100,6 +133,18 @@ function Header() {
             <img src={logo} alt="Kính mắt Tuân Hồng" className="header-logo" />
           </Link>
           <div className="header-nav">
+            {userRole && (
+              <div
+                className="header-user-icon-wrapper"
+                onClick={handleUserProfile}
+              >
+                {userRole === "admin" ? (
+                  <BiShieldQuarter className="header-user-icon" />
+                ) : (
+                  <BiUser className="header-user-icon" />
+                )}
+              </div>
+            )}
             <div
               className="header-icon-wrapper"
               onClick={() => setShowDropdown(!showDropdown)}
@@ -107,25 +152,34 @@ function Header() {
               <BiCog className="header-icon" />
               {showDropdown && (
                 <div className="dropdown-menu">
+                  <div className="dropdown-item" onClick={handleHome}>
+                    <BiHome className="dropdown-icon" /> Trang chủ
+                  </div>
                   <Link
                     to="/products/all"
                     className="dropdown-item"
                     onClick={handleAllProducts}
                   >
-                    Tất cả sản phẩm
+                    <BiStore className="dropdown-icon" /> Tất cả sản phẩm
                   </Link>
+                  <div
+                    className="dropdown-item"
+                    onClick={handleFavoriteProducts}
+                  >
+                    <BiHeart className="dropdown-icon" /> Sản phẩm ưu thích
+                  </div>
                   {userRole ? (
                     <>
                       {userRole === "admin" && (
                         <div className="dropdown-item" onClick={handleManage}>
-                          Quản lý
+                          <BiWrench className="dropdown-icon" /> Quản lý
                         </div>
                       )}
                       <div
                         className="dropdown-item-logout"
                         onClick={handleLogout}
                       >
-                        Đăng xuất
+                        <BiLogOut className="dropdown-icon" /> Đăng xuất
                       </div>
                     </>
                   ) : (
@@ -134,7 +188,7 @@ function Header() {
                       className="dropdown-item"
                       onClick={handleLogin}
                     >
-                      Đăng nhập
+                      <BiLogIn className="dropdown-icon" /> Đăng nhập
                     </Link>
                   )}
                 </div>

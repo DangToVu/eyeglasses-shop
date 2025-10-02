@@ -31,7 +31,7 @@ const useAuthCheck = () => {
         return;
       }
 
-      // Lấy userId từ Supabase auth endpoint
+      // Lấy thông tin người dùng từ Supabase auth endpoint
       const authResponse = await axios.get(
         `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
         {
@@ -50,7 +50,7 @@ const useAuthCheck = () => {
       }
       console.log("Authenticated userId:", userId);
 
-      // Truy vấn bảng users với bộ lọc userid
+      // Truy vấn vai trò từ bảng users
       const userResponse = await axios.get(
         `${
           import.meta.env.VITE_SUPABASE_URL
@@ -63,8 +63,6 @@ const useAuthCheck = () => {
           },
         }
       );
-
-      console.log("User response:", userResponse.data);
 
       if (!userResponse.data || userResponse.data.length === 0) {
         throw new Error("Không tìm thấy thông tin vai trò trong bảng users");
@@ -84,6 +82,8 @@ const useAuthCheck = () => {
         error.response?.data
       );
       toast.error("Lỗi khi kiểm tra quyền: " + error.message);
+      localStorage.removeItem("token");
+      localStorage.removeItem("token_expires_at");
       setUserRole(null);
     } finally {
       setIsLoading(false);
@@ -91,12 +91,20 @@ const useAuthCheck = () => {
   };
 
   useEffect(() => {
-    checkUserRole();
+    let isMounted = true;
+    if (isMounted) {
+      checkUserRole();
+    }
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
 
   const resetAuth = () => {
     setUserRole(null);
     setIsLoading(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("token_expires_at");
   };
 
   return { userRole, isLoading, resetAuth };
