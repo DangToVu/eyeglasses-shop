@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Person, Lock } from "react-bootstrap-icons";
+import { createClient } from "@supabase/supabase-js";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import LoadingScreen from "../components/LoadingScreen.jsx";
@@ -102,27 +102,45 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // Initialize Supabase client
+    const supabase = createClient(
+      import.meta.env.VITE_SUPABASE_URL,
+      import.meta.env.VITE_SUPABASE_KEY
+    );
+
     try {
-      const { data, error } = await axios.post(
-        `${
-          import.meta.env.VITE_SUPABASE_URL
-        }/auth/v1/token?grant_type=password`,
-        { email, password },
-        {
-          headers: {
-            apikey: import.meta.env.VITE_SUPABASE_KEY,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      // Clear any existing session and localStorage
+      await supabase.auth.signOut();
+      localStorage.removeItem("token");
+      localStorage.removeItem("token_expires_at");
+
+      // Authenticate using Supabase client
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
       if (error) throw error;
 
-      if (data.access_token) {
-        const { access_token, expires_in } = data;
-        const expirationTime = Date.now() + expires_in * 1000;
+      if (data.session) {
+        const { access_token, expires_at, user } = data.session;
+        // Store token and expiration in localStorage
         localStorage.setItem("token", access_token);
-        localStorage.setItem("token_expires_at", expirationTime);
+        localStorage.setItem("token_expires_at", expires_at * 1000);
+        console.log("Logged in userId:", user.id); // Debug log
+
+        // Verify session
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+        if (sessionError || !session) {
+          throw new Error(
+            "Không thể xác thực phiên: " +
+              (sessionError?.message || "No session")
+          );
+        }
 
         if (rememberMe) {
           localStorage.setItem("savedUsername", email);
@@ -138,14 +156,15 @@ function Login() {
         }));
 
         navigate("/");
+      } else {
+        throw new Error("Không nhận được phiên đăng nhập!");
       }
     } catch (error) {
       let errorMessage = "Đăng nhập thất bại!";
-      if (error.response?.data?.message) {
-        errorMessage += ` ${error.response.data.message}`;
-      } else if (error.message) {
+      if (error.message) {
         errorMessage += ` ${error.message}`;
       }
+      console.error("Login error:", error.message);
       toast.error(errorMessage);
       setYetiProps((prev) => ({
         ...prev,

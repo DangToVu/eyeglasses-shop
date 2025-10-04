@@ -15,6 +15,7 @@ import ConfirmBox from "../components/ConfirmBox";
 import LoadingScreen from "../components/LoadingScreen";
 import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import { toast } from "react-toastify";
+import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/components/Header.css";
 import logo from "../../public/logo.png";
@@ -65,14 +66,33 @@ function Header() {
     setShowLogoutConfirm(true);
   };
 
-  const confirmLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("token_expires_at");
-    resetAuth(); // Đặt lại userRole và isLoading
-    setShowDropdown(false);
-    setShowLogoutConfirm(false);
-    navigate("/");
-    toast.success("Đăng xuất thành công");
+  const confirmLogout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        await axios.post(
+          `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/logout`,
+          {},
+          {
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log("Logout request successful");
+      }
+    } catch (error) {
+      console.error("Error signing out:", error.message, error.response?.data);
+      // Continue with logout even if the API call fails, as the token will be cleared locally
+    } finally {
+      resetAuth(); // Clear state and localStorage
+      setShowDropdown(false);
+      setShowLogoutConfirm(false);
+      navigate("/");
+      toast.success("Đăng xuất thành công");
+    }
   };
 
   const cancelLogout = () => {
