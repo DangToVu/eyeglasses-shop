@@ -111,13 +111,13 @@ function BestSellingProducts() {
 
     setTimeout(async () => {
       try {
-        for (const id of deleteData.ids) {
+        // Batch delete images
+        const deleteImagePromises = deleteData.ids.map((id) => {
           const productToDelete = bestSellingProducts.find((p) => p.id === id);
-          let deleteImagePromise = Promise.resolve();
           if (productToDelete && productToDelete.image_url) {
             const imageUrl = productToDelete.image_url;
             const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-            deleteImagePromise = axios
+            return axios
               .delete(
                 `${
                   import.meta.env.VITE_SUPABASE_URL
@@ -133,23 +133,60 @@ function BestSellingProducts() {
                 console.warn("Failed to delete image:", err.message);
               });
           }
+          return Promise.resolve();
+        });
 
-          await Promise.all([
-            deleteImagePromise,
-            axios.delete(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
-                deleteData.table
-              }?id=eq.${id}`,
-              {
-                headers: {
-                  apikey: import.meta.env.VITE_SUPABASE_KEY,
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  Prefer: "return=representation",
-                },
-              }
-            ),
-          ]);
-        }
+        // Batch delete favorites
+        const deleteFavoritesPromise =
+          deleteData.ids.length > 0
+            ? axios
+                .delete(
+                  `${
+                    import.meta.env.VITE_SUPABASE_URL
+                  }/rest/v1/favorites?product_id=in.(${deleteData.ids.join(
+                    ","
+                  )})&table_name=eq.best_selling_glasses`,
+                  {
+                    headers: {
+                      apikey: import.meta.env.VITE_SUPABASE_KEY,
+                      Authorization: `Bearer ${localStorage.getItem("token")}`,
+                      Prefer: "return=representation",
+                    },
+                  }
+                )
+                .then((response) => {
+                  console.log("Favorites deleted:", response.data);
+                  return response;
+                })
+                .catch((err) => {
+                  console.error(
+                    "Failed to delete favorites:",
+                    err.response?.data || err.message
+                  );
+                  throw err;
+                })
+            : Promise.resolve();
+
+        // Batch delete products
+        const deleteProductsPromise = axios.delete(
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
+            deleteData.table
+          }?id=in.(${deleteData.ids.join(",")})`,
+          {
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Prefer: "return=representation",
+            },
+          }
+        );
+
+        await Promise.all([
+          ...deleteImagePromises,
+          deleteFavoritesPromise,
+          deleteProductsPromise,
+        ]);
+
         const updatedProducts = bestSellingProducts.filter(
           (p) => !deleteData.ids.includes(p.id)
         );
@@ -174,14 +211,14 @@ function BestSellingProducts() {
         }
 
         toast.success(
-          `Xóa ${deleteData.ids.length} sản phẩm và ảnh thành công!`
+          `Xóa ${deleteData.ids.length} sản phẩm và các mục yêu thích liên quan thành công!`
         );
       } catch (error) {
         toast.error(
           "Lỗi khi xóa: " +
             (error.response?.data?.message ||
               error.message ||
-              "Không thể xóa ảnh hoặc sản phẩm")
+              "Không thể xóa ảnh, sản phẩm hoặc mục yêu thích")
         );
       } finally {
         setIsLoading(false);
@@ -264,7 +301,7 @@ function BestSellingProducts() {
       {isLoading && <LoadingScreen />}
       {showConfirm && (
         <ConfirmBox
-          message="Bạn có chắc chắn muốn xóa sản phẩm này không?"
+          message="Bạn có chắc chắn muốn xóa sản phẩm này không? Các mục yêu thích liên quan cũng sẽ bị xóa."
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
         />

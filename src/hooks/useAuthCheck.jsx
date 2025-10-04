@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -7,37 +7,94 @@ const useAuthCheck = () => {
   const [userRole, setUserRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const publicRoutes = ["/", "/products/all", "/login", "/register"];
 
   const checkUserRole = async () => {
     setIsLoading(true);
     const token = localStorage.getItem("token");
-    if (!token) {
-      console.log("No token found in localStorage");
+
+    if (!token && publicRoutes.includes(location.pathname)) {
+      console.log("No token found, but on public route:", location.pathname);
       setUserRole(null);
       setIsLoading(false);
       return;
     }
 
+    if (!token) {
+      console.log("No token found in localStorage");
+      setUserRole(null);
+      setIsLoading(false);
+      navigate("/login", { state: { from: location.pathname } });
+      return;
+    }
+
     try {
-      // Kiểm tra token hết hạn
-      const expiresAt = localStorage.getItem("token_expires_at");
-      if (expiresAt && Date.now() > parseInt(expiresAt)) {
-        console.log("Token expired at:", new Date(parseInt(expiresAt)));
-        localStorage.removeItem("token");
-        localStorage.removeItem("token_expires_at");
-        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-        setUserRole(null);
-        setIsLoading(false);
-        return;
+      const expiresAt = parseInt(localStorage.getItem("token_expires_at"));
+      if (expiresAt && Date.now() > expiresAt) {
+        const refreshToken = localStorage.getItem("refresh_token");
+        if (!refreshToken) {
+          console.log("Token expired and no refresh token found");
+          localStorage.removeItem("token");
+          localStorage.removeItem("token_expires_at");
+          localStorage.removeItem("refresh_token");
+          toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+          setUserRole(null);
+          setIsLoading(false);
+          if (!publicRoutes.includes(location.pathname)) {
+            navigate("/login", { state: { from: location.pathname } });
+          }
+          return;
+        }
+        try {
+          const refreshResponse = await axios.post(
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/auth/v1/token?grant_type=refresh_token`,
+            { refresh_token: refreshToken },
+            {
+              headers: {
+                apikey: import.meta.env.VITE_SUPABASE_KEY,
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const { access_token, refresh_token, expires_in } =
+            refreshResponse.data;
+          localStorage.setItem("token", access_token);
+          localStorage.setItem("refresh_token", refresh_token);
+          localStorage.setItem(
+            "token_expires_at",
+            Date.now() + expires_in * 1000
+          );
+        } catch (refreshError) {
+          console.error(
+            "Failed to refresh token:",
+            refreshError.response?.data || refreshError.message
+          );
+          toast.error(
+            "Không thể làm mới phiên đăng nhập. Vui lòng đăng nhập lại."
+          );
+          localStorage.removeItem("token");
+          localStorage.removeItem("token_expires_at");
+          localStorage.removeItem("refresh_token");
+          setUserRole(null);
+          setIsLoading(false);
+          if (!publicRoutes.includes(location.pathname)) {
+            navigate("/login", { state: { from: location.pathname } });
+          }
+          return;
+        }
       }
 
-      // Lấy userId từ Supabase auth endpoint
       const authResponse = await axios.get(
         `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
         {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "application/json",
           },
         }
@@ -50,7 +107,6 @@ const useAuthCheck = () => {
       }
       console.log("Authenticated userId:", userId);
 
-      // Truy vấn bảng users với bộ lọc userid
       const userResponse = await axios.get(
         `${
           import.meta.env.VITE_SUPABASE_URL
@@ -58,13 +114,11 @@ const useAuthCheck = () => {
         {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "application/json",
           },
         }
       );
-
-      console.log("User response:", userResponse.data);
 
       if (!userResponse.data || userResponse.data.length === 0) {
         throw new Error("Không tìm thấy thông tin vai trò trong bảng users");
@@ -85,6 +139,12 @@ const useAuthCheck = () => {
       );
       toast.error("Lỗi khi kiểm tra quyền: " + error.message);
       setUserRole(null);
+      localStorage.removeItem("token");
+      localStorage.removeItem("token_expires_at");
+      localStorage.removeItem("refresh_token");
+      if (!publicRoutes.includes(location.pathname)) {
+        navigate("/login", { state: { from: location.pathname } });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -92,14 +152,17 @@ const useAuthCheck = () => {
 
   useEffect(() => {
     checkUserRole();
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   const resetAuth = () => {
     setUserRole(null);
     setIsLoading(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("token_expires_at");
+    localStorage.removeItem("refresh_token");
   };
 
-  return { userRole, isLoading, resetAuth };
+  return { userRole, isLoading, resetAuth, checkUserRole };
 };
 
 export default useAuthCheck;

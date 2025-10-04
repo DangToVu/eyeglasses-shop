@@ -31,8 +31,8 @@ function Home() {
   const brandWrapperRef = useRef(null);
   const [isInView, setIsInView] = useState(false);
   const location = useLocation();
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
-  const [selectedProduct, setSelectedProduct] = useState(null); // State for selected product
+  const [showModal, setShowModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -59,7 +59,9 @@ function Home() {
             },
           }
         );
-        setProducts(response.data || []);
+        setProducts(
+          response.data.map((p) => ({ ...p, table: "products" })) || []
+        );
       } catch (error) {
         console.error("Lỗi khi lấy sản phẩm:", error);
         setProducts([]);
@@ -76,7 +78,10 @@ function Home() {
             },
           }
         );
-        setBestSellingProducts(response.data || []);
+        setBestSellingProducts(
+          response.data.map((p) => ({ ...p, table: "best_selling_glasses" })) ||
+            []
+        );
       } catch (error) {
         console.error("Lỗi khi fetch sản phẩm bán chạy:", error);
         setBestSellingProducts([]);
@@ -309,7 +314,6 @@ function Home() {
     return () => cancelAnimationFrame(animationFrameId);
   }, [isHovered, isDragging, isInView]);
 
-  // Function to handle product card click and show modal
   const handleProductClick = (product) => {
     setSelectedProduct(product);
     setShowModal(true);

@@ -6,11 +6,10 @@ import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import AllProductCard from "../components/AllProductCard.jsx";
-import ProductDetailModal from "../components/ProductDetailModal.jsx"; // Import the new modal component
+import ProductDetailModal from "../components/ProductDetailModal.jsx";
 import "../styles/pages/AllProductsCustomer.css";
 import LoadingScreen from "../components/LoadingScreen";
 
-// Hàm định dạng số với dấu chấm ngăn cách hàng nghìn
 const formatPrice = (price) =>
   price === Infinity
     ? "Không giới hạn"
@@ -24,11 +23,10 @@ function AllProductsCustomer() {
   const [isFiltering, setIsFiltering] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchParams] = useSearchParams();
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
-  const [selectedProduct, setSelectedProduct] = useState(null); // State for selected product
+  const [showModal, setShowModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const location = useLocation();
 
-  // State cho filter và tìm kiếm
   const [filters, setFilters] = useState({
     brands: [],
     materials: [],
@@ -41,7 +39,6 @@ function AllProductsCustomer() {
     maxPrice: Infinity,
   });
 
-  // Thêm ref để tham chiếu đến phần hiển thị sản phẩm
   const cardsSectionRef = useRef(null);
 
   useEffect(() => {
@@ -57,13 +54,17 @@ function AllProductsCustomer() {
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
           { headers: publicHeaders }
         );
-        setAllProducts(allResponse.data);
+        setAllProducts(
+          allResponse.data.map((p) => ({ ...p, table: "all_product" }))
+        );
 
         const regularResponse = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
           { headers: publicHeaders }
         );
-        setRegularProducts(regularResponse.data);
+        setRegularProducts(
+          regularResponse.data.map((p) => ({ ...p, table: "products" }))
+        );
 
         const bestSellingResponse = await axios.get(
           `${
@@ -71,7 +72,12 @@ function AllProductsCustomer() {
           }/rest/v1/best_selling_glasses?select=*`,
           { headers: publicHeaders }
         );
-        setBestSellingProducts(bestSellingResponse.data);
+        setBestSellingProducts(
+          bestSellingResponse.data.map((p) => ({
+            ...p,
+            table: "best_selling_glasses",
+          }))
+        );
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
       } finally {
@@ -92,7 +98,6 @@ function AllProductsCustomer() {
     }
   }, [searchParams]);
 
-  // Cuộn lên đầu trang khi tải trang lần đầu
   useEffect(() => {
     const timer = setTimeout(() => {
       requestAnimationFrame(() => {
@@ -102,7 +107,6 @@ function AllProductsCustomer() {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
-  // Cuộn đến phần sản phẩm khi thay đổi trang, filter hoặc search
   useEffect(() => {
     if (cardsSectionRef.current) {
       cardsSectionRef.current.scrollIntoView({ behavior: "smooth" });
@@ -164,22 +168,15 @@ function AllProductsCustomer() {
     setCurrentPage(1);
   };
 
-  // Function to handle product card click and show modal
   const handleProductClick = (product) => {
     setSelectedProduct(product);
     setShowModal(true);
   };
 
   const allProductsList = [
-    ...regularProducts.map((p) => ({ ...p, table: "products" })),
-    ...bestSellingProducts.map((p) => ({
-      ...p,
-      table: "best_selling_glasses",
-    })),
-    ...allProducts.map((p) => ({
-      ...p,
-      table: "all_product",
-    })),
+    ...regularProducts,
+    ...bestSellingProducts,
+    ...allProducts,
   ];
 
   const filteredProducts = allProductsList.filter((product) => {
@@ -430,5 +427,4 @@ function AllProductsCustomer() {
     </div>
   );
 }
-
 export default AllProductsCustomer;

@@ -1,4 +1,3 @@
-/* src/styles/BestSellingCard.css */
 .best-card {
   width: 330px;
   margin: 0 5px 1rem 5px;
@@ -29,15 +28,22 @@
   border-radius: 0 0 10px 10px;
 }
 
+.title-with-heart {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: -0.5rem;
+}
+
 .best-title {
   margin-top: -7px;
   font-size: 1.2rem;
   font-weight: 600;
   color: #333;
-  margin-bottom: -0.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex-grow: 1;
 }
 
 .best-text {
@@ -69,7 +75,11 @@
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
 
-/* Responsive */
+.heart-icon {
+  font-size: 1.5rem;
+  color: #ff0000;
+}
+
 @media (max-width: 1199px) {
   .best-card {
     width: 400px;
@@ -94,6 +104,10 @@
 
   .best-card .btn {
     font-size: 0.8rem;
+  }
+
+  .heart-icon {
+    font-size: 1.8rem;
   }
 }
 
@@ -122,6 +136,10 @@
   .best-card .btn {
     font-size: 0.8rem;
   }
+
+  .heart-icon {
+    font-size: 1.8rem;
+  }
 }
 
 @media (max-width: 767px) {
@@ -148,6 +166,10 @@
 
   .best-card .btn {
     font-size: 0.8rem;
+  }
+
+  .heart-icon {
+    font-size: 1.3rem;
   }
 }
 
@@ -176,6 +198,10 @@
   .best-card .btn {
     font-size: 0.7rem;
   }
+
+  .heart-icon {
+    font-size: 1.1rem;
+  }
 }
 
 /* New Responsive Section for width < 400px */
@@ -203,5 +229,9 @@
   .best-card .btn {
     font-size: 0.65rem;
     padding: 0.4rem;
+  }
+
+  .heart-icon {
+    font-size: 1rem;
   }
 }

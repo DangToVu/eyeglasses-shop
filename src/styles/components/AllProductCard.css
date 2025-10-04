@@ -26,8 +26,14 @@
   padding: 1rem;
   height: 100px;
   background: #fff;
-  border-radius: 0 0 10px 10px; 
+  border-radius: 0 0 10px 10px;
+}
 
+.title-with-heart {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: -0.5rem;
 }
 
 .all-prod-card-title {
@@ -35,10 +41,10 @@
   font-size: 1.2rem;
   font-weight: 600;
   color: #333;
-  margin-bottom: -0.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex-grow: 1;
 }
 
 .all-prod-card-text {
@@ -47,6 +53,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.heart-icon {
+  font-size: 1.5rem;
+  color: #ff0000;
 }
 
 @media (max-width: 1024px) {
@@ -61,6 +72,10 @@
   }
   .all-prod-card-body {
     height: 90px;
+  }
+
+  .heart-icon {
+    font-size: 1.4rem;
   }
 }
 
@@ -85,10 +100,18 @@
   .all-prod-card-body {
     height: 80px;
   }
+
+  .heart-icon {
+    font-size: 1.2rem;
+  }
 }
 
 @media (max-width: 480px) {
   .all-prod-card-image {
     height: 150px;
+  }
+
+  .heart-icon {
+    font-size: 1rem;
   }
 }

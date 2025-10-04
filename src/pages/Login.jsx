@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Person, Lock } from "react-bootstrap-icons";
+import axios from "axios";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import LoadingScreen from "../components/LoadingScreen.jsx";
@@ -102,12 +102,21 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
-      const { data, error } = await axios.post(
+      // Clear any existing token in localStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("token_expires_at");
+
+      // Gọi API đăng nhập của Supabase với Axios
+      const response = await axios.post(
         `${
           import.meta.env.VITE_SUPABASE_URL
         }/auth/v1/token?grant_type=password`,
-        { email, password },
+        {
+          email,
+          password,
+        },
         {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
@@ -116,36 +125,54 @@ function Login() {
         }
       );
 
-      if (error) throw error;
+      const { access_token, expires_at, user } = response.data;
 
-      if (data.access_token) {
-        const { access_token, expires_in } = data;
-        const expirationTime = Date.now() + expires_in * 1000;
-        localStorage.setItem("token", access_token);
-        localStorage.setItem("token_expires_at", expirationTime);
-
-        if (rememberMe) {
-          localStorage.setItem("savedUsername", email);
-        } else {
-          localStorage.removeItem("savedUsername");
-        }
-
-        toast.success("Đăng nhập thành công!");
-        setYetiProps((prev) => ({
-          ...prev,
-          triggerSuccess: true,
-          triggerFail: false,
-        }));
-
-        navigate("/");
+      if (!access_token || !expires_at || !user) {
+        throw new Error("Không nhận được thông tin phiên đăng nhập!");
       }
+
+      // Lưu token và thời gian hết hạn vào localStorage
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("token_expires_at", expires_at * 1000);
+      console.log("Logged in userId:", user.id); // Debug log
+
+      // Xác minh token bằng cách gọi API get user
+      const userResponse = await axios.get(
+        `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
+        {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_KEY,
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
+
+      if (!userResponse.data) {
+        throw new Error("Không thể xác thực phiên!");
+      }
+
+      if (rememberMe) {
+        localStorage.setItem("savedUsername", email);
+      } else {
+        localStorage.removeItem("savedUsername");
+      }
+
+      toast.success("Đăng nhập thành công!");
+      setYetiProps((prev) => ({
+        ...prev,
+        triggerSuccess: true,
+        triggerFail: false,
+      }));
+
+      navigate("/");
     } catch (error) {
       let errorMessage = "Đăng nhập thất bại!";
-      if (error.response?.data?.message) {
-        errorMessage += ` ${error.response.data.message}`;
+      if (error.response?.data?.error_description) {
+        errorMessage += ` ${error.response.data.error_description}`;
       } else if (error.message) {
         errorMessage += ` ${error.message}`;
       }
+      console.error("Login error:", error.response?.data || error.message);
       toast.error(errorMessage);
       setYetiProps((prev) => ({
         ...prev,

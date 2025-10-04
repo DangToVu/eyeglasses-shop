@@ -146,33 +146,50 @@ function AllProducts() {
   };
 
   const confirmDelete = async () => {
-    if (userRole === "admin") {
-      setIsLoading(true);
-      setShowConfirm(false);
+    if (userRole !== "admin") return;
+    setIsLoading(true);
+    setShowConfirm(false);
 
+    setTimeout(async () => {
       try {
-        for (const id of deleteData.ids) {
+        // Tạo các promise để xóa hình ảnh
+        const deleteImagePromises = deleteData.ids.map((id) => {
           let productToDelete = null;
-          let imagePath = "";
           let bucket = "";
+          let table = deleteData.table;
 
-          if (regularProducts.some((p) => p.id === id)) {
-            productToDelete = regularProducts.find((p) => p.id === id);
-            bucket = "product-images";
-          } else if (bestSellingProducts.some((p) => p.id === id)) {
-            productToDelete = bestSellingProducts.find((p) => p.id === id);
-            bucket = "best-selling-images";
-          } else if (allProducts.some((p) => p.id === id)) {
-            productToDelete = allProducts.find((p) => p.id === id);
-            bucket = "all-product-images";
+          if (!table) {
+            if (regularProducts.some((p) => p.id === id)) {
+              productToDelete = regularProducts.find((p) => p.id === id);
+              table = "products";
+              bucket = "product-images";
+            } else if (bestSellingProducts.some((p) => p.id === id)) {
+              productToDelete = bestSellingProducts.find((p) => p.id === id);
+              table = "best_selling_glasses";
+              bucket = "best-selling-images";
+            } else if (allProducts.some((p) => p.id === id)) {
+              productToDelete = allProducts.find((p) => p.id === id);
+              table = "all_product";
+              bucket = "all-product-images";
+            }
+          } else {
+            if (table === "products") {
+              productToDelete = regularProducts.find((p) => p.id === id);
+              bucket = "product-images";
+            } else if (table === "best_selling_glasses") {
+              productToDelete = bestSellingProducts.find((p) => p.id === id);
+              bucket = "best-selling-images";
+            } else if (table === "all_product") {
+              productToDelete = allProducts.find((p) => p.id === id);
+              bucket = "all-product-images";
+            }
           }
 
-          let deleteImagePromise = Promise.resolve();
           if (productToDelete && productToDelete.image_url) {
-            imagePath = productToDelete.image_url.substring(
+            const imagePath = productToDelete.image_url.substring(
               productToDelete.image_url.lastIndexOf("/") + 1
             );
-            deleteImagePromise = axios
+            return axios
               .delete(
                 `${
                   import.meta.env.VITE_SUPABASE_URL
@@ -188,47 +205,109 @@ function AllProducts() {
                 console.warn("Failed to delete image:", err.message);
               });
           }
+          return Promise.resolve();
+        });
 
-          const table = regularProducts.some((p) => p.id === id)
-            ? "products"
-            : bestSellingProducts.some((p) => p.id === id)
-            ? "best_selling_glasses"
-            : "all_product";
-
-          await Promise.all([
-            deleteImagePromise,
-            axios.delete(
-              `${
-                import.meta.env.VITE_SUPABASE_URL
-              }/rest/v1/${table}?id=eq.${id}`,
-              {
-                headers: {
-                  apikey: import.meta.env.VITE_SUPABASE_KEY,
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  Prefer: "return=representation",
-                },
-              }
-            ),
-          ]);
-
-          if (table === "products") {
-            setRegularProducts(regularProducts.filter((p) => p.id !== id));
-          } else if (table === "best_selling_glasses") {
-            setBestSellingProducts(
-              bestSellingProducts.filter((p) => p.id !== id)
-            );
-          } else if (table === "all_product") {
-            setAllProducts(allProducts.filter((p) => p.id !== id));
+        // Tạo promise để xóa favorites theo table
+        const deleteFavoritesPromises = deleteData.ids.reduce((acc, id) => {
+          let table = deleteData.table;
+          if (!table) {
+            if (regularProducts.some((p) => p.id === id)) {
+              table = "products";
+            } else if (bestSellingProducts.some((p) => p.id === id)) {
+              table = "best_selling_glasses";
+            } else if (allProducts.some((p) => p.id === id)) {
+              table = "all_product";
+            }
           }
-        }
+          if (table) {
+            acc.push(
+              axios
+                .delete(
+                  `${
+                    import.meta.env.VITE_SUPABASE_URL
+                  }/rest/v1/favorites?product_id=in.(${id})&table_name=eq.${table}`,
+                  {
+                    headers: {
+                      apikey: import.meta.env.VITE_SUPABASE_KEY,
+                      Authorization: `Bearer ${localStorage.getItem("token")}`,
+                      Prefer: "return=representation",
+                    },
+                  }
+                )
+                .then((response) => {
+                  console.log(`Favorites deleted for ${table}:`, response.data);
+                  return response;
+                })
+                .catch((err) => {
+                  console.error(
+                    `Failed to delete favorites for ${table}:`,
+                    err.response?.data || err.message
+                  );
+                  throw err;
+                })
+            );
+          }
+          return acc;
+        }, []);
 
-        const allProductsList = [
-          ...regularProducts,
-          ...bestSellingProducts,
-          ...allProducts,
-        ].filter((p) => !deleteData.ids.includes(p.id));
+        // Tạo promise để xóa sản phẩm theo table
+        const deleteProductsPromises = deleteData.ids.reduce((acc, id) => {
+          let table = deleteData.table;
+          if (!table) {
+            if (regularProducts.some((p) => p.id === id)) {
+              table = "products";
+            } else if (bestSellingProducts.some((p) => p.id === id)) {
+              table = "best_selling_glasses";
+            } else if (allProducts.some((p) => p.id === id)) {
+              table = "all_product";
+            }
+          }
+          if (table) {
+            acc.push(
+              axios.delete(
+                `${
+                  import.meta.env.VITE_SUPABASE_URL
+                }/rest/v1/${table}?id=in.(${id})`,
+                {
+                  headers: {
+                    apikey: import.meta.env.VITE_SUPABASE_KEY,
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    Prefer: "return=representation",
+                  },
+                }
+              )
+            );
+          }
+          return acc;
+        }, []);
+
+        await Promise.all([
+          ...deleteImagePromises,
+          ...deleteFavoritesPromises,
+          ...deleteProductsPromises,
+        ]);
+
+        const updatedAllProducts = allProducts.filter(
+          (p) => !deleteData.ids.includes(p.id)
+        );
+        const updatedRegularProducts = regularProducts.filter(
+          (p) => !deleteData.ids.includes(p.id)
+        );
+        const updatedBestSellingProducts = bestSellingProducts.filter(
+          (p) => !deleteData.ids.includes(p.id)
+        );
+
+        setAllProducts(updatedAllProducts);
+        setRegularProducts(updatedRegularProducts);
+        setBestSellingProducts(updatedBestSellingProducts);
         setSelectedProducts(new Set());
 
+        const allProductsList = [
+          ...updatedRegularProducts,
+          ...updatedBestSellingProducts,
+          ...updatedAllProducts,
+        ];
         const totalPagesAfterDelete = Math.ceil(
           allProductsList.length / itemsPerPage
         );
@@ -245,14 +324,21 @@ function AllProducts() {
           console.log("Deleted, keeping currentPage:", currentPage);
         }
 
-        toast.success(`Xóa ${deleteData.ids.length} sản phẩm thành công!`);
+        toast.success(
+          `Xóa ${deleteData.ids.length} sản phẩm và các mục yêu thích liên quan thành công!`
+        );
       } catch (error) {
-        toast.error("Lỗi khi xóa: " + error.message);
+        toast.error(
+          "Lỗi khi xóa: " +
+            (error.response?.data?.message ||
+              error.message ||
+              "Không thể xóa ảnh, sản phẩm hoặc mục yêu thích")
+        );
       } finally {
         setIsLoading(false);
         setDeleteData({ ids: [], table: null });
       }
-    }
+    }, 10);
   };
 
   const cancelDelete = () => {
@@ -334,7 +420,7 @@ function AllProducts() {
       {(isLoading || authLoading) && <LoadingScreen />}
       {showConfirm && (
         <ConfirmBox
-          message="Bạn có chắc chắn muốn xóa sản phẩm này không?"
+          message="Bạn có chắc chắn muốn xóa sản phẩm này không? Các mục yêu thích liên quan cũng sẽ bị xóa."
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
         />
