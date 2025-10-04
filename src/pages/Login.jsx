@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Person, Lock } from "react-bootstrap-icons";
-import { createClient } from "@supabase/supabase-js";
+import axios from "axios";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import LoadingScreen from "../components/LoadingScreen.jsx";
@@ -103,68 +103,76 @@ function Login() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Initialize Supabase client
-    const supabase = createClient(
-      import.meta.env.VITE_SUPABASE_URL,
-      import.meta.env.VITE_SUPABASE_KEY
-    );
-
     try {
-      // Clear any existing session and localStorage
-      await supabase.auth.signOut();
+      // Clear any existing token in localStorage
       localStorage.removeItem("token");
       localStorage.removeItem("token_expires_at");
 
-      // Authenticate using Supabase client
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      if (data.session) {
-        const { access_token, expires_at, user } = data.session;
-        // Store token and expiration in localStorage
-        localStorage.setItem("token", access_token);
-        localStorage.setItem("token_expires_at", expires_at * 1000);
-        console.log("Logged in userId:", user.id); // Debug log
-
-        // Verify session
-        const {
-          data: { session },
-          error: sessionError,
-        } = await supabase.auth.getSession();
-        if (sessionError || !session) {
-          throw new Error(
-            "Không thể xác thực phiên: " +
-              (sessionError?.message || "No session")
-          );
+      // Gọi API đăng nhập của Supabase với Axios
+      const response = await axios.post(
+        `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/auth/v1/token?grant_type=password`,
+        {
+          email,
+          password,
+        },
+        {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_KEY,
+            "Content-Type": "application/json",
+          },
         }
+      );
 
-        if (rememberMe) {
-          localStorage.setItem("savedUsername", email);
-        } else {
-          localStorage.removeItem("savedUsername");
-        }
+      const { access_token, expires_at, user } = response.data;
 
-        toast.success("Đăng nhập thành công!");
-        setYetiProps((prev) => ({
-          ...prev,
-          triggerSuccess: true,
-          triggerFail: false,
-        }));
-
-        navigate("/");
-      } else {
-        throw new Error("Không nhận được phiên đăng nhập!");
+      if (!access_token || !expires_at || !user) {
+        throw new Error("Không nhận được thông tin phiên đăng nhập!");
       }
+
+      // Lưu token và thời gian hết hạn vào localStorage
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("token_expires_at", expires_at * 1000);
+      console.log("Logged in userId:", user.id); // Debug log
+
+      // Xác minh token bằng cách gọi API get user
+      const userResponse = await axios.get(
+        `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
+        {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_KEY,
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
+
+      if (!userResponse.data) {
+        throw new Error("Không thể xác thực phiên!");
+      }
+
+      if (rememberMe) {
+        localStorage.setItem("savedUsername", email);
+      } else {
+        localStorage.removeItem("savedUsername");
+      }
+
+      toast.success("Đăng nhập thành công!");
+      setYetiProps((prev) => ({
+        ...prev,
+        triggerSuccess: true,
+        triggerFail: false,
+      }));
+
+      navigate("/");
     } catch (error) {
       let errorMessage = "Đăng nhập thất bại!";
-      if (error.message) {
+      if (error.response?.data?.error_description) {
+        errorMessage += ` ${error.response.data.error_description}`;
+      } else if (error.message) {
         errorMessage += ` ${error.message}`;
       }
-      console.error("Login error:", error.message);
+      console.error("Login error:", error.response?.data || error.message);
       toast.error(errorMessage);
       setYetiProps((prev) => ({
         ...prev,
