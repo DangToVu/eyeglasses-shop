@@ -14,7 +14,7 @@ function NotFound404() {
           Có vẻ do bạn mờ mắt nên mở nhầm trang rồi.
         </p>
         <p className="not-found-submessage">
-          Hãy quay về trang chủ để tìm cho mình một cặp kính thật xịn nhé!
+          Hãy quay về trang chủ để tìm cho mình một cặp kính thật xịn nhé!!
         </p>
         <Link to="/" className="not-found-button">
           Về trang chủ
