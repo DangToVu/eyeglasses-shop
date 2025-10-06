@@ -4,14 +4,20 @@
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   display: inline-block;
   vertical-align: top;
   box-sizing: border-box;
+  cursor: pointer; /* Gợi ý card có thể nhấn */
 }
 
 .all-prod-card-container:hover {
-  transform: translateY(-5px);
+  transform: translateY(-10px); /* Nâng cao hơn khi hover */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Tăng bóng */
+}
+
+.all-prod-card-container:active {
+  transform: scale(0.95); /* Thu nhỏ khi nhấn */
 }
 
 .all-prod-card-image {
@@ -24,7 +30,7 @@
 
 .all-prod-card-body {
   padding: 1rem;
-  height: 100px;
+  height: 105px;
   background: #fff;
   border-radius: 0 0 10px 10px;
 }
@@ -58,6 +64,17 @@
 .heart-icon {
   font-size: 1.5rem;
   color: #ff0000;
+  transition: transform 0.2s ease-in-out, filter 0.2s ease-in-out; /* Hiệu ứng mượt */
+  cursor: pointer; /* Gợi ý có thể nhấn */
+}
+
+.heart-icon:hover {
+  transform: scale(1.1); /* Phóng to nhẹ khi hover */
+  filter: brightness(1.2); /* Tăng độ sáng */
+}
+
+.heart-icon:active {
+  transform: scale(0.9); /* Thu nhỏ khi nhấn */
 }
 
 @media (max-width: 1024px) {
@@ -71,7 +88,7 @@
     font-size: 0.9rem;
   }
   .all-prod-card-body {
-    height: 90px;
+    height: 95px;
   }
 
   .heart-icon {
@@ -98,7 +115,7 @@
     font-size: 0.85rem;
   }
   .all-prod-card-body {
-    height: 80px;
+    height: 85px;
   }
 
   .heart-icon {

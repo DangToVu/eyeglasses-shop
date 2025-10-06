@@ -128,7 +128,15 @@ function BestSellingForm({ product, onSave }) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      let imageUrl = product ? product.image_url : "";
+      // Mặc định sử dụng ảnh từ Supabase nếu không có ảnh
+      let imageUrl =
+        "https://xrmccpvwxagewnbwjnra.supabase.co/storage/v1/object/public/public_picture/no_picture.jpg";
+
+      // Nếu đang chỉnh sửa và sản phẩm đã có ảnh, giữ nguyên ảnh cũ
+      if (product && product.image_url) {
+        imageUrl = product.image_url;
+      }
+
       let deleteOldImagePromise = Promise.resolve(); // Default to resolved promise
 
       if (image) {
