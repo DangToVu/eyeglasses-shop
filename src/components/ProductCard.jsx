@@ -70,8 +70,7 @@ function ProductCard({ product }) {
     checkFavorite();
   }, [product.id, product.table]);
 
-  const handleFavoriteToggle = async (e) => {
-    e.stopPropagation(); // Ngăn sự kiện click lan truyền lên thẻ cha
+  const handleFavoriteToggle = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {

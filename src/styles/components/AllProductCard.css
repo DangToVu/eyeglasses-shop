@@ -64,17 +64,6 @@
 .heart-icon {
   font-size: 1.5rem;
   color: #ff0000;
-  transition: transform 0.2s ease-in-out, filter 0.2s ease-in-out; /* Hiệu ứng mượt */
-  cursor: pointer; /* Gợi ý có thể nhấn */
-}
-
-.heart-icon:hover {
-  transform: scale(1.1); /* Phóng to nhẹ khi hover */
-  filter: brightness(1.2); /* Tăng độ sáng */
-}
-
-.heart-icon:active {
-  transform: scale(0.9); /* Thu nhỏ khi nhấn */
 }
 
 @media (max-width: 1024px) {
@@ -89,6 +78,10 @@
   }
   .all-prod-card-body {
     height: 95px;
+  }
+
+  .heart-icon {
+    font-size: 1.4rem;
   }
 
   .heart-icon {
@@ -116,6 +109,10 @@
   }
   .all-prod-card-body {
     height: 85px;
+  }
+
+  .heart-icon {
+    font-size: 1.2rem;
   }
 
   .heart-icon {
