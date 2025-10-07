@@ -206,6 +206,7 @@ function ProductForm({ product, onSave }) {
       const idField = product ? `id=eq.${product.id}` : null;
 
       if (product) {
+        // Cập nhật sản phẩm
         await axios.patch(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?${idField}`,
           productData,
@@ -218,6 +219,28 @@ function ProductForm({ product, onSave }) {
             },
           }
         );
+
+        // Cập nhật bảng favorites
+        await axios.patch(
+          `${
+            import.meta.env.VITE_SUPABASE_URL
+          }/rest/v1/favorites?product_id=eq.${
+            product.id
+          }&table_name=eq.${table}`,
+          {
+            product_name: name,
+            product_code: productId || null,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
+              "Content-Type": "application/json",
+              Prefer: "return=minimal",
+            },
+          }
+        );
+
         toast.success("Cập nhật sản phẩm thành công!");
         resetForm();
       } else {
