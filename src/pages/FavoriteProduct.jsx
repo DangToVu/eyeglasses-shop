@@ -15,15 +15,6 @@ function FavoriteProduct() {
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  useEffect(() => {
-    if (isLoading) return;
-    if (!userRole) {
-      toast.error("Vui lòng đăng nhập để truy cập sản phẩm yêu thích!");
-      return;
-    }
-    fetchFavorites();
-  }, [userRole, isLoading]);
-
   const fetchFavorites = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -32,7 +23,6 @@ function FavoriteProduct() {
         return;
       }
 
-      // Kiểm tra token hết hạn
       const expiresAt = parseInt(localStorage.getItem("token_expires_at"));
       if (expiresAt && Date.now() > expiresAt) {
         const refreshToken = localStorage.getItem("refresh_token");
@@ -44,7 +34,6 @@ function FavoriteProduct() {
           return;
         }
 
-        // Làm mới token
         const refreshResponse = await axios.post(
           `${
             import.meta.env.VITE_SUPABASE_URL
@@ -69,7 +58,6 @@ function FavoriteProduct() {
         );
       }
 
-      // Lấy thông tin người dùng
       const userResponse = await axios.get(
         `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
         {
@@ -88,7 +76,6 @@ function FavoriteProduct() {
       }
       console.log("Fetching favorites for userId:", userId);
 
-      // Lấy danh sách sản phẩm yêu thích
       const favoriteResponse = await axios.get(
         `${
           import.meta.env.VITE_SUPABASE_URL
@@ -131,6 +118,23 @@ function FavoriteProduct() {
       toast.error("Lỗi khi lấy danh sách yêu thích: " + error.message);
     }
   };
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!userRole) {
+      toast.error("Vui lòng đăng nhập để truy cập sản phẩm yêu thích!");
+      return;
+    }
+    fetchFavorites();
+
+    const handleFavoriteToggled = () => {
+      fetchFavorites();
+    };
+
+    window.addEventListener("favoriteToggled", handleFavoriteToggled);
+    return () =>
+      window.removeEventListener("favoriteToggled", handleFavoriteToggled);
+  }, [userRole, isLoading]);
 
   const handleProductClick = (product) => {
     setSelectedProduct(product);

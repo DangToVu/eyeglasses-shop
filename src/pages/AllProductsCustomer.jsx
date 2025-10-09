@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from "react";
 import { Container, Button } from "react-bootstrap";
 import { useSearchParams, useLocation } from "react-router-dom";
@@ -9,7 +10,6 @@ import AllProductCard from "../components/AllProductCard.jsx";
 import ProductDetailModal from "../components/ProductDetailModal.jsx";
 import "../styles/pages/AllProductsCustomer.css";
 import LoadingScreen from "../components/LoadingScreen";
-
 const formatPrice = (price) =>
   price === Infinity
     ? "Không giới hạn"
