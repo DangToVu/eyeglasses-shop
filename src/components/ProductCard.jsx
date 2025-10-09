@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Card } from "react-bootstrap";
 import { BiHeart, BiSolidHeart } from "react-icons/bi";
 import { useState, useEffect } from "react";
@@ -8,70 +9,81 @@ import "../styles/components/ProductCard.css";
 function ProductCard({ product }) {
   const [isFavorite, setIsFavorite] = useState(false);
 
+  const checkFavorite = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.log("No token found in localStorage");
+        return;
+      }
+
+      const expiresAt = parseInt(localStorage.getItem("token_expires_at"));
+      if (expiresAt && Date.now() > expiresAt) {
+        console.log("Token expired at:", new Date(expiresAt));
+        localStorage.removeItem("token");
+        localStorage.removeItem("token_expires_at");
+        localStorage.removeItem("refresh_token");
+        return;
+      }
+
+      const userResponse = await axios.get(
+        `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
+        {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_KEY,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const userId = userResponse.data.id;
+      if (!userId) {
+        console.log("No user found in session");
+        return;
+      }
+
+      const favoriteResponse = await axios.get(
+        `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/rest/v1/favorites?user_id=eq.${userId}&product_id=eq.${
+          product.id
+        }&table_name=eq.${product.table || "products"}&select=*`,
+        {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_KEY,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setIsFavorite(favoriteResponse.data.length > 0);
+    } catch (error) {
+      console.error("Error checking favorite:", error.message);
+    }
+  };
+
   useEffect(() => {
-    const checkFavorite = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.log("No token found in localStorage");
-          return;
-        }
+    checkFavorite();
 
-        // Kiểm tra token hết hạn
-        const expiresAt = parseInt(localStorage.getItem("token_expires_at"));
-        if (expiresAt && Date.now() > expiresAt) {
-          console.log("Token expired at:", new Date(expiresAt));
-          localStorage.removeItem("token");
-          localStorage.removeItem("token_expires_at");
-          localStorage.removeItem("refresh_token");
-          return;
-        }
-
-        // Lấy thông tin người dùng
-        const userResponse = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        const userId = userResponse.data.id;
-        if (!userId) {
-          console.log("No user found in session");
-          return;
-        }
-        console.log("Checking favorite for userId:", userId);
-
-        // Kiểm tra sản phẩm yêu thích
-        const favoriteResponse = await axios.get(
-          `${
-            import.meta.env.VITE_SUPABASE_URL
-          }/rest/v1/favorites?user_id=eq.${userId}&product_id=eq.${
-            product.id
-          }&table_name=eq.${product.table || "products"}&select=*`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        setIsFavorite(favoriteResponse.data.length > 0);
-      } catch (error) {
-        console.error("Error checking favorite:", error.message);
+    const handleFavoriteToggled = (event) => {
+      const { productId, tableName } = event.detail;
+      if (
+        productId === product.id &&
+        tableName === (product.table || "products")
+      ) {
+        checkFavorite();
       }
     };
-    checkFavorite();
+
+    window.addEventListener("favoriteToggled", handleFavoriteToggled);
+    return () =>
+      window.removeEventListener("favoriteToggled", handleFavoriteToggled);
   }, [product.id, product.table]);
 
   const handleFavoriteToggle = async (e) => {
-    e.stopPropagation(); // Ngăn sự kiện click lan truyền lên thẻ cha
+    e.stopPropagation();
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -79,7 +91,6 @@ function ProductCard({ product }) {
         return;
       }
 
-      // Kiểm tra token hết hạn
       const expiresAt = parseInt(localStorage.getItem("token_expires_at"));
       if (expiresAt && Date.now() > expiresAt) {
         const refreshToken = localStorage.getItem("refresh_token");
@@ -91,7 +102,6 @@ function ProductCard({ product }) {
           return;
         }
 
-        // Làm mới token
         const refreshResponse = await axios.post(
           `${
             import.meta.env.VITE_SUPABASE_URL
@@ -116,7 +126,6 @@ function ProductCard({ product }) {
         );
       }
 
-      // Lấy thông tin người dùng
       const userResponse = await axios.get(
         `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
         {
@@ -134,7 +143,6 @@ function ProductCard({ product }) {
         toast.error("Bạn cần đăng nhập để sử dụng chức năng này!");
         return;
       }
-      console.log("Toggling favorite for userId:", userId);
 
       if (!product.id || !product.name) {
         toast.error("Thông tin sản phẩm không hợp lệ!");
@@ -180,6 +188,16 @@ function ProductCard({ product }) {
         setIsFavorite(true);
         toast.success("Đã thêm sản phẩm vào danh sách yêu thích!");
       }
+
+      // Phát sự kiện để thông báo trạng thái yêu thích đã thay đổi
+      window.dispatchEvent(
+        new CustomEvent("favoriteToggled", {
+          detail: {
+            productId: product.id,
+            tableName: product.table || "products",
+          },
+        })
+      );
     } catch (error) {
       console.error("Error toggling favorite:", error.message);
       toast.error("Lỗi khi xử lý yêu thích: " + error.message);

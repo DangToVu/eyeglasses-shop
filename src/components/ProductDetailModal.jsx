@@ -1,5 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { BiHeart, BiSolidHeart } from "react-icons/bi";
+import axios from "axios";
+import { toast } from "react-toastify";
 import "../styles/components/ProductDetailModal.css";
 
 const formatPrice = (price) =>
@@ -13,30 +17,207 @@ function ProductDetailModal({ show, onHide, product }) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+  const [isFavorite, setIsFavorite] = useState(false);
   const imageRef = useRef(null);
   const fullScreenImageRef = useRef(null);
   const containerRef = useRef(null);
 
+  const checkFavorite = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.log("No token found in localStorage");
+        return;
+      }
+
+      const expiresAt = parseInt(localStorage.getItem("token_expires_at"));
+      if (expiresAt && Date.now() > expiresAt) {
+        console.log("Token expired at:", new Date(expiresAt));
+        localStorage.removeItem("token");
+        localStorage.removeItem("token_expires_at");
+        localStorage.removeItem("refresh_token");
+        return;
+      }
+
+      const userResponse = await axios.get(
+        `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
+        {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_KEY,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const userId = userResponse.data.id;
+      if (!userId) {
+        console.log("No user found in session");
+        return;
+      }
+
+      const favoriteResponse = await axios.get(
+        `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/rest/v1/favorites?user_id=eq.${userId}&product_id=eq.${
+          product.id
+        }&table_name=eq.${product.table || "products"}&select=*`,
+        {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_KEY,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setIsFavorite(favoriteResponse.data.length > 0);
+    } catch (error) {
+      console.error("Error checking favorite:", error.message);
+    }
+  };
+
   useEffect(() => {
-    if (isFullScreen && containerRef.current) {
-      // Reset position to top-left when changing zoom level (default zoom behavior)
-      setPosition({ x: 0, y: 0 });
-    }
+    if (!show || !product) return;
 
-    // Disable page scrolling when full-screen is open
-    if (isFullScreen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    checkFavorite();
 
-    // Cleanup to re-enable scrolling when component unmounts or full-screen closes
-    return () => {
-      if (!isFullScreen) {
-        document.body.style.overflow = "";
+    const handleFavoriteToggled = (event) => {
+      const { productId, tableName } = event.detail;
+      if (
+        productId === product.id &&
+        tableName === (product.table || "products")
+      ) {
+        checkFavorite();
       }
     };
-  }, [zoomLevel, isFullScreen]);
+
+    window.addEventListener("favoriteToggled", handleFavoriteToggled);
+    return () =>
+      window.removeEventListener("favoriteToggled", handleFavoriteToggled);
+  }, [product, show]);
+
+  const handleFavoriteToggle = async (e) => {
+    e.stopPropagation();
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Bạn cần đăng nhập để sử dụng chức năng này!");
+        return;
+      }
+
+      const expiresAt = parseInt(localStorage.getItem("token_expires_at"));
+      if (expiresAt && Date.now() > expiresAt) {
+        const refreshToken = localStorage.getItem("refresh_token");
+        if (!refreshToken) {
+          toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+          localStorage.removeItem("token");
+          localStorage.removeItem("token_expires_at");
+          localStorage.removeItem("refresh_token");
+          return;
+        }
+
+        const refreshResponse = await axios.post(
+          `${
+            import.meta.env.VITE_SUPABASE_URL
+          }/auth/v1/token?grant_type=refresh_token`,
+          { refresh_token: refreshToken },
+          {
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const { access_token, refresh_token, expires_in } =
+          refreshResponse.data;
+        localStorage.setItem("token", access_token);
+        localStorage.setItem("refresh_token", refresh_token);
+        localStorage.setItem(
+          "token_expires_at",
+          Date.now() + expires_in * 1000
+        );
+      }
+
+      const userResponse = await axios.get(
+        `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
+        {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_KEY,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const userId = userResponse.data.id;
+      const userEmail = userResponse.data.email;
+      if (!userId) {
+        toast.error("Bạn cần đăng nhập để sử dụng chức năng này!");
+        return;
+      }
+
+      if (!product.id || !product.name) {
+        toast.error("Thông tin sản phẩm không hợp lệ!");
+        return;
+      }
+
+      if (isFavorite) {
+        await axios.delete(
+          `${
+            import.meta.env.VITE_SUPABASE_URL
+          }/rest/v1/favorites?user_id=eq.${userId}&product_id=eq.${
+            product.id
+          }&table_name=eq.${product.table || "products"}`,
+          {
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setIsFavorite(false);
+        toast.success("Đã xóa sản phẩm khỏi danh sách yêu thích!");
+      } else {
+        await axios.post(
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/favorites`,
+          {
+            user_id: userId,
+            email: userEmail,
+            product_name: product.name,
+            product_id: product.id,
+            product_code: product.product_id || null,
+            table_name: product.table || "products",
+          },
+          {
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setIsFavorite(true);
+        toast.success("Đã thêm sản phẩm vào danh sách yêu thích!");
+      }
+
+      // Phát sự kiện để thông báo trạng thái yêu thích đã thay đổi
+      window.dispatchEvent(
+        new CustomEvent("favoriteToggled", {
+          detail: {
+            productId: product.id,
+            tableName: product.table || "products",
+          },
+        })
+      );
+    } catch (error) {
+      console.error("Error toggling favorite:", error.message);
+      toast.error("Lỗi khi xử lý yêu thích: " + error.message);
+    }
+  };
 
   if (!product || !show) return null;
 
@@ -56,12 +237,10 @@ function ProductDetailModal({ show, onHide, product }) {
 
   const handleZoomIn = () => {
     setZoomLevel((prev) => Math.min(prev + 1, 4));
-    // Position is reset to top-left in useEffect
   };
 
   const handleZoomOut = () => {
     setZoomLevel((prev) => Math.max(prev - 1, 1));
-    // Position is reset to top-left in useEffect
   };
 
   const handleMouseDown = (e) => {
@@ -75,13 +254,13 @@ function ProductDetailModal({ show, onHide, product }) {
   const handleMouseMove = (e) => {
     if (isDragging && zoomLevel > 1 && isFullScreen && containerRef.current) {
       e.preventDefault();
-      const dx = (e.clientX - startPos.x) / zoomLevel; // Adjust for zoom level
+      const dx = (e.clientX - startPos.x) / zoomLevel;
       const dy = (e.clientY - startPos.y) / zoomLevel;
       setPosition((prev) => ({
         x: prev.x + dx,
         y: prev.y + dy,
       }));
-      setStartPos({ x: e.clientX, y: e.clientY }); // Update start position for continuous drag
+      setStartPos({ x: e.clientX, y: e.clientY });
     }
   };
 
@@ -118,7 +297,12 @@ function ProductDetailModal({ show, onHide, product }) {
     <div className="modal-overlay">
       <div className="modal-content-wrapper">
         <div className="modal-header">
-          <h2 className="modal-title">{product.name}</h2>
+          <div className="modal-title-container">
+            <h2 className="modal-title">{product.name}</h2>
+            <div className="modal-heart-icon" onClick={handleFavoriteToggle}>
+              {isFavorite ? <BiSolidHeart /> : <BiHeart />}
+            </div>
+          </div>
           <button className="modal-close-button" onClick={onHide}>
             &times;
           </button>
@@ -181,7 +365,7 @@ function ProductDetailModal({ show, onHide, product }) {
               alt={product.name}
               style={{
                 transform: `scale(${zoomLevel}) translate(${position.x}px, ${position.y}px)`,
-                transformOrigin: "0 0", // Default zoom from top-left
+                transformOrigin: "0 0",
                 cursor: isFullScreen
                   ? zoomLevel > 1
                     ? "url(/minus-cursor.png), auto"
