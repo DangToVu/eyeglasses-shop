@@ -15,6 +15,7 @@ function BestSellingProducts() {
   const { userRole, isLoading: authLoading } = useAuthCheck();
   const navigate = useNavigate();
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -22,6 +23,17 @@ function BestSellingProducts() {
   const [selectedProducts, setSelectedProducts] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    brand: "",
+    material: "",
+    searchTerm: "",
+  });
+
+  const formatPrice = (price) => {
+    if (price === null || price === undefined) return "-";
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
 
   useEffect(() => {
     if (!authLoading && userRole !== "admin") {
@@ -46,6 +58,7 @@ function BestSellingProducts() {
           }
         );
         setBestSellingProducts(response.data);
+        setFilteredProducts(response.data);
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
       } finally {
@@ -54,6 +67,35 @@ function BestSellingProducts() {
     };
     fetchProducts();
   }, [userRole]);
+
+  useEffect(() => {
+    const filtered = bestSellingProducts.filter((product) => {
+      const searchMatch =
+        !filters.searchTerm ||
+        (product.name &&
+          product.name
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.brand &&
+          product.brand
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.product_id &&
+          product.product_id
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.material &&
+          product.material
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase()));
+      const brandMatch = !filters.brand || product.brand === filters.brand;
+      const materialMatch =
+        !filters.material || product.material === filters.material;
+      return searchMatch && brandMatch && materialMatch;
+    });
+    setFilteredProducts(filtered);
+    setCurrentPage(1);
+  }, [filters, bestSellingProducts]);
 
   const handleSave = () => {
     setSelectedProduct(null);
@@ -70,14 +112,38 @@ function BestSellingProducts() {
           }
         );
         setBestSellingProducts(response.data);
+        setFilteredProducts(
+          response.data.filter((product) => {
+            const searchMatch =
+              !filters.searchTerm ||
+              (product.name &&
+                product.name
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.brand &&
+                product.brand
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.product_id &&
+                product.product_id
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.material &&
+                product.material
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase()));
+            const brandMatch =
+              !filters.brand || product.brand === filters.brand;
+            const materialMatch =
+              !filters.material || product.material === filters.material;
+            return searchMatch && brandMatch && materialMatch;
+          })
+        );
         if (
           bestSellingProducts.length === 0 ||
           response.data.length < bestSellingProducts.length
         ) {
           setCurrentPage(1);
-          console.log("Saved, resetting to page 1, currentPage:", currentPage);
-        } else {
-          console.log("Saved, keeping currentPage:", currentPage);
         }
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
@@ -111,7 +177,6 @@ function BestSellingProducts() {
 
     setTimeout(async () => {
       try {
-        // Batch delete images
         const deleteImagePromises = deleteData.ids.map((id) => {
           const productToDelete = bestSellingProducts.find((p) => p.id === id);
           if (productToDelete && productToDelete.image_url) {
@@ -136,7 +201,6 @@ function BestSellingProducts() {
           return Promise.resolve();
         });
 
-        // Batch delete favorites
         const deleteFavoritesPromise =
           deleteData.ids.length > 0
             ? axios
@@ -167,7 +231,6 @@ function BestSellingProducts() {
                 })
             : Promise.resolve();
 
-        // Batch delete products
         const deleteProductsPromise = axios.delete(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
             deleteData.table
@@ -191,23 +254,42 @@ function BestSellingProducts() {
           (p) => !deleteData.ids.includes(p.id)
         );
         setBestSellingProducts(updatedProducts);
+        setFilteredProducts(
+          updatedProducts.filter((product) => {
+            const searchMatch =
+              !filters.searchTerm ||
+              (product.name &&
+                product.name
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.brand &&
+                product.brand
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.product_id &&
+                product.product_id
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.material &&
+                product.material
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase()));
+            const brandMatch =
+              !filters.brand || product.brand === filters.brand;
+            const materialMatch =
+              !filters.material || product.material === filters.material;
+            return searchMatch && brandMatch && materialMatch;
+          })
+        );
         setSelectedProducts(new Set());
 
-        // Logic để quay về trang trước nếu trang hiện tại bị xóa hết
         const totalPagesAfterDelete = Math.ceil(
           updatedProducts.length / itemsPerPage
         );
         if (currentPage > totalPagesAfterDelete && currentPage > 1) {
           setCurrentPage(currentPage - 1);
-          console.log("Deleted, moving to previous page:", currentPage - 1);
         } else if (currentPage > totalPagesAfterDelete && currentPage === 1) {
           setCurrentPage(1);
-          console.log(
-            "Deleted, resetting to page 1, currentPage:",
-            currentPage
-          );
-        } else {
-          console.log("Deleted, keeping currentPage:", currentPage);
         }
 
         toast.success(
@@ -253,27 +335,48 @@ function BestSellingProducts() {
   const handleItemsPerPageChange = (e) => {
     const newItemsPerPage = parseInt(e.target.value, 10);
     setItemsPerPage(newItemsPerPage);
-    const totalPages = Math.ceil(bestSellingProducts.length / newItemsPerPage);
+    const totalPages = Math.ceil(filteredProducts.length / newItemsPerPage);
     if (currentPage > totalPages) {
       setCurrentPage(totalPages > 0 ? totalPages : 1);
-      console.log("Items per page changed, adjusted to page:", totalPages);
-    } else {
-      console.log("Items per page changed, keeping currentPage:", currentPage);
     }
   };
 
+  const handleFilterChange = (category, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [category]: value === "all" ? "" : value,
+    }));
+  };
+
+  const handleSearchChange = (e) => {
+    setFilters((prev) => ({ ...prev, searchTerm: e.target.value }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      brand: "",
+      material: "",
+      searchTerm: "",
+    });
+    setCurrentPage(1);
+  };
+
+  const uniqueBrands = [
+    ...new Set(bestSellingProducts.map((p) => p.brand).filter(Boolean)),
+  ];
+  const uniqueMaterials = [
+    ...new Set(bestSellingProducts.map((p) => p.material).filter(Boolean)),
+  ];
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProducts = bestSellingProducts.slice(
+  const currentProducts = filteredProducts.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
-  const totalPages = Math.ceil(bestSellingProducts.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
-  const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    console.log("Paginating to page:", pageNumber);
-  };
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const nextPage = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -297,7 +400,7 @@ function BestSellingProducts() {
   if (userRole !== "admin") return null;
 
   return (
-    <div className="best-selling-page-wrapper">
+    <div className="regular-page-wrapper">
       {isLoading && <LoadingScreen />}
       {showConfirm && (
         <ConfirmBox
@@ -307,21 +410,76 @@ function BestSellingProducts() {
         />
       )}
       <Header />
-      <Container className="best-selling-container">
-        <h2 className="best-selling-title my-4">Quản lý Sản phẩm Bán chạy</h2>
-        <div className="best-selling-product-layout">
-          <div className="best-selling-product-form-container">
+      <Container className="regular-container">
+        <h2 className="regular-title my-4">Quản lý Sản phẩm Bán chạy</h2>
+        <div className="regular-product-layout">
+          <div className="regular-product-form-container">
             <BestSellingForm product={selectedProduct} onSave={handleSave} />
           </div>
-          <div className="best-selling-product-list-container">
+          <div className="regular-product-list-container">
             <div className="summary-labels">
-              <span>Tổng sản phẩm: {bestSellingProducts.length}</span>
+              <span>Tổng sản phẩm: {filteredProducts.length}</span>
             </div>
+            <Button
+              variant="primary"
+              className="regular-btn filter-btn mb-3"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {showFilters ? "Ẩn Bộ lọc" : "Hiện Bộ lọc"}
+            </Button>
+            {showFilters && (
+              <div className="regular-filter-section">
+                <div className="regular-filter-controls">
+                  <Form.Control
+                    type="text"
+                    className="regular-search-input"
+                    placeholder="Tìm kiếm..."
+                    value={filters.searchTerm}
+                    onChange={handleSearchChange}
+                  />
+                  <Form.Select
+                    value={filters.brand}
+                    onChange={(e) =>
+                      handleFilterChange("brand", e.target.value)
+                    }
+                    className="regular-filter-select"
+                  >
+                    <option value="all">Tất cả thương hiệu</option>
+                    {uniqueBrands.map((brand) => (
+                      <option key={brand} value={brand}>
+                        {brand}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Select
+                    value={filters.material}
+                    onChange={(e) =>
+                      handleFilterChange("material", e.target.value)
+                    }
+                    className="regular-filter-select"
+                  >
+                    <option value="all">Tất cả chất liệu</option>
+                    {uniqueMaterials.map((material) => (
+                      <option key={material} value={material}>
+                        {material}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Button
+                    variant="secondary"
+                    className="regular-reset-btn"
+                    onClick={resetFilters}
+                  >
+                    Reset
+                  </Button>
+                </div>
+              </div>
+            )}
             {selectedProducts.size > 0 && (
               <>
                 <Button
                   variant="danger"
-                  className="best-selling-btn mb-3"
+                  className="regular-btn mb-3"
                   onClick={handleMultiDelete}
                 >
                   Xóa đã chọn
@@ -331,7 +489,7 @@ function BestSellingProducts() {
                 </div>
               </>
             )}
-            <Table striped bordered hover className="best-selling-table mt-4">
+            <Table striped bordered hover className="regular-table mt-4">
               <thead>
                 <tr>
                   <th>
@@ -366,7 +524,7 @@ function BestSellingProducts() {
                     </td>
                     <td>{product.name}</td>
                     <td>{product.product_id || "-"}</td>
-                    <td>{product.price !== null ? product.price : "-"}</td>
+                    <td>{formatPrice(product.price)}</td>
                     <td>{product.description || "-"}</td>
                     <td>{product.brand || "-"}</td>
                     <td>{product.material || "-"}</td>
@@ -386,14 +544,14 @@ function BestSellingProducts() {
                     <td>
                       <Button
                         variant="warning"
-                        className="best-selling-btn edit-btn"
+                        className="regular-btn edit-btn"
                         onClick={() => setSelectedProduct(product)}
                       >
                         Sửa
                       </Button>
                       <Button
                         variant="danger"
-                        className="best-selling-btn delete-btn"
+                        className="regular-btn delete-btn"
                         onClick={() =>
                           handleDelete(product.id, "best_selling_glasses")
                         }
@@ -406,7 +564,7 @@ function BestSellingProducts() {
               </tbody>
             </Table>
             {totalPages > 1 && (
-              <div className="pagination-best-selling" key={currentPage}>
+              <div className="pagination-regular" key={currentPage}>
                 <Button
                   variant="secondary"
                   onClick={firstPage}

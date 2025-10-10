@@ -15,6 +15,7 @@ function RegularProducts() {
   const { userRole, isLoading: authLoading } = useAuthCheck();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -22,6 +23,18 @@ function RegularProducts() {
   const [selectedProducts, setSelectedProducts] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    brand: "",
+    material: "",
+    searchTerm: "",
+  });
+
+  // Function to format price in Vietnamese currency format
+  const formatPrice = (price) => {
+    if (price === null || price === undefined) return "-";
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
 
   useEffect(() => {
     if (!authLoading && userRole !== "admin") {
@@ -46,6 +59,7 @@ function RegularProducts() {
           }
         );
         setProducts(response.data);
+        setFilteredProducts(response.data);
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
       } finally {
@@ -54,6 +68,35 @@ function RegularProducts() {
     };
     fetchProducts();
   }, [userRole]);
+
+  useEffect(() => {
+    const filtered = products.filter((product) => {
+      const searchMatch =
+        !filters.searchTerm ||
+        (product.name &&
+          product.name
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.brand &&
+          product.brand
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.product_id &&
+          product.product_id
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.material &&
+          product.material
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase()));
+      const brandMatch = !filters.brand || product.brand === filters.brand;
+      const materialMatch =
+        !filters.material || product.material === filters.material;
+      return searchMatch && brandMatch && materialMatch;
+    });
+    setFilteredProducts(filtered);
+    setCurrentPage(1);
+  }, [filters, products]);
 
   const handleSave = () => {
     setSelectedProduct(null);
@@ -70,11 +113,35 @@ function RegularProducts() {
           }
         );
         setProducts(response.data);
+        setFilteredProducts(
+          response.data.filter((product) => {
+            const searchMatch =
+              !filters.searchTerm ||
+              (product.name &&
+                product.name
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.brand &&
+                product.brand
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.product_id &&
+                product.product_id
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.material &&
+                product.material
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase()));
+            const brandMatch =
+              !filters.brand || product.brand === filters.brand;
+            const materialMatch =
+              !filters.material || product.material === filters.material;
+            return searchMatch && brandMatch && materialMatch;
+          })
+        );
         if (products.length === 0 || response.data.length < products.length) {
           setCurrentPage(1);
-          console.log("Saved, resetting to page 1, currentPage:", currentPage);
-        } else {
-          console.log("Saved, keeping currentPage:", currentPage);
         }
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
@@ -105,7 +172,6 @@ function RegularProducts() {
 
     setTimeout(async () => {
       try {
-        // Batch delete images
         const deleteImagePromises = deleteData.ids.map((id) => {
           const productToDelete = products.find((p) => p.id === id);
           if (productToDelete && productToDelete.image_url) {
@@ -130,7 +196,6 @@ function RegularProducts() {
           return Promise.resolve();
         });
 
-        // Batch delete favorites
         const deleteFavoritesPromise =
           deleteData.ids.length > 0
             ? axios
@@ -161,7 +226,6 @@ function RegularProducts() {
                 })
             : Promise.resolve();
 
-        // Batch delete products
         const deleteProductsPromise = axios.delete(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
             deleteData.table
@@ -185,23 +249,42 @@ function RegularProducts() {
           (p) => !deleteData.ids.includes(p.id)
         );
         setProducts(updatedProducts);
+        setFilteredProducts(
+          updatedProducts.filter((product) => {
+            const searchMatch =
+              !filters.searchTerm ||
+              (product.name &&
+                product.name
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.brand &&
+                product.brand
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.product_id &&
+                product.product_id
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.material &&
+                product.material
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase()));
+            const brandMatch =
+              !filters.brand || product.brand === filters.brand;
+            const materialMatch =
+              !filters.material || product.material === filters.material;
+            return searchMatch && brandMatch && materialMatch;
+          })
+        );
         setSelectedProducts(new Set());
 
-        // Logic để quay về trang trước nếu trang hiện tại bị xóa hết
         const totalPagesAfterDelete = Math.ceil(
           updatedProducts.length / itemsPerPage
         );
         if (currentPage > totalPagesAfterDelete && currentPage > 1) {
           setCurrentPage(currentPage - 1);
-          console.log("Deleted, moving to previous page:", currentPage - 1);
         } else if (currentPage > totalPagesAfterDelete && currentPage === 1) {
           setCurrentPage(1);
-          console.log(
-            "Deleted, resetting to page 1, currentPage:",
-            currentPage
-          );
-        } else {
-          console.log("Deleted, keeping currentPage:", currentPage);
         }
 
         toast.success(
@@ -247,23 +330,49 @@ function RegularProducts() {
   const handleItemsPerPageChange = (e) => {
     const newItemsPerPage = parseInt(e.target.value, 10);
     setItemsPerPage(newItemsPerPage);
-    const totalPages = Math.ceil(products.length / newItemsPerPage);
+    const totalPages = Math.ceil(filteredProducts.length / newItemsPerPage);
     if (currentPage > totalPages) {
       setCurrentPage(totalPages > 0 ? totalPages : 1);
-      console.log("Items per page changed, adjusted to page:", totalPages);
-    } else {
-      console.log("Items per page changed, keeping currentPage:", currentPage);
     }
   };
 
+  const handleFilterChange = (category, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [category]: value === "all" ? "" : value,
+    }));
+  };
+
+  const handleSearchChange = (e) => {
+    setFilters((prev) => ({ ...prev, searchTerm: e.target.value }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      brand: "",
+      material: "",
+      searchTerm: "",
+    });
+    setCurrentPage(1);
+  };
+
+  const uniqueBrands = [
+    ...new Set(products.map((p) => p.brand).filter(Boolean)),
+  ];
+  const uniqueMaterials = [
+    ...new Set(products.map((p) => p.material).filter(Boolean)),
+  ];
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
-    console.log("Paginating to page:", pageNumber);
   };
   const nextPage = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
@@ -306,8 +415,63 @@ function RegularProducts() {
           </div>
           <div className="regular-product-list-container">
             <div className="summary-labels">
-              <span>Tổng sản phẩm: {products.length}</span>
+              <span>Tổng sản phẩm: {filteredProducts.length}</span>
             </div>
+            <Button
+              variant="primary"
+              className="regular-btn filter-btn mb-3"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {showFilters ? "Ẩn Bộ lọc" : "Hiện Bộ lọc"}
+            </Button>
+            {showFilters && (
+              <div className="regular-filter-section">
+                <div className="regular-filter-controls">
+                  <Form.Control
+                    type="text"
+                    className="regular-search-input"
+                    placeholder="Tìm kiếm..."
+                    value={filters.searchTerm}
+                    onChange={handleSearchChange}
+                  />
+                  <Form.Select
+                    value={filters.brand}
+                    onChange={(e) =>
+                      handleFilterChange("brand", e.target.value)
+                    }
+                    className="regular-filter-select"
+                  >
+                    <option value="all">Tất cả thương hiệu</option>
+                    {uniqueBrands.map((brand) => (
+                      <option key={brand} value={brand}>
+                        {brand}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Select
+                    value={filters.material}
+                    onChange={(e) =>
+                      handleFilterChange("material", e.target.value)
+                    }
+                    className="regular-filter-select"
+                  >
+                    <option value="all">Tất cả chất liệu</option>
+                    {uniqueMaterials.map((material) => (
+                      <option key={material} value={material}>
+                        {material}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Button
+                    variant="secondary"
+                    className="regular-reset-btn"
+                    onClick={resetFilters}
+                  >
+                    Reset
+                  </Button>
+                </div>
+              </div>
+            )}
             {selectedProducts.size > 0 && (
               <>
                 <Button
@@ -357,7 +521,7 @@ function RegularProducts() {
                     </td>
                     <td>{product.name}</td>
                     <td>{product.product_id || "-"}</td>
-                    <td>{product.price !== null ? product.price : "-"}</td>
+                    <td>{formatPrice(product.price)}</td>
                     <td>{product.description || "-"}</td>
                     <td>{product.brand || "-"}</td>
                     <td>{product.material || "-"}</td>
@@ -461,3 +625,4 @@ function RegularProducts() {
 }
 
 export default RegularProducts;
+  

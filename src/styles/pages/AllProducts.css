@@ -1,15 +1,15 @@
-.ap-main-container {
+.regular-container {
   padding: 0rem 0;
 }
 
-.ap-main-title {
+.regular-title {
   font-size: 1.8rem;
   font-weight: 700;
   color: #333;
   text-align: center;
 }
 
-.ap-table {
+.regular-table {
   background-color: #fff;
   border-radius: 8px;
   overflow: hidden;
@@ -17,21 +17,21 @@
   border: 2px solid #000000;
 }
 
-.ap-table th {
+.regular-table th {
   background-color: #007bff;
   color: #fff;
   font-weight: 600;
 }
 
-.ap-table td {
+.regular-table td {
   vertical-align: middle;
 }
 
-.ap-table img {
+.regular-table img {
   border-radius: 4px;
 }
 
-.ap-btn {
+.regular-btn {
   padding: 0.6rem 1.2rem;
   font-size: 0.95rem;
   margin: 0 0.3rem;
@@ -42,67 +42,75 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Style for Edit (Sửa) button */
-.ap-btn.edit-btn {
+.regular-btn.edit-btn {
   background: linear-gradient(90deg, #28a745, #218838);
   color: #fff;
 }
 
-.ap-btn.edit-btn:hover {
+.regular-btn.edit-btn:hover {
   background: linear-gradient(90deg, #218838, #1e7e34);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
-/* Style for Delete (Xóa) button */
-.ap-btn.delete-btn {
+.regular-btn.delete-btn {
   background: linear-gradient(90deg, #dc3545, #c82333);
   color: #fff;
 }
 
-.ap-btn.delete-btn:hover {
+.regular-btn.delete-btn:hover {
   background: linear-gradient(90deg, #c82333, #bd2130);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
-/* Style for Multi-Delete (Xóa đã chọn) button */
-.ap-btn.mb-3 {
+.regular-btn.mb-3 {
   background: linear-gradient(90deg, #dc3545, #c82333);
   color: #fff;
 }
 
-.ap-btn.mb-3:hover {
+.regular-btn.mb-3:hover {
   background: linear-gradient(90deg, #c82333, #bd2130);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
-.ap-layout {
+.regular-btn.filter-btn {
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  color: #fff;
+}
+
+.regular-btn.filter-btn:hover {
+  background: linear-gradient(90deg, #0056b3, #003d80);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.regular-product-layout {
   display: flex;
   justify-content: space-between;
   width: 100%;
   gap: 20px;
 }
 
-.ap-form-container {
+.regular-product-form-container {
   width: 30%;
   padding-right: 0;
 }
 
-.ap-list-container {
+.regular-product-list-container {
   width: 65%;
   max-height: 870px;
   overflow-y: auto;
 }
 
-.ap-page-wrapper {
+.regular-page-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.ap-main-container {
+.regular-container {
   flex: 1 0 auto;
 }
 
@@ -123,23 +131,23 @@ footer {
   border-radius: 4px;
 }
 
-.ap-table th:first-child,
-.ap-table td:first-child {
+.regular-table th:first-child,
+.regular-table td:first-child {
   width: 50px;
   text-align: center;
 }
 
-.ap-table th input[type="checkbox"],
-.ap-table td input[type="checkbox"] {
+.regular-table th input[type="checkbox"],
+.regular-table td input[type="checkbox"] {
   margin: 0;
   cursor: pointer;
 }
 
-.ap-table th input[type="checkbox"] {
+.regular-table th input[type="checkbox"] {
   accent-color: #007bff;
 }
 
-.ap-table td input[type="checkbox"] {
+.regular-table td input[type="checkbox"] {
   accent-color: #007bff;
 }
 
@@ -147,8 +155,69 @@ footer {
   margin-bottom: 1rem !important;
 }
 
-/* Pagination Styling */
-.ap-pagination {
+.regular-filter-section {
+  margin-bottom: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 0.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.regular-filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.regular-search-input {
+  flex: 1;
+  min-width: 150px;
+  padding: 0.4rem 0.6rem;
+  border: 2px solid #007bff;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #333;
+  outline: none;
+}
+
+.regular-search-input:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.regular-filter-select {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.4rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  height: 35px;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.regular-filter-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.regular-reset-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  background: linear-gradient(90deg, #dc3545, #c82333);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.regular-reset-btn:hover {
+  background: linear-gradient(90deg, #c82333, #bd2130);
+}
+
+.pagination-regular {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -156,7 +225,7 @@ footer {
   gap: 0.5rem;
 }
 
-.ap-pagination button {
+.pagination-regular button {
   padding: 0.6rem 1.2rem;
   font-size: 1rem;
   border-radius: 8px;
@@ -168,36 +237,35 @@ footer {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.ap-pagination button:disabled {
+.pagination-regular button:disabled {
   background: #ccc;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-.ap-pagination button:not(:disabled):hover {
+.pagination-regular button:not(:disabled):hover {
   background: linear-gradient(90deg, #0056b3, #003d80);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
-.ap-pagination .btn-primary {
+.pagination-regular .btn-primary {
   background: linear-gradient(90deg, #007bff, #0056b3) !important;
   color: #fff !important;
   font-weight: bold;
   border: none !important;
 }
 
-.ap-pagination .btn-outline-primary {
+.pagination-regular .btn-outline-primary {
   background: linear-gradient(90deg, #e9ecef, #dee2e6) !important;
   color: #007bff !important;
   border: none !important;
 }
 
-.ap-pagination .mx-1 {
+.pagination-regular .mx-1 {
   margin: 0 0.25rem;
 }
 
-/* Items per page selector styling */
 .items-per-page-selector {
   margin-top: 1rem;
   display: flex;
@@ -208,7 +276,6 @@ footer {
 .items-per-page-selector .form-label {
   margin-right: 0.5rem;
   font-weight: 500;
-  color: #555;
 }
 
 .items-per-page-selector .form-select {
@@ -221,11 +288,9 @@ footer {
 
 .items-per-page-selector .form-select:focus {
   border-color: #007bff;
-  outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-/* Selected count styling */
 .selected-count {
   margin-top: 0.5rem;
   font-size: 0.9rem;
@@ -234,44 +299,56 @@ footer {
 }
 
 @media (max-width: 767px) {
-  .ap-layout {
+  .regular-product-layout {
     flex-direction: column;
     gap: 1rem;
   }
-
-  .ap-form-container {
+  .regular-product-form-container {
     width: 100%;
     padding-right: 0;
   }
-
-  .ap-list-container {
+  .regular-product-list-container {
     width: 100%;
     max-height: 400px;
   }
-
-  .ap-table {
+  .regular-table {
     font-size: 0.9rem;
   }
-
-  .ap-btn {
+  .regular-btn {
     padding: 0.4rem 0.9rem;
     font-size: 0.85rem;
   }
-
-  .ap-pagination button {
+  .pagination-regular button {
     padding: 0.4rem 0.9rem;
     font-size: 0.9rem;
   }
-
   .items-per-page-selector {
     justify-content: center;
   }
-
   .items-per-page-selector .form-select {
     width: 100px;
   }
-
   .selected-count {
     text-align: center;
+  }
+  .summary-labels {
+    text-align: center;
+  }
+  .summary-labels span {
+    display: block;
+    width: 100%;
+  }
+  .regular-filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .regular-search-input,
+  .regular-filter-select,
+  .regular-reset-btn {
+    width: 100%;
+    min-width: unset;
+  }
+  .regular-filter-select {
+    height: 40px;
   }
 }

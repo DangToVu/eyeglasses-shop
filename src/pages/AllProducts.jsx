@@ -12,9 +12,12 @@ import LoadingScreen from "../components/LoadingScreen";
 import ConfirmBox from "../components/ConfirmBox";
 
 function AllProducts() {
+  const { userRole, isLoading: authLoading } = useAuthCheck();
+  const navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
   const [regularProducts, setRegularProducts] = useState([]);
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -22,10 +25,18 @@ function AllProducts() {
   const [selectedProducts, setSelectedProducts] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const { userRole, isLoading: authLoading } = useAuthCheck();
-  const navigate = useNavigate();
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    brand: "",
+    material: "",
+    searchTerm: "",
+  });
 
-  // Kiểm tra quyền admin
+  const formatPrice = (price) => {
+    if (price === null || price === undefined) return "-";
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
   useEffect(() => {
     if (!authLoading && userRole !== "admin") {
       toast.error("Bạn không có quyền truy cập trang quản lý này!");
@@ -34,6 +45,8 @@ function AllProducts() {
   }, [userRole, authLoading, navigate]);
 
   useEffect(() => {
+    if (userRole !== "admin") return;
+
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
@@ -47,31 +60,76 @@ function AllProducts() {
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
           { headers: adminHeaders }
         );
-        setAllProducts(allResponse.data);
-
         const regularResponse = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
           { headers: adminHeaders }
         );
-        setRegularProducts(regularResponse.data);
-
         const bestSellingResponse = await axios.get(
           `${
             import.meta.env.VITE_SUPABASE_URL
           }/rest/v1/best_selling_glasses?select=*`,
           { headers: adminHeaders }
         );
+
+        setAllProducts(allResponse.data);
+        setRegularProducts(regularResponse.data);
         setBestSellingProducts(bestSellingResponse.data);
+
+        const allProductsList = [
+          ...regularResponse.data.map((p) => ({ ...p, table: "products" })),
+          ...bestSellingResponse.data.map((p) => ({
+            ...p,
+            table: "best_selling_glasses",
+          })),
+          ...allResponse.data.map((p) => ({ ...p, table: "all_product" })),
+        ];
+        setFilteredProducts(allProductsList);
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
       } finally {
         setIsLoading(false);
       }
     };
-    if (userRole === "admin") {
-      fetchProducts();
-    }
+    fetchProducts();
   }, [userRole]);
+
+  useEffect(() => {
+    const allProductsList = [
+      ...regularProducts.map((p) => ({ ...p, table: "products" })),
+      ...bestSellingProducts.map((p) => ({
+        ...p,
+        table: "best_selling_glasses",
+      })),
+      ...allProducts.map((p) => ({ ...p, table: "all_product" })),
+    ];
+
+    const filtered = allProductsList.filter((product) => {
+      const searchMatch =
+        !filters.searchTerm ||
+        (product.name &&
+          product.name
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.brand &&
+          product.brand
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.product_id &&
+          product.product_id
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.material &&
+          product.material
+            .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase()));
+      const brandMatch = !filters.brand || product.brand === filters.brand;
+      const materialMatch =
+        !filters.material || product.material === filters.material;
+      return searchMatch && brandMatch && materialMatch;
+    });
+    setFilteredProducts(filtered);
+    setCurrentPage(1);
+  }, [filters, allProducts, regularProducts, bestSellingProducts]);
 
   const handleSave = () => {
     setSelectedProduct(null);
@@ -88,34 +146,63 @@ function AllProducts() {
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
           { headers }
         );
-        setAllProducts(allResponse.data);
-
         const regularResponse = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
           { headers }
         );
-        setRegularProducts(regularResponse.data);
-
         const bestSellingResponse = await axios.get(
           `${
             import.meta.env.VITE_SUPABASE_URL
           }/rest/v1/best_selling_glasses?select=*`,
           { headers }
         );
+
+        setAllProducts(allResponse.data);
+        setRegularProducts(regularResponse.data);
         setBestSellingProducts(bestSellingResponse.data);
+
         const allProductsList = [
-          ...regularResponse.data,
-          ...bestSellingResponse.data,
-          ...allResponse.data,
+          ...regularResponse.data.map((p) => ({ ...p, table: "products" })),
+          ...bestSellingResponse.data.map((p) => ({
+            ...p,
+            table: "best_selling_glasses",
+          })),
+          ...allResponse.data.map((p) => ({ ...p, table: "all_product" })),
         ];
+
+        setFilteredProducts(
+          allProductsList.filter((product) => {
+            const searchMatch =
+              !filters.searchTerm ||
+              (product.name &&
+                product.name
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.brand &&
+                product.brand
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.product_id &&
+                product.product_id
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.material &&
+                product.material
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase()));
+            const brandMatch =
+              !filters.brand || product.brand === filters.brand;
+            const materialMatch =
+              !filters.material || product.material === filters.material;
+            return searchMatch && brandMatch && materialMatch;
+          })
+        );
+
         if (
           allProductsList.length === 0 ||
-          allProductsList.length < allProducts.length
+          allProductsList.length < filteredProducts.length
         ) {
           setCurrentPage(1);
-          console.log("Saved, resetting to page 1, currentPage:", currentPage);
-        } else {
-          console.log("Saved, giữ currentPage:", currentPage);
         }
       } catch (error) {
         toast.error("Lỗi khi lấy sản phẩm: " + error.message);
@@ -137,7 +224,7 @@ function AllProducts() {
     if (userRole === "admin" && selectedProducts.size > 0) {
       setDeleteData({
         ids: Array.from(selectedProducts),
-        table: null, // Sẽ xác định table trong confirmDelete
+        table: null,
       });
       setShowConfirm(true);
     } else {
@@ -152,7 +239,6 @@ function AllProducts() {
 
     setTimeout(async () => {
       try {
-        // Tạo các promise để xóa hình ảnh
         const deleteImagePromises = deleteData.ids.map((id) => {
           let productToDelete = null;
           let bucket = "";
@@ -208,7 +294,6 @@ function AllProducts() {
           return Promise.resolve();
         });
 
-        // Tạo promise để xóa favorites theo table
         const deleteFavoritesPromises = deleteData.ids.reduce((acc, id) => {
           let table = deleteData.table;
           if (!table) {
@@ -251,7 +336,6 @@ function AllProducts() {
           return acc;
         }, []);
 
-        // Tạo promise để xóa sản phẩm theo table
         const deleteProductsPromises = deleteData.ids.reduce((acc, id) => {
           let table = deleteData.table;
           if (!table) {
@@ -301,27 +385,53 @@ function AllProducts() {
         setAllProducts(updatedAllProducts);
         setRegularProducts(updatedRegularProducts);
         setBestSellingProducts(updatedBestSellingProducts);
+
+        const updatedAllProductsList = [
+          ...updatedRegularProducts.map((p) => ({ ...p, table: "products" })),
+          ...updatedBestSellingProducts.map((p) => ({
+            ...p,
+            table: "best_selling_glasses",
+          })),
+          ...updatedAllProducts.map((p) => ({ ...p, table: "all_product" })),
+        ];
+
+        setFilteredProducts(
+          updatedAllProductsList.filter((product) => {
+            const searchMatch =
+              !filters.searchTerm ||
+              (product.name &&
+                product.name
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.brand &&
+                product.brand
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.product_id &&
+                product.product_id
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.material &&
+                product.material
+                  .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase()));
+            const brandMatch =
+              !filters.brand || product.brand === filters.brand;
+            const materialMatch =
+              !filters.material || product.material === filters.material;
+            return searchMatch && brandMatch && materialMatch;
+          })
+        );
+
         setSelectedProducts(new Set());
 
-        const allProductsList = [
-          ...updatedRegularProducts,
-          ...updatedBestSellingProducts,
-          ...updatedAllProducts,
-        ];
         const totalPagesAfterDelete = Math.ceil(
-          allProductsList.length / itemsPerPage
+          updatedAllProductsList.length / itemsPerPage
         );
         if (currentPage > totalPagesAfterDelete && currentPage > 1) {
           setCurrentPage(currentPage - 1);
-          console.log("Deleted, moving to previous page:", currentPage - 1);
         } else if (currentPage > totalPagesAfterDelete && currentPage === 1) {
           setCurrentPage(1);
-          console.log(
-            "Deleted, resetting to page 1, currentPage:",
-            currentPage
-          );
-        } else {
-          console.log("Deleted, keeping currentPage:", currentPage);
         }
 
         toast.success(
@@ -370,22 +480,35 @@ function AllProducts() {
     const totalPages = Math.ceil(filteredProducts.length / newItemsPerPage);
     if (currentPage > totalPages) {
       setCurrentPage(totalPages > 0 ? totalPages : 1);
-      console.log("Items per page changed, adjusted to page:", totalPages);
-    } else {
-      console.log("Items per page changed, keeping currentPage:", currentPage);
     }
   };
 
-  const allProductsList = [
-    ...regularProducts.map((p) => ({ ...p, table: "products" })),
-    ...bestSellingProducts.map((p) => ({
-      ...p,
-      table: "best_selling_glasses",
-    })),
-    ...allProducts.map((p) => ({ ...p, table: "all_product" })),
-  ];
+  const handleFilterChange = (category, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [category]: value === "all" ? "" : value,
+    }));
+  };
 
-  const filteredProducts = allProductsList;
+  const handleSearchChange = (e) => {
+    setFilters((prev) => ({ ...prev, searchTerm: e.target.value }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      brand: "",
+      material: "",
+      searchTerm: "",
+    });
+    setCurrentPage(1);
+  };
+
+  const uniqueBrands = [
+    ...new Set(filteredProducts.map((p) => p.brand).filter(Boolean)),
+  ];
+  const uniqueMaterials = [
+    ...new Set(filteredProducts.map((p) => p.material).filter(Boolean)),
+  ];
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -415,8 +538,11 @@ function AllProducts() {
     (i) => startPage + i
   );
 
+  if (authLoading) return <LoadingScreen />;
+  if (userRole !== "admin") return null;
+
   return (
-    <div className="ap-page-wrapper">
+    <div className="regular-page-wrapper">
       {(isLoading || authLoading) && <LoadingScreen />}
       {showConfirm && (
         <ConfirmBox
@@ -426,26 +552,80 @@ function AllProducts() {
         />
       )}
       <Header />
-      <Container className="ap-main-container" fluid>
-        <h2 className="ap-main-title my-4">Quản lý tất cả sản phẩm</h2>
-
-        <div className="ap-layout">
-          <div className="ap-form-container">
+      <Container className="regular-container">
+        <h2 className="regular-title my-4">Quản lý tất cả sản phẩm</h2>
+        <div className="regular-product-layout">
+          <div className="regular-product-form-container">
             <AllProductForm
               product={selectedProduct}
               onSave={handleSave}
               table={selectedProduct ? selectedProduct.table : "all_product"}
             />
           </div>
-          <div className="ap-list-container">
+          <div className="regular-product-list-container">
             <div className="summary-labels">
               <span>Tổng sản phẩm: {filteredProducts.length}</span>
             </div>
+            <Button
+              variant="primary"
+              className="regular-btn filter-btn mb-3"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {showFilters ? "Ẩn Bộ lọc" : "Hiện Bộ lọc"}
+            </Button>
+            {showFilters && (
+              <div className="regular-filter-section">
+                <div className="regular-filter-controls">
+                  <Form.Control
+                    type="text"
+                    className="regular-search-input"
+                    placeholder="Tìm kiếm..."
+                    value={filters.searchTerm}
+                    onChange={handleSearchChange}
+                  />
+                  <Form.Select
+                    value={filters.brand}
+                    onChange={(e) =>
+                      handleFilterChange("brand", e.target.value)
+                    }
+                    className="regular-filter-select"
+                  >
+                    <option value="all">Tất cả thương hiệu</option>
+                    {uniqueBrands.map((brand) => (
+                      <option key={brand} value={brand}>
+                        {brand}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Select
+                    value={filters.material}
+                    onChange={(e) =>
+                      handleFilterChange("material", e.target.value)
+                    }
+                    className="regular-filter-select"
+                  >
+                    <option value="all">Tất cả chất liệu</option>
+                    {uniqueMaterials.map((material) => (
+                      <option key={material} value={material}>
+                        {material}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Button
+                    variant="secondary"
+                    className="regular-reset-btn"
+                    onClick={resetFilters}
+                  >
+                    Reset
+                  </Button>
+                </div>
+              </div>
+            )}
             {selectedProducts.size > 0 && (
               <>
                 <Button
                   variant="danger"
-                  className="ap-btn mb-3"
+                  className="regular-btn mb-3"
                   onClick={handleMultiDelete}
                 >
                   Xóa đã chọn
@@ -455,7 +635,7 @@ function AllProducts() {
                 </div>
               </>
             )}
-            <Table striped bordered hover className="ap-table mt-4">
+            <Table striped bordered hover className="regular-table mt-4">
               <thead>
                 <tr>
                   <th>
@@ -490,7 +670,7 @@ function AllProducts() {
                     </td>
                     <td>{product.name}</td>
                     <td>{product.product_id || "-"}</td>
-                    <td>{product.price !== null ? product.price : "-"}</td>
+                    <td>{formatPrice(product.price)}</td>
                     <td>{product.description || "-"}</td>
                     <td>{product.brand || "-"}</td>
                     <td>{product.material || "-"}</td>
@@ -510,14 +690,14 @@ function AllProducts() {
                     <td>
                       <Button
                         variant="warning"
-                        className="ap-btn edit-btn"
+                        className="regular-btn edit-btn"
                         onClick={() => setSelectedProduct(product)}
                       >
                         Sửa
                       </Button>
                       <Button
                         variant="danger"
-                        className="ap-btn delete-btn"
+                        className="regular-btn delete-btn"
                         onClick={() => handleDelete(product.id, product.table)}
                       >
                         Xóa
@@ -528,7 +708,7 @@ function AllProducts() {
               </tbody>
             </Table>
             {totalPages > 1 && (
-              <div className="ap-pagination" key={currentPage}>
+              <div className="pagination-regular" key={currentPage}>
                 <Button
                   variant="secondary"
                   onClick={firstPage}
