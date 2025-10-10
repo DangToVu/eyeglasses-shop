@@ -78,6 +78,18 @@
   transform: translateY(-1px);
 }
 
+/* Style for Filter Toggle button */
+.regular-btn.filter-btn {
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  color: #fff;
+}
+
+.regular-btn.filter-btn:hover {
+  background: linear-gradient(90deg, #0056b3, #003d80);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
 .regular-product-layout {
   display: flex;
   justify-content: space-between;
@@ -145,6 +157,69 @@ footer {
 
 .mb-3 {
   margin-bottom: 1rem !important;
+}
+
+/* Filter Section Styling */
+.regular-filter-section {
+  margin-bottom: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 0.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.regular-filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.regular-search-input {
+  flex: 1;
+  min-width: 150px;
+  padding: 0.4rem 0.6rem;
+  border: 2px solid #007bff;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #333;
+  outline: none;
+}
+
+.regular-search-input:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.regular-filter-select {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.4rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  height: 35px;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.regular-filter-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.regular-reset-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  background: linear-gradient(90deg, #dc3545, #c82333);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.regular-reset-btn:hover {
+  background: linear-gradient(90deg, #c82333, #bd2130);
 }
 
 /* Pagination Styling */
@@ -220,7 +295,6 @@ footer {
 
 .items-per-page-selector .form-select:focus {
   border-color: #007bff;
-  outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
@@ -271,5 +345,18 @@ footer {
   .summary-labels span {
     display: block;
     width: 100%;
+  }
+  .regular-filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .regular-search-input,
+  .regular-filter-select,
+  .regular-reset-btn {
+    width: 100%;
+    min-width: unset;
+  }
+  .regular-filter-select {
+    height: 40px;
   }
 }
