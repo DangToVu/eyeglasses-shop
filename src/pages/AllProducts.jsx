@@ -29,8 +29,12 @@ function AllProducts() {
   const [filters, setFilters] = useState({
     brand: "",
     material: "",
+    type: "",
     searchTerm: "",
   });
+  const [brands, setBrands] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [types, setTypes] = useState([]);
 
   const formatPrice = (price) => {
     if (price === null || price === undefined) return "-";
@@ -47,7 +51,7 @@ function AllProducts() {
   useEffect(() => {
     if (userRole !== "admin") return;
 
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
         const adminHeaders = {
@@ -56,24 +60,44 @@ function AllProducts() {
           "Content-Type": "application/json",
         };
 
-        const allResponse = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
-          { headers: adminHeaders }
-        );
-        const regularResponse = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
-          { headers: adminHeaders }
-        );
-        const bestSellingResponse = await axios.get(
-          `${
-            import.meta.env.VITE_SUPABASE_URL
-          }/rest/v1/best_selling_glasses?select=*`,
-          { headers: adminHeaders }
-        );
+        const [
+          allResponse,
+          regularResponse,
+          bestSellingResponse,
+          brandsResponse,
+          materialsResponse,
+          typesResponse,
+        ] = await Promise.all([
+          axios.get(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
+            { headers: adminHeaders }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
+            headers: adminHeaders,
+          }),
+          axios.get(
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/rest/v1/best_selling_glasses?select=*`,
+            { headers: adminHeaders }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
+            headers: adminHeaders,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
+            headers: adminHeaders,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
+            headers: adminHeaders,
+          }),
+        ]);
 
         setAllProducts(allResponse.data);
         setRegularProducts(regularResponse.data);
         setBestSellingProducts(bestSellingResponse.data);
+        setBrands(brandsResponse.data.map((b) => b.name));
+        setMaterials(materialsResponse.data.map((m) => m.name));
+        setTypes(typesResponse.data.map((t) => t.name));
 
         const allProductsList = [
           ...regularResponse.data.map((p) => ({ ...p, table: "products" })),
@@ -85,12 +109,12 @@ function AllProducts() {
         ];
         setFilteredProducts(allProductsList);
       } catch (error) {
-        toast.error("Lỗi khi lấy sản phẩm: " + error.message);
+        toast.error("Lỗi khi lấy dữ liệu: " + error.message);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchProducts();
+    fetchData();
   }, [userRole]);
 
   useEffect(() => {
@@ -121,11 +145,16 @@ function AllProducts() {
         (product.material &&
           product.material
             .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.type &&
+          product.type
+            .toLowerCase()
             .includes(filters.searchTerm.toLowerCase()));
       const brandMatch = !filters.brand || product.brand === filters.brand;
       const materialMatch =
         !filters.material || product.material === filters.material;
-      return searchMatch && brandMatch && materialMatch;
+      const typeMatch = !filters.type || product.type === filters.type;
+      return searchMatch && brandMatch && materialMatch && typeMatch;
     });
     setFilteredProducts(filtered);
     setCurrentPage(1);
@@ -142,24 +171,44 @@ function AllProducts() {
           "Content-Type": "application/json",
         };
 
-        const allResponse = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
-          { headers }
-        );
-        const regularResponse = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
-          { headers }
-        );
-        const bestSellingResponse = await axios.get(
-          `${
-            import.meta.env.VITE_SUPABASE_URL
-          }/rest/v1/best_selling_glasses?select=*`,
-          { headers }
-        );
+        const [
+          allResponse,
+          regularResponse,
+          bestSellingResponse,
+          brandsResponse,
+          materialsResponse,
+          typesResponse,
+        ] = await Promise.all([
+          axios.get(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
+            { headers }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
+            headers,
+          }),
+          axios.get(
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/rest/v1/best_selling_glasses?select=*`,
+            { headers }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
+            headers,
+          }),
+        ]);
 
         setAllProducts(allResponse.data);
         setRegularProducts(regularResponse.data);
         setBestSellingProducts(bestSellingResponse.data);
+        setBrands(brandsResponse.data.map((b) => b.name));
+        setMaterials(materialsResponse.data.map((m) => m.name));
+        setTypes(typesResponse.data.map((t) => t.name));
 
         const allProductsList = [
           ...regularResponse.data.map((p) => ({ ...p, table: "products" })),
@@ -189,12 +238,17 @@ function AllProducts() {
               (product.material &&
                 product.material
                   .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.type &&
+                product.type
+                  .toLowerCase()
                   .includes(filters.searchTerm.toLowerCase()));
             const brandMatch =
               !filters.brand || product.brand === filters.brand;
             const materialMatch =
               !filters.material || product.material === filters.material;
-            return searchMatch && brandMatch && materialMatch;
+            const typeMatch = !filters.type || product.type === filters.type;
+            return searchMatch && brandMatch && materialMatch && typeMatch;
           })
         );
 
@@ -414,12 +468,17 @@ function AllProducts() {
               (product.material &&
                 product.material
                   .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.type &&
+                product.type
+                  .toLowerCase()
                   .includes(filters.searchTerm.toLowerCase()));
             const brandMatch =
               !filters.brand || product.brand === filters.brand;
             const materialMatch =
               !filters.material || product.material === filters.material;
-            return searchMatch && brandMatch && materialMatch;
+            const typeMatch = !filters.type || product.type === filters.type;
+            return searchMatch && brandMatch && materialMatch && typeMatch;
           })
         );
 
@@ -498,17 +557,11 @@ function AllProducts() {
     setFilters({
       brand: "",
       material: "",
+      type: "",
       searchTerm: "",
     });
     setCurrentPage(1);
   };
-
-  const uniqueBrands = [
-    ...new Set(filteredProducts.map((p) => p.brand).filter(Boolean)),
-  ];
-  const uniqueMaterials = [
-    ...new Set(filteredProducts.map((p) => p.material).filter(Boolean)),
-  ];
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -591,7 +644,7 @@ function AllProducts() {
                     className="regular-filter-select"
                   >
                     <option value="all">Tất cả thương hiệu</option>
-                    {uniqueBrands.map((brand) => (
+                    {brands.map((brand) => (
                       <option key={brand} value={brand}>
                         {brand}
                       </option>
@@ -605,9 +658,21 @@ function AllProducts() {
                     className="regular-filter-select"
                   >
                     <option value="all">Tất cả chất liệu</option>
-                    {uniqueMaterials.map((material) => (
+                    {materials.map((material) => (
                       <option key={material} value={material}>
                         {material}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Select
+                    value={filters.type}
+                    onChange={(e) => handleFilterChange("type", e.target.value)}
+                    className="regular-filter-select"
+                  >
+                    <option value="all">Tất cả loại hàng</option>
+                    {types.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
                       </option>
                     ))}
                   </Form.Select>
@@ -654,6 +719,7 @@ function AllProducts() {
                   <th>Mô tả</th>
                   <th>Thương hiệu</th>
                   <th>Chất liệu</th>
+                  <th>Loại hàng</th>
                   <th>Ảnh</th>
                   <th>Hành động</th>
                 </tr>
@@ -674,6 +740,7 @@ function AllProducts() {
                     <td>{product.description || "-"}</td>
                     <td>{product.brand || "-"}</td>
                     <td>{product.material || "-"}</td>
+                    <td>{product.type || "-"}</td>
                     <td>
                       <img
                         src={product.image_url}

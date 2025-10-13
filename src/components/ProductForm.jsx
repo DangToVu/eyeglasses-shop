@@ -5,8 +5,10 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "../styles/components/ProductForm.css";
 import LoadingScreen from "../components/LoadingScreen";
+import CreateBrandModal from "./CreateBrandModal";
+import CreateMaterialModal from "./CreateMaterialModal";
+import CreateTypeModal from "./CreateTypeModal";
 
-// Hàm định dạng số tiền với dấu chấm ngắt số ngàn
 const formatCurrency = (value) => {
   const cleanValue = value.replace(/[^0-9]/g, "");
   return new Intl.NumberFormat("vi-VN", {
@@ -15,27 +17,20 @@ const formatCurrency = (value) => {
   }).format(cleanValue);
 };
 
-// Hàm nén và resize ảnh nếu dung lượng lớn hơn 1MB
 const compressImage = (file) => {
   return new Promise((resolve) => {
-    // Kiểm tra dung lượng file (1MB = 1 * 1024 * 1024 bytes)
     const maxSize = 1 * 1024 * 1024;
     if (file.size <= maxSize) {
-      // Nếu dung lượng <= 1MB, trả về file gốc
       resolve(file);
       return;
     }
-
-    // Nếu dung lượng > 1MB, resize và nén ảnh
     const img = new Image();
     img.src = URL.createObjectURL(file);
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      const maxDimension = 1920; // Kích thước tối đa (width hoặc height)
+      const maxDimension = 1920;
       let width = img.width;
       let height = img.height;
-
-      // Resize giữ tỷ lệ
       if (width > height) {
         if (width > maxDimension) {
           height = Math.round((height * maxDimension) / width);
@@ -47,7 +42,6 @@ const compressImage = (file) => {
           height = maxDimension;
         }
       }
-
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext("2d");
@@ -55,7 +49,7 @@ const compressImage = (file) => {
       canvas.toBlob(
         (blob) => resolve(new File([blob], file.name, { type: "image/jpeg" })),
         "image/jpeg",
-        0.7 // Chất lượng nén (0-1), sử dụng 0.7 để đồng bộ với các form khác
+        0.7
       );
     };
   });
@@ -71,26 +65,52 @@ function ProductForm({ product, onSave }) {
     product ? product.description : ""
   );
   const [image, setImage] = useState(null);
+  const [type, setType] = useState(product ? product.type : "");
   const [brand, setBrand] = useState(product ? product.brand : "");
   const [material, setMaterial] = useState(product ? product.material : "");
   const [isLoading, setIsLoading] = useState(false);
   const [skipPrice, setSkipPrice] = useState(product ? !product.price : false);
+  const [typeOptions, setTypeOptions] = useState([]);
+  const [brandOptions, setBrandOptions] = useState([]);
+  const [materialOptions, setMaterialOptions] = useState([]);
+  const [showTypeModal, setShowTypeModal] = useState(false);
+  const [showBrandModal, setShowBrandModal] = useState(false);
+  const [showMaterialModal, setShowMaterialModal] = useState(false);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
-  const brandOptions = [
-    "G.M.Surne",
-    "VE",
-    "WINNER",
-    "DIVEI",
-    "KIEINMONSTES",
-    "FEMINA",
-    "ENCINO",
-    "AVALON",
-    "RUBERTY",
-    "ROGERSON",
-  ];
-  const materialOptions = ["Kim loại", "Titan", "Nhựa"];
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const headers = {
+          apikey: import.meta.env.VITE_SUPABASE_KEY,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        };
+        const [typesResponse, brandsResponse, materialsResponse] =
+          await Promise.all([
+            axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
+              headers,
+            }),
+            axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
+              headers,
+            }),
+            axios.get(
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`,
+              { headers }
+            ),
+          ]);
+        setTypeOptions(typesResponse.data.map((t) => t.name));
+        setBrandOptions(brandsResponse.data.map((b) => b.name));
+        setMaterialOptions(materialsResponse.data.map((m) => m.name));
+      } catch (error) {
+        toast.error(
+          "Lỗi khi tải danh sách loại hàng, thương hiệu và chất liệu: " +
+            error.message
+        );
+      }
+    };
+    fetchOptions();
+  }, []);
 
   const resetForm = () => {
     setName("");
@@ -98,6 +118,7 @@ function ProductForm({ product, onSave }) {
     setPrice("");
     setDescription("");
     setImage(null);
+    setType("");
     setBrand("");
     setMaterial("");
     setSkipPrice(false);
@@ -112,6 +133,7 @@ function ProductForm({ product, onSave }) {
       setProductId(product.product_id || "");
       setPrice(product.price?.toString() || "");
       setDescription(product.description || "");
+      setType(product.type || "");
       setBrand(product.brand || "");
       setMaterial(product.material || "");
       setSkipPrice(!product.price);
@@ -128,19 +150,13 @@ function ProductForm({ product, onSave }) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Mặc định sử dụng ảnh từ Supabase nếu không có ảnh
       let imageUrl =
         "https://xrmccpvwxagewnbwjnra.supabase.co/storage/v1/object/public/public_picture/no_picture.jpg";
-
-      // Nếu đang chỉnh sửa và sản phẩm đã có ảnh, giữ nguyên ảnh cũ
       if (product && product.image_url) {
         imageUrl = product.image_url;
       }
-
-      let deleteOldImagePromise = Promise.resolve(); // Default to resolved promise
-
+      let deleteOldImagePromise = Promise.resolve();
       if (image) {
-        // Nếu có ảnh cũ, bắt đầu xóa bất đồng bộ
         if (product && product.image_url) {
           const oldImagePath = product.image_url.substring(
             product.image_url.lastIndexOf("/") + 1
@@ -159,16 +175,11 @@ function ProductForm({ product, onSave }) {
             )
             .catch((err) => {
               console.warn("Failed to delete old image:", err.message);
-              // Không ném lỗi để tiếp tục upload ảnh mới
             });
         }
-
-        // Nén và upload ảnh mới đồng thời với xóa ảnh cũ
         const compressedImage = await compressImage(image);
         const formData = new FormData();
         formData.append("file", compressedImage);
-
-        // Chờ cả xóa ảnh cũ và upload ảnh mới
         await Promise.all([
           deleteOldImagePromise,
           axios.post(
@@ -184,7 +195,6 @@ function ProductForm({ product, onSave }) {
             }
           ),
         ]);
-
         imageUrl = `${
           import.meta.env.VITE_SUPABASE_URL
         }/storage/v1/object/public/product-images/${compressedImage.name}`;
@@ -198,15 +208,14 @@ function ProductForm({ product, onSave }) {
           : parseFloat(price.replace(/[^0-9]/g, "")) || null,
         description,
         image_url: imageUrl,
+        type,
         brand,
         material,
       };
 
       const table = "products";
       const idField = product ? `id=eq.${product.id}` : null;
-
       if (product) {
-        // Cập nhật sản phẩm
         await axios.patch(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?${idField}`,
           productData,
@@ -219,8 +228,6 @@ function ProductForm({ product, onSave }) {
             },
           }
         );
-
-        // Cập nhật bảng favorites
         await axios.patch(
           `${
             import.meta.env.VITE_SUPABASE_URL
@@ -240,7 +247,6 @@ function ProductForm({ product, onSave }) {
             },
           }
         );
-
         toast.success("Cập nhật sản phẩm thành công!");
         resetForm();
       } else {
@@ -282,6 +288,33 @@ function ProductForm({ product, onSave }) {
     const value = e.target.value;
     if (value.length <= 50) {
       setDescription(value);
+    }
+  };
+
+  const handleOptionsUpdate = async () => {
+    try {
+      const headers = {
+        apikey: import.meta.env.VITE_SUPABASE_KEY,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      };
+      const [typesResponse, brandsResponse, materialsResponse] =
+        await Promise.all([
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
+            headers,
+          }),
+        ]);
+      setTypeOptions(typesResponse.data.map((t) => t.name));
+      setBrandOptions(brandsResponse.data.map((b) => b.name));
+      setMaterialOptions(materialsResponse.data.map((m) => m.name));
+      onSave(); // Trigger parent component update
+    } catch (error) {
+      toast.error("Lỗi khi cập nhật danh sách: " + error.message);
     }
   };
 
@@ -345,38 +378,106 @@ function ProductForm({ product, onSave }) {
           </small>
         </Form.Group>
         <Form.Group className="pf-form-group">
-          <Form.Label>Thương hiệu</Form.Label>
-          <Form.Control
-            as="select"
-            value={brand}
-            onChange={(e) => setBrand(e.target.value)}
-            className="pf-form-input"
-            required
-          >
-            <option value="">Chọn thương hiệu</option>
-            {brandOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </Form.Control>
+          <div className="pf-form-group-label">
+            <Form.Label>Loại hàng</Form.Label>
+          </div>
+          <div className="pf-input-button-group">
+            <Form.Control
+              as="select"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="pf-form-input"
+              required
+            >
+              <option value="">Chọn loại hàng</option>
+              {typeOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Form.Control>
+            <Button
+              variant="primary"
+              size="sm"
+              className="create-new-btn"
+              onClick={() => setShowTypeModal(true)}
+            >
+              Tạo mới
+            </Button>
+            <CreateTypeModal
+              show={showTypeModal}
+              onHide={() => setShowTypeModal(false)}
+              onSave={handleOptionsUpdate}
+            />
+          </div>
         </Form.Group>
         <Form.Group className="pf-form-group">
-          <Form.Label>Chất liệu</Form.Label>
-          <Form.Control
-            as="select"
-            value={material}
-            onChange={(e) => setMaterial(e.target.value)}
-            className="pf-form-input"
-            required
-          >
-            <option value="">Chọn chất liệu</option>
-            {materialOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </Form.Control>
+          <div className="pf-form-group-label">
+            <Form.Label>Thương hiệu</Form.Label>
+          </div>
+          <div className="pf-input-button-group">
+            <Form.Control
+              as="select"
+              value={brand}
+              onChange={(e) => setBrand(e.target.value)}
+              className="pf-form-input"
+              required
+            >
+              <option value="">Chọn thương hiệu</option>
+              {brandOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Form.Control>
+            <Button
+              variant="primary"
+              size="sm"
+              className="create-new-btn"
+              onClick={() => setShowBrandModal(true)}
+            >
+              Tạo mới
+            </Button>
+            <CreateBrandModal
+              show={showBrandModal}
+              onHide={() => setShowBrandModal(false)}
+              onSave={handleOptionsUpdate}
+            />
+          </div>
+        </Form.Group>
+        <Form.Group className="pf-form-group">
+          <div className="pf-form-group-label">
+            <Form.Label>Chất liệu</Form.Label>
+          </div>
+          <div className="pf-input-button-group">
+            <Form.Control
+              as="select"
+              value={material}
+              onChange={(e) => setMaterial(e.target.value)}
+              className="pf-form-input"
+              required
+            >
+              <option value="">Chọn chất liệu</option>
+              {materialOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Form.Control>
+            <Button
+              variant="primary"
+              size="sm"
+              className="create-new-btn"
+              onClick={() => setShowMaterialModal(true)}
+            >
+              Tạo mới
+            </Button>
+            <CreateMaterialModal
+              show={showMaterialModal}
+              onHide={() => setShowMaterialModal(false)}
+              onSave={handleOptionsUpdate}
+            />
+          </div>
         </Form.Group>
         <Form.Group className="pf-form-group">
           <Form.Label>Ảnh sản phẩm</Form.Label>
@@ -419,3 +520,4 @@ function ProductForm({ product, onSave }) {
 }
 
 export default ProductForm;
+  

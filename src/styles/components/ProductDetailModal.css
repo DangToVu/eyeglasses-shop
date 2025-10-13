@@ -1,4 +1,4 @@
-.modal-overlay {
+.pdm-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,7 +11,7 @@
   z-index: 1000;
 }
 
-.modal-content-wrapper {
+.pdm-modal-content-wrapper {
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -23,7 +23,7 @@
   padding: 0;
 }
 
-.modal-header {
+.pdm-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -34,14 +34,14 @@
   border-top-right-radius: 8px;
 }
 
-.modal-title-container {
+.pdm-modal-title-container {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-grow: 1;
 }
 
-.modal-title {
+.pdm-modal-title {
   font-size: 24px;
   font-weight: 700;
   color: #333333;
@@ -51,23 +51,23 @@
   white-space: nowrap;
 }
 
-.modal-heart-icon {
+.pdm-modal-heart-icon {
   font-size: 1.8rem;
   color: #ff0000;
   transition: transform 0.2s ease-in-out, filter 0.2s ease-in-out;
   cursor: pointer;
 }
 
-.modal-heart-icon:hover {
+.pdm-modal-heart-icon:hover {
   transform: scale(1.1);
   filter: brightness(1.2);
 }
 
-.modal-heart-icon:active {
+.pdm-modal-heart-icon:active {
   transform: scale(0.9);
 }
 
-.modal-close-button {
+.pdm-modal-close-button {
   font-size: 32px;
   font-weight: 700;
   color: #ff4444;
@@ -79,27 +79,27 @@
   transition: all 0.3s ease;
 }
 
-.modal-close-button:hover {
+.pdm-modal-close-button:hover {
   color: #cc0000;
   background-color: #ffebee;
   transform: scale(1.1);
 }
 
-.modal-body {
+.pdm-modal-body {
   padding: 24px;
 }
 
-.modal-content-container {
+.pdm-modal-content-container {
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
-.modal-image-section {
+.pdm-modal-image-section {
   width: 100%;
 }
 
-.modal-product-image {
+.pdm-modal-product-image {
   width: 100%;
   max-height: 400px;
   object-fit: contain;
@@ -109,54 +109,51 @@
   transition: transform 0.2s ease;
 }
 
-.modal-product-image:hover {
+.pdm-modal-product-image:hover {
   transform: scale(1.05);
 }
 
-.modal-details-section {
+.pdm-modal-details-section {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.detail-item {
+.pdm-detail-item {
   display: flex;
   flex-direction: column;
 }
 
-.detail-title {
+.pdm-detail-title {
   font-size: 18px;
   font-weight: 600;
   color: #4a4a4a;
   margin-bottom: 4px;
 }
 
-.detail-text {
+.pdm-detail-text {
   font-size: 16px;
   color: #666666;
   margin: 0;
 }
 
 @media (min-width: 768px) {
-  .modal-content-container {
+  .pdm-modal-content-container {
     flex-direction: row;
   }
-
-  .modal-image-section {
+  .pdm-modal-image-section {
     width: 50%;
   }
-
-  .modal-details-section {
+  .pdm-modal-details-section {
     width: 50%;
   }
-
-  .modal-heart-icon {
+  .pdm-modal-heart-icon {
     font-size: 2rem;
   }
 }
 
-.full-screen-overlay {
+.pdm-full-screen-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -170,7 +167,7 @@
   cursor: zoom-out;
 }
 
-.full-screen-image-container {
+.pdm-full-screen-image-container {
   position: relative;
   width: 90%;
   max-width: 1200px;
@@ -178,7 +175,7 @@
   overflow: hidden;
 }
 
-.full-screen-image-container img {
+.pdm-full-screen-image-container img {
   width: 100%;
   height: auto;
   max-height: 90vh;
@@ -186,7 +183,7 @@
   user-select: none;
 }
 
-.zoom-controls {
+.pdm-zoom-controls {
   position: absolute;
   bottom: 20px;
   left: 50%;
@@ -199,7 +196,7 @@
   border-radius: 25px;
 }
 
-.zoom-button {
+.pdm-zoom-button {
   padding: 8px 12px;
   background-color: #ffffff;
   border: 2px solid #26a69a;
@@ -216,12 +213,12 @@
   justify-content: center;
 }
 
-.zoom-button:hover {
+.pdm-zoom-button:hover {
   background-color: #26a69a;
   color: #ffffff;
 }
 
-.zoom-label {
+.pdm-zoom-label {
   font-size: 1.2rem;
   font-weight: 600;
   color: #ffffff;

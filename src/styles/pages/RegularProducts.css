@@ -42,7 +42,6 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Style for Edit (Sửa) button */
 .regular-btn.edit-btn {
   background: linear-gradient(90deg, #28a745, #218838);
   color: #fff;
@@ -54,7 +53,6 @@
   transform: translateY(-1px);
 }
 
-/* Style for Delete (Xóa) button */
 .regular-btn.delete-btn {
   background: linear-gradient(90deg, #dc3545, #c82333);
   color: #fff;
@@ -66,7 +64,6 @@
   transform: translateY(-1px);
 }
 
-/* Style for Multi-Delete (Xóa đã chọn) button */
 .regular-btn.mb-3 {
   background: linear-gradient(90deg, #dc3545, #c82333);
   color: #fff;
@@ -78,7 +75,6 @@
   transform: translateY(-1px);
 }
 
-/* Style for Filter Toggle button */
 .regular-btn.filter-btn {
   background: linear-gradient(90deg, #007bff, #0056b3);
   color: #fff;
@@ -159,7 +155,6 @@ footer {
   margin-bottom: 1rem !important;
 }
 
-/* Filter Section Styling */
 .regular-filter-section {
   margin-bottom: 1rem;
   background-color: #f8f9fa;
@@ -222,7 +217,6 @@ footer {
   background: linear-gradient(90deg, #c82333, #bd2130);
 }
 
-/* Pagination Styling */
 .pagination-regular {
   display: flex;
   justify-content: center;
@@ -272,7 +266,6 @@ footer {
   margin: 0 0.25rem;
 }
 
-/* Items per page selector styling */
 .items-per-page-selector {
   margin-top: 1rem;
   display: flex;
@@ -298,7 +291,6 @@ footer {
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-/* Selected count styling */
 .selected-count {
   margin-top: 0.5rem;
   font-size: 0.9rem;

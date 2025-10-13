@@ -27,10 +27,13 @@ function RegularProducts() {
   const [filters, setFilters] = useState({
     brand: "",
     material: "",
+    type: "",
     searchTerm: "",
   });
+  const [brands, setBrands] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [types, setTypes] = useState([]);
 
-  // Function to format price in Vietnamese currency format
   const formatPrice = (price) => {
     if (price === null || price === undefined) return "-";
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -43,30 +46,47 @@ function RegularProducts() {
     }
   }, [authLoading, userRole, navigate]);
 
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const headers = {
+        apikey: import.meta.env.VITE_SUPABASE_KEY,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      };
+      const [
+        productsResponse,
+        brandsResponse,
+        materialsResponse,
+        typesResponse,
+      ] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
+          headers,
+        }),
+        axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
+          headers,
+        }),
+        axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
+          headers,
+        }),
+        axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
+          headers,
+        }),
+      ]);
+      setProducts(productsResponse.data);
+      setFilteredProducts(productsResponse.data);
+      setBrands(brandsResponse.data.map((b) => b.name));
+      setMaterials(materialsResponse.data.map((m) => m.name));
+      setTypes(typesResponse.data.map((t) => t.name));
+    } catch (error) {
+      toast.error("Lỗi khi lấy dữ liệu: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (userRole !== "admin") return;
-
-    const fetchProducts = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        setProducts(response.data);
-        setFilteredProducts(response.data);
-      } catch (error) {
-        toast.error("Lỗi khi lấy sản phẩm: " + error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchProducts();
+    fetchData();
   }, [userRole]);
 
   useEffect(() => {
@@ -88,33 +108,63 @@ function RegularProducts() {
         (product.material &&
           product.material
             .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.type &&
+          product.type
+            .toLowerCase()
             .includes(filters.searchTerm.toLowerCase()));
       const brandMatch = !filters.brand || product.brand === filters.brand;
       const materialMatch =
         !filters.material || product.material === filters.material;
-      return searchMatch && brandMatch && materialMatch;
+      const typeMatch = !filters.type || product.type === filters.type;
+      return searchMatch && brandMatch && materialMatch && typeMatch;
     });
     setFilteredProducts(filtered);
     setCurrentPage(1);
   }, [filters, products]);
+
+  const handleOptionsUpdate = async () => {
+    try {
+      const headers = {
+        apikey: import.meta.env.VITE_SUPABASE_KEY,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      };
+      const [brandsResponse, materialsResponse, typesResponse] =
+        await Promise.all([
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
+            headers,
+          }),
+        ]);
+      setBrands(brandsResponse.data.map((b) => b.name));
+      setMaterials(materialsResponse.data.map((m) => m.name));
+      setTypes(typesResponse.data.map((t) => t.name));
+    } catch (error) {
+      toast.error("Lỗi khi cập nhật danh sách bộ lọc: " + error.message);
+    }
+  };
 
   const handleSave = () => {
     setSelectedProduct(null);
     setIsLoading(true);
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(
+        const headers = {
+          apikey: import.meta.env.VITE_SUPABASE_KEY,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        };
+        const productsResponse = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
+          { headers }
         );
-        setProducts(response.data);
+        setProducts(productsResponse.data);
         setFilteredProducts(
-          response.data.filter((product) => {
+          productsResponse.data.filter((product) => {
             const searchMatch =
               !filters.searchTerm ||
               (product.name &&
@@ -132,15 +182,23 @@ function RegularProducts() {
               (product.material &&
                 product.material
                   .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.type &&
+                product.type
+                  .toLowerCase()
                   .includes(filters.searchTerm.toLowerCase()));
             const brandMatch =
               !filters.brand || product.brand === filters.brand;
             const materialMatch =
               !filters.material || product.material === filters.material;
-            return searchMatch && brandMatch && materialMatch;
+            const typeMatch = !filters.type || product.type === filters.type;
+            return searchMatch && brandMatch && materialMatch && typeMatch;
           })
         );
-        if (products.length === 0 || response.data.length < products.length) {
+        if (
+          products.length === 0 ||
+          productsResponse.data.length < products.length
+        ) {
           setCurrentPage(1);
         }
       } catch (error) {
@@ -150,6 +208,7 @@ function RegularProducts() {
       }
     };
     fetchProducts();
+    handleOptionsUpdate();
   };
 
   const handleDelete = (id, table) => {
@@ -159,7 +218,10 @@ function RegularProducts() {
 
   const handleMultiDelete = () => {
     if (selectedProducts.size > 0) {
-      setDeleteData({ ids: Array.from(selectedProducts), table: "products" });
+      setDeleteData({
+        ids: Array.from(selectedProducts),
+        table: "products",
+      });
       setShowConfirm(true);
     } else {
       toast.warning("Vui lòng chọn ít nhất một sản phẩm để xóa!");
@@ -268,12 +330,17 @@ function RegularProducts() {
               (product.material &&
                 product.material
                   .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.type &&
+                product.type
+                  .toLowerCase()
                   .includes(filters.searchTerm.toLowerCase()));
             const brandMatch =
               !filters.brand || product.brand === filters.brand;
             const materialMatch =
               !filters.material || product.material === filters.material;
-            return searchMatch && brandMatch && materialMatch;
+            const typeMatch = !filters.type || product.type === filters.type;
+            return searchMatch && brandMatch && materialMatch && typeMatch;
           })
         );
         setSelectedProducts(new Set());
@@ -351,17 +418,11 @@ function RegularProducts() {
     setFilters({
       brand: "",
       material: "",
+      type: "",
       searchTerm: "",
     });
     setCurrentPage(1);
   };
-
-  const uniqueBrands = [
-    ...new Set(products.map((p) => p.brand).filter(Boolean)),
-  ];
-  const uniqueMaterials = [
-    ...new Set(products.map((p) => p.material).filter(Boolean)),
-  ];
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -371,9 +432,7 @@ function RegularProducts() {
   );
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
-  const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const nextPage = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -408,7 +467,7 @@ function RegularProducts() {
       )}
       <Header />
       <Container className="regular-container">
-        <h2 className="regular-title my-4">Quản lý Sản phẩm Nổi bật</h2>
+        <h2 className="regular-title my-4">Quản lý Sản phẩm Thường</h2>
         <div className="regular-product-layout">
           <div className="regular-product-form-container">
             <ProductForm product={selectedProduct} onSave={handleSave} />
@@ -442,7 +501,7 @@ function RegularProducts() {
                     className="regular-filter-select"
                   >
                     <option value="all">Tất cả thương hiệu</option>
-                    {uniqueBrands.map((brand) => (
+                    {brands.map((brand) => (
                       <option key={brand} value={brand}>
                         {brand}
                       </option>
@@ -456,9 +515,21 @@ function RegularProducts() {
                     className="regular-filter-select"
                   >
                     <option value="all">Tất cả chất liệu</option>
-                    {uniqueMaterials.map((material) => (
+                    {materials.map((material) => (
                       <option key={material} value={material}>
                         {material}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Select
+                    value={filters.type}
+                    onChange={(e) => handleFilterChange("type", e.target.value)}
+                    className="regular-filter-select"
+                  >
+                    <option value="all">Tất cả loại hàng</option>
+                    {types.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
                       </option>
                     ))}
                   </Form.Select>
@@ -505,6 +576,7 @@ function RegularProducts() {
                   <th>Mô tả</th>
                   <th>Thương hiệu</th>
                   <th>Chất liệu</th>
+                  <th>Loại hàng</th>
                   <th>Ảnh</th>
                   <th>Hành động</th>
                 </tr>
@@ -525,6 +597,7 @@ function RegularProducts() {
                     <td>{product.description || "-"}</td>
                     <td>{product.brand || "-"}</td>
                     <td>{product.material || "-"}</td>
+                    <td>{product.type || "-"}</td>
                     <td>
                       <img
                         src={product.image_url}
@@ -625,4 +698,3 @@ function RegularProducts() {
 }
 
 export default RegularProducts;
-  
