@@ -10,6 +10,7 @@ import AllProductCard from "../components/AllProductCard.jsx";
 import ProductDetailModal from "../components/ProductDetailModal.jsx";
 import "../styles/pages/AllProductsCustomer.css";
 import LoadingScreen from "../components/LoadingScreen";
+
 const formatPrice = (price) =>
   price === Infinity
     ? "Không giới hạn"
@@ -25,11 +26,13 @@ function AllProductsCustomer() {
   const [searchParams] = useSearchParams();
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [uniqueTypes, setUniqueTypes] = useState([]);
   const location = useLocation();
 
   const [filters, setFilters] = useState({
     brands: [],
     materials: [],
+    types: [],
     minPrice: 0,
     maxPrice: Infinity,
   });
@@ -42,7 +45,7 @@ function AllProductsCustomer() {
   const cardsSectionRef = useRef(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProductsAndOptions = async () => {
       setIsLoading(true);
       try {
         const publicHeaders = {
@@ -50,27 +53,35 @@ function AllProductsCustomer() {
           "Content-Type": "application/json",
         };
 
-        const allResponse = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
-          { headers: publicHeaders }
-        );
+        const [
+          allResponse,
+          regularResponse,
+          bestSellingResponse,
+          typesResponse,
+        ] = await Promise.all([
+          axios.get(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
+            { headers: publicHeaders }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
+            headers: publicHeaders,
+          }),
+          axios.get(
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/rest/v1/best_selling_glasses?select=*`,
+            { headers: publicHeaders }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
+            headers: publicHeaders,
+          }),
+        ]);
+
         setAllProducts(
           allResponse.data.map((p) => ({ ...p, table: "all_product" }))
         );
-
-        const regularResponse = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
-          { headers: publicHeaders }
-        );
         setRegularProducts(
           regularResponse.data.map((p) => ({ ...p, table: "products" }))
-        );
-
-        const bestSellingResponse = await axios.get(
-          `${
-            import.meta.env.VITE_SUPABASE_URL
-          }/rest/v1/best_selling_glasses?select=*`,
-          { headers: publicHeaders }
         );
         setBestSellingProducts(
           bestSellingResponse.data.map((p) => ({
@@ -78,13 +89,14 @@ function AllProductsCustomer() {
             table: "best_selling_glasses",
           }))
         );
+        setUniqueTypes(typesResponse.data.map((t) => t.name));
       } catch (error) {
-        toast.error("Lỗi khi lấy sản phẩm: " + error.message);
+        toast.error("Lỗi khi lấy dữ liệu: " + error.message);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchProducts();
+    fetchProductsAndOptions();
   }, []);
 
   useEffect(() => {
@@ -150,6 +162,7 @@ function AllProductsCustomer() {
       setFilters({
         brands: [],
         materials: [],
+        types: [],
         minPrice: 0,
         maxPrice: Infinity,
       });
@@ -190,6 +203,8 @@ function AllProductsCustomer() {
         product.product_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (product.material &&
         product.material.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (product.type &&
+        product.type.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (product.price && product.price.toString().includes(searchTerm));
     const brandMatch =
       filters.brands.length === 0 ||
@@ -197,10 +212,14 @@ function AllProductsCustomer() {
     const materialMatch =
       filters.materials.length === 0 ||
       filters.materials.includes(product.material || "");
+    const typeMatch =
+      filters.types.length === 0 || filters.types.includes(product.type || "");
     const priceMatch =
       (!filters.minPrice || product.price >= filters.minPrice) &&
       (!filters.maxPrice || product.price <= filters.maxPrice);
-    return searchMatch && brandMatch && materialMatch && priceMatch;
+    return (
+      searchMatch && brandMatch && materialMatch && typeMatch && priceMatch
+    );
   });
 
   const effectiveItemsPerPage = 20;
@@ -267,7 +286,7 @@ function AllProductsCustomer() {
               <input
                 type="text"
                 className="ap-search-input"
-                placeholder="Tìm theo tên, thương hiệu, mã, chất liệu, giá..."
+                placeholder="Tìm theo tên, thương hiệu, mã, chất liệu, loại hàng, giá..."
                 value={searchTerm}
                 onChange={handleSearchChange}
               />
@@ -351,6 +370,20 @@ function AllProductsCustomer() {
                 </div>
               ))}
             </div>
+            <div className="ap-filter-group">
+              <h4>Loại hàng</h4>
+              {uniqueTypes.map((type) => (
+                <div key={type}>
+                  <input
+                    type="checkbox"
+                    id={`type-${type}`}
+                    checked={filters.types.includes(type)}
+                    onChange={() => handleFilterChange("types", type)}
+                  />
+                  <label htmlFor={`type-${type}`}>{type}</label>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="ap-cards-section" ref={cardsSectionRef}>
@@ -427,4 +460,5 @@ function AllProductsCustomer() {
     </div>
   );
 }
+
 export default AllProductsCustomer;

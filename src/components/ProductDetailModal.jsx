@@ -29,7 +29,6 @@ function ProductDetailModal({ show, onHide, product }) {
         console.log("No token found in localStorage");
         return;
       }
-
       const expiresAt = parseInt(localStorage.getItem("token_expires_at"));
       if (expiresAt && Date.now() > expiresAt) {
         console.log("Token expired at:", new Date(expiresAt));
@@ -38,7 +37,6 @@ function ProductDetailModal({ show, onHide, product }) {
         localStorage.removeItem("refresh_token");
         return;
       }
-
       const userResponse = await axios.get(
         `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
         {
@@ -49,13 +47,11 @@ function ProductDetailModal({ show, onHide, product }) {
           },
         }
       );
-
       const userId = userResponse.data.id;
       if (!userId) {
         console.log("No user found in session");
         return;
       }
-
       const favoriteResponse = await axios.get(
         `${
           import.meta.env.VITE_SUPABASE_URL
@@ -70,7 +66,6 @@ function ProductDetailModal({ show, onHide, product }) {
           },
         }
       );
-
       setIsFavorite(favoriteResponse.data.length > 0);
     } catch (error) {
       console.error("Error checking favorite:", error.message);
@@ -79,9 +74,7 @@ function ProductDetailModal({ show, onHide, product }) {
 
   useEffect(() => {
     if (!show || !product) return;
-
     checkFavorite();
-
     const handleFavoriteToggled = (event) => {
       const { productId, tableName } = event.detail;
       if (
@@ -91,7 +84,6 @@ function ProductDetailModal({ show, onHide, product }) {
         checkFavorite();
       }
     };
-
     window.addEventListener("favoriteToggled", handleFavoriteToggled);
     return () =>
       window.removeEventListener("favoriteToggled", handleFavoriteToggled);
@@ -105,7 +97,6 @@ function ProductDetailModal({ show, onHide, product }) {
         toast.error("Bạn cần đăng nhập để sử dụng chức năng này!");
         return;
       }
-
       const expiresAt = parseInt(localStorage.getItem("token_expires_at"));
       if (expiresAt && Date.now() > expiresAt) {
         const refreshToken = localStorage.getItem("refresh_token");
@@ -116,7 +107,6 @@ function ProductDetailModal({ show, onHide, product }) {
           localStorage.removeItem("refresh_token");
           return;
         }
-
         const refreshResponse = await axios.post(
           `${
             import.meta.env.VITE_SUPABASE_URL
@@ -130,7 +120,6 @@ function ProductDetailModal({ show, onHide, product }) {
             },
           }
         );
-
         const { access_token, refresh_token, expires_in } =
           refreshResponse.data;
         localStorage.setItem("token", access_token);
@@ -140,7 +129,6 @@ function ProductDetailModal({ show, onHide, product }) {
           Date.now() + expires_in * 1000
         );
       }
-
       const userResponse = await axios.get(
         `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`,
         {
@@ -151,19 +139,16 @@ function ProductDetailModal({ show, onHide, product }) {
           },
         }
       );
-
       const userId = userResponse.data.id;
       const userEmail = userResponse.data.email;
       if (!userId) {
         toast.error("Bạn cần đăng nhập để sử dụng chức năng này!");
         return;
       }
-
       if (!product.id || !product.name) {
         toast.error("Thông tin sản phẩm không hợp lệ!");
         return;
       }
-
       if (isFavorite) {
         await axios.delete(
           `${
@@ -203,8 +188,6 @@ function ProductDetailModal({ show, onHide, product }) {
         setIsFavorite(true);
         toast.success("Đã thêm sản phẩm vào danh sách yêu thích!");
       }
-
-      // Phát sự kiện để thông báo trạng thái yêu thích đã thay đổi
       window.dispatchEvent(
         new CustomEvent("favoriteToggled", {
           detail: {
@@ -294,63 +277,69 @@ function ProductDetailModal({ show, onHide, product }) {
   };
 
   return createPortal(
-    <div className="modal-overlay">
-      <div className="modal-content-wrapper">
-        <div className="modal-header">
-          <div className="modal-title-container">
-            <h2 className="modal-title">{product.name}</h2>
-            <div className="modal-heart-icon" onClick={handleFavoriteToggle}>
+    <div className="pdm-modal-overlay">
+      <div className="pdm-modal-content-wrapper">
+        <div className="pdm-modal-header">
+          <div className="pdm-modal-title-container">
+            <h2 className="pdm-modal-title">{product.name}</h2>
+            <div
+              className="pdm-modal-heart-icon"
+              onClick={handleFavoriteToggle}
+            >
               {isFavorite ? <BiSolidHeart /> : <BiHeart />}
             </div>
           </div>
-          <button className="modal-close-button" onClick={onHide}>
+          <button className="pdm-modal-close-button" onClick={onHide}>
             &times;
           </button>
         </div>
-        <div className="modal-body">
-          <div className="modal-content-container">
-            <div className="modal-image-section">
+        <div className="pdm-modal-body">
+          <div className="pdm-modal-content-container">
+            <div className="pdm-modal-image-section">
               <img
                 ref={imageRef}
                 src={product.image_url || "/placeholder-image.jpg"}
                 alt={product.name}
-                className="modal-product-image"
+                className="pdm-modal-product-image"
                 onClick={handleImageClick}
                 loading="lazy"
               />
             </div>
-            <div className="modal-details-section">
-              <div className="detail-item">
-                <h3 className="detail-title">Mã sản phẩm</h3>
-                <p className="detail-text">{product.product_id || "N/A"}</p>
+            <div className="pdm-modal-details-section">
+              <div className="pdm-detail-item">
+                <h3 className="pdm-detail-title">Mã sản phẩm</h3>
+                <p className="pdm-detail-text">{product.product_id || "N/A"}</p>
               </div>
-              <div className="detail-item">
-                <h3 className="detail-title">Giá</h3>
-                <p className="detail-text">{formatPrice(product.price)}</p>
+              <div className="pdm-detail-item">
+                <h3 className="pdm-detail-title">Giá</h3>
+                <p className="pdm-detail-text">{formatPrice(product.price)}</p>
               </div>
-              <div className="detail-item">
-                <h3 className="detail-title">Mô tả</h3>
-                <p className="detail-text">
+              <div className="pdm-detail-item">
+                <h3 className="pdm-detail-title">Mô tả</h3>
+                <p className="pdm-detail-text">
                   {product.description || "Không có mô tả"}
                 </p>
               </div>
-              <div className="detail-item">
-                <h3 className="detail-title">Thương hiệu</h3>
-                <p className="detail-text">{product.brand || "N/A"}</p>
+              <div className="pdm-detail-item">
+                <h3 className="pdm-detail-title">Thương hiệu</h3>
+                <p className="pdm-detail-text">{product.brand || "N/A"}</p>
               </div>
-              <div className="detail-item">
-                <h3 className="detail-title">Chất liệu</h3>
-                <p className="detail-text">{product.material || "N/A"}</p>
+              <div className="pdm-detail-item">
+                <h3 className="pdm-detail-title">Chất liệu</h3>
+                <p className="pdm-detail-text">{product.material || "N/A"}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
       {isFullScreen && (
-        <div className="full-screen-overlay" onClick={handleCloseFullScreen}>
+        <div
+          className="pdm-full-screen-overlay"
+          onClick={handleCloseFullScreen}
+        >
           <div
             ref={containerRef}
-            className="full-screen-image-container"
+            className="pdm-full-screen-image-container"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -373,9 +362,9 @@ function ProductDetailModal({ show, onHide, product }) {
                   : "zoom-in",
               }}
             />
-            <div className="zoom-controls">
+            <div className="pdm-zoom-controls">
               <button
-                className="zoom-button"
+                className="pdm-zoom-button"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleZoomOut();
@@ -383,9 +372,9 @@ function ProductDetailModal({ show, onHide, product }) {
               >
                 -
               </button>
-              <span className="zoom-label">Zoom x{zoomLevel}</span>
+              <span className="pdm-zoom-label">Zoom x{zoomLevel}</span>
               <button
-                className="zoom-button"
+                className="pdm-zoom-button"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleZoomIn();

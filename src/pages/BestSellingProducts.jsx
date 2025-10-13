@@ -27,8 +27,12 @@ function BestSellingProducts() {
   const [filters, setFilters] = useState({
     brand: "",
     material: "",
+    type: "",
     searchTerm: "",
   });
+  const [brands, setBrands] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [types, setTypes] = useState([]);
 
   const formatPrice = (price) => {
     if (price === null || price === undefined) return "-";
@@ -45,27 +49,45 @@ function BestSellingProducts() {
   useEffect(() => {
     if (userRole !== "admin") return;
 
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        setBestSellingProducts(response.data);
-        setFilteredProducts(response.data);
+        const headers = {
+          apikey: import.meta.env.VITE_SUPABASE_KEY,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        };
+        const [
+          productsResponse,
+          brandsResponse,
+          materialsResponse,
+          typesResponse,
+        ] = await Promise.all([
+          axios.get(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
+            { headers }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
+            headers,
+          }),
+        ]);
+        setBestSellingProducts(productsResponse.data);
+        setFilteredProducts(productsResponse.data);
+        setBrands(brandsResponse.data.map((b) => b.name));
+        setMaterials(materialsResponse.data.map((m) => m.name));
+        setTypes(typesResponse.data.map((t) => t.name));
       } catch (error) {
-        toast.error("Lỗi khi lấy sản phẩm: " + error.message);
+        toast.error("Lỗi khi lấy dữ liệu: " + error.message);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchProducts();
+    fetchData();
   }, [userRole]);
 
   useEffect(() => {
@@ -87,11 +109,16 @@ function BestSellingProducts() {
         (product.material &&
           product.material
             .toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())) ||
+        (product.type &&
+          product.type
+            .toLowerCase()
             .includes(filters.searchTerm.toLowerCase()));
       const brandMatch = !filters.brand || product.brand === filters.brand;
       const materialMatch =
         !filters.material || product.material === filters.material;
-      return searchMatch && brandMatch && materialMatch;
+      const typeMatch = !filters.type || product.type === filters.type;
+      return searchMatch && brandMatch && materialMatch && typeMatch;
     });
     setFilteredProducts(filtered);
     setCurrentPage(1);
@@ -102,18 +129,33 @@ function BestSellingProducts() {
     setIsLoading(true);
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        setBestSellingProducts(response.data);
+        const headers = {
+          apikey: import.meta.env.VITE_SUPABASE_KEY,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        };
+        const [
+          productsResponse,
+          brandsResponse,
+          materialsResponse,
+          typesResponse,
+        ] = await Promise.all([
+          axios.get(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
+            { headers }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
+            headers,
+          }),
+        ]);
+        setBestSellingProducts(productsResponse.data);
         setFilteredProducts(
-          response.data.filter((product) => {
+          productsResponse.data.filter((product) => {
             const searchMatch =
               !filters.searchTerm ||
               (product.name &&
@@ -131,17 +173,25 @@ function BestSellingProducts() {
               (product.material &&
                 product.material
                   .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.type &&
+                product.type
+                  .toLowerCase()
                   .includes(filters.searchTerm.toLowerCase()));
             const brandMatch =
               !filters.brand || product.brand === filters.brand;
             const materialMatch =
               !filters.material || product.material === filters.material;
-            return searchMatch && brandMatch && materialMatch;
+            const typeMatch = !filters.type || product.type === filters.type;
+            return searchMatch && brandMatch && materialMatch && typeMatch;
           })
         );
+        setBrands(brandsResponse.data.map((b) => b.name));
+        setMaterials(materialsResponse.data.map((m) => m.name));
+        setTypes(typesResponse.data.map((t) => t.name));
         if (
           bestSellingProducts.length === 0 ||
-          response.data.length < bestSellingProducts.length
+          productsResponse.data.length < bestSellingProducts.length
         ) {
           setCurrentPage(1);
         }
@@ -273,12 +323,17 @@ function BestSellingProducts() {
               (product.material &&
                 product.material
                   .toLowerCase()
+                  .includes(filters.searchTerm.toLowerCase())) ||
+              (product.type &&
+                product.type
+                  .toLowerCase()
                   .includes(filters.searchTerm.toLowerCase()));
             const brandMatch =
               !filters.brand || product.brand === filters.brand;
             const materialMatch =
               !filters.material || product.material === filters.material;
-            return searchMatch && brandMatch && materialMatch;
+            const typeMatch = !filters.type || product.type === filters.type;
+            return searchMatch && brandMatch && materialMatch && typeMatch;
           })
         );
         setSelectedProducts(new Set());
@@ -356,17 +411,11 @@ function BestSellingProducts() {
     setFilters({
       brand: "",
       material: "",
+      type: "",
       searchTerm: "",
     });
     setCurrentPage(1);
   };
-
-  const uniqueBrands = [
-    ...new Set(bestSellingProducts.map((p) => p.brand).filter(Boolean)),
-  ];
-  const uniqueMaterials = [
-    ...new Set(bestSellingProducts.map((p) => p.material).filter(Boolean)),
-  ];
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -445,7 +494,7 @@ function BestSellingProducts() {
                     className="regular-filter-select"
                   >
                     <option value="all">Tất cả thương hiệu</option>
-                    {uniqueBrands.map((brand) => (
+                    {brands.map((brand) => (
                       <option key={brand} value={brand}>
                         {brand}
                       </option>
@@ -459,9 +508,21 @@ function BestSellingProducts() {
                     className="regular-filter-select"
                   >
                     <option value="all">Tất cả chất liệu</option>
-                    {uniqueMaterials.map((material) => (
+                    {materials.map((material) => (
                       <option key={material} value={material}>
                         {material}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Select
+                    value={filters.type}
+                    onChange={(e) => handleFilterChange("type", e.target.value)}
+                    className="regular-filter-select"
+                  >
+                    <option value="all">Tất cả loại hàng</option>
+                    {types.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
                       </option>
                     ))}
                   </Form.Select>
@@ -508,6 +569,7 @@ function BestSellingProducts() {
                   <th>Mô tả</th>
                   <th>Thương hiệu</th>
                   <th>Chất liệu</th>
+                  <th>Loại hàng</th>
                   <th>Ảnh</th>
                   <th>Hành động</th>
                 </tr>
@@ -528,6 +590,7 @@ function BestSellingProducts() {
                     <td>{product.description || "-"}</td>
                     <td>{product.brand || "-"}</td>
                     <td>{product.material || "-"}</td>
+                    <td>{product.type || "-"}</td>
                     <td>
                       <img
                         src={product.image_url}
