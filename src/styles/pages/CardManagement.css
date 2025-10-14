@@ -1,11 +1,11 @@
-.card-management-container {
+.cm-card-management-container {
   padding: 2rem 0;
-  max-width: 1200px; /* Giới hạn chiều rộng tối đa */
-  margin: 0 auto; /* Căn giữa container */
-  min-height: 90vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex: 1 0 auto;
 }
 
-.card-management-title {
+.cm-card-management-title {
   font-size: 1.8rem;
   font-weight: 700;
   color: #333;
@@ -14,7 +14,7 @@
   position: relative;
 }
 
-.card-management-title::after {
+.cm-card-management-title::after {
   content: "";
   position: absolute;
   bottom: -10px;
@@ -26,23 +26,35 @@
   border-radius: 2px;
 }
 
-.card-selection {
+.cm-card-selection {
   display: flex;
-  flex-direction: column; /* Sắp xếp các nút theo cột */
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.cm-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cm-button-group {
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
-  flex-wrap: wrap; /* Đảm bảo responsive */
+  width: 100%;
+  max-width: 300px;
 }
 
-.card-link {
+.cm-card-link {
   text-decoration: none;
-  width: 100%; /* Đảm bảo Link chiếm toàn bộ chiều rộng của Col */
+  width: 100%;
   display: flex;
-  justify-content: center; /* Căn giữa nội dung trong Link */
+  justify-content: center;
 }
 
-.card-select-btn {
-  width: 300px; /* Chiều rộng cố định cho tất cả các nút */
+.cm-card-select-btn {
+  width: 100%;
   padding: 1rem;
   font-size: 1.1rem;
   border-radius: 10px;
@@ -52,78 +64,79 @@
   text-align: center;
   display: flex;
   align-items: center;
-  justify-content: center; /* Căn giữa nội dung trong nút */
+  justify-content: center;
 }
 
-.card-select-btn:hover {
+.cm-card-select-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   opacity: 0.9;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
-  .card-management-title {
+  .cm-card-selection {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cm-card-management-title {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
   }
 
-  .card-management-title::after {
+  .cm-card-management-title::after {
     width: 100px;
     height: 3px;
   }
 
-  .card-select-btn {
+  .cm-card-select-btn {
     font-size: 1rem;
     padding: 0.8rem;
-    width: 250px; /* Giảm chiều rộng trên tablet */
+    width: 250px;
+  }
+
+  .cm-button-group {
+    max-width: 250px;
   }
 }
 
 @media (max-width: 576px) {
-  .card-management-container {
+  .cm-card-management-container {
     padding: 1rem 0;
   }
 
-  .card-management-title {
+  .cm-card-management-title {
     font-size: 1.2rem;
   }
 
-  .card-select-btn {
-    font-size: 1.1rem; /* Tăng font-size trên mobile */
-    padding: 1rem; /* Tăng padding trên mobile */
-    width: 100%; /* Toàn chiều rộng trên mobile */
+  .cm-card-select-btn {
+    font-size: 1.1rem;
+    padding: 1rem;
+    width: 100%;
   }
 
-  .card-selection {
-    gap: 0.5rem;
+  .cm-button-group {
+    max-width: 100%;
+  }
+
+  .cm-card-selection {
+    gap: 1rem;
   }
 }
 
 @media (max-width: 400px) {
-  .card-management-title {
+  .cm-card-management-title {
     font-size: 1rem;
   }
 
-  .card-select-btn {
-    font-size: 1rem; /* Giữ font-size lớn hơn */
-    padding: 0.9rem; /* Tăng padding để dễ ấn hơn */
+  .cm-card-select-btn {
+    font-size: 1rem;
+    padding: 0.9rem;
   }
 }
 
-/* Giữ nguyên phần footer luôn ở cuối */
-.page-wrapper {
+.cm-page-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-}
-
-.card-management-container {
-  
-  flex: 1 0 auto;
-}
-
-footer {
-  flex-shrink: 0;
-  width: 100%;
 }
