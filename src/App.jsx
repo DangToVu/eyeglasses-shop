@@ -12,6 +12,9 @@ import AuthGuard from "./guards/AuthGuard.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 import AdminProfile from "./pages/AdminProfile.jsx";
 import FavoriteProduct from "./pages/FavoriteProduct.jsx";
+import ManageTypes from "./pages/ManageTypes.jsx";
+import ManageBrands from "./pages/ManageBrands.jsx";
+import ManageMaterials from "./pages/ManageMaterials.jsx";
 import { ToastContainer } from "react-toastify";
 
 function App() {
@@ -33,6 +36,9 @@ function App() {
           <Route path="/products/all-management" element={<AllProducts />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/admin-profile" element={<AdminProfile />} />
+          <Route path="/manage-types" element={<ManageTypes />} />
+          <Route path="/manage-brands" element={<ManageBrands />} />
+          <Route path="/manage-materials" element={<ManageMaterials />} />
         </Route>
         <Route path="*" element={<NotFound404 />} />
       </Routes>

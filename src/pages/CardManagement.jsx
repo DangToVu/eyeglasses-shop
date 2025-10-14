@@ -3,7 +3,6 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
-import Footer from "../components/Footer.jsx";
 import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import "../styles/pages/CardManagement.css";
 
@@ -12,7 +11,7 @@ function CardManagement() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    window.scrollTo(0, 0); // Scroll to top
+    window.scrollTo(0, 0);
     if (!isLoading && userRole !== "admin") {
       toast.error("Bạn không có quyền truy cập trang này!");
       navigate("/");
@@ -23,35 +22,52 @@ function CardManagement() {
   if (userRole !== "admin") return null;
 
   return (
-    <div className="page-wrapper">
+    <div className="cm-page-wrapper">
       <Header />
-      <Container className="card-management-container">
-        <h2 className="card-management-title my-4">Quản lý sản phẩm</h2>
-        <Row className="card-selection g-3 justify-content-center text-center">
-          <Col xs={12} className="mb-3 d-flex justify-content-center">
-            <Link to="/products/regular" className="card-link">
-              <Button variant="primary" className="card-select-btn">
-                Sản phẩm nổi bật
-              </Button>
-            </Link>
+      <Container className="cm-card-management-container">
+        <Row className="cm-card-selection g-4">
+          <Col md={6} className="cm-column">
+            <h2 className="cm-card-management-title my-4">Quản lý sản phẩm</h2>
+            <div className="cm-button-group">
+              <Link to="/products/regular" className="cm-card-link">
+                <Button variant="primary" className="cm-card-select-btn">
+                  Sản phẩm nổi bật
+                </Button>
+              </Link>
+              <Link to="/products/best-selling" className="cm-card-link">
+                <Button variant="success" className="cm-card-select-btn">
+                  Sản phẩm bán chạy
+                </Button>
+              </Link>
+              <Link to="/products/all-management" className="cm-card-link">
+                <Button variant="info" className="cm-card-select-btn">
+                  Quản lý tất cả sản phẩm
+                </Button>
+              </Link>
+            </div>
           </Col>
-          <Col xs={12} className="mb-3 d-flex justify-content-center">
-            <Link to="/products/best-selling" className="card-link">
-              <Button variant="success" className="card-select-btn">
-                Sản phẩm bán chạy
-              </Button>
-            </Link>
-          </Col>
-          <Col xs={12} className="mb-3 d-flex justify-content-center">
-            <Link to="/products/all-management" className="card-link">
-              <Button variant="info" className="card-select-btn">
-                Quản lý tất cả sản phẩm
-              </Button>
-            </Link>
+          <Col md={6} className="cm-column">
+            <h2 className="cm-card-management-title my-4">Quản lý hàng hóa</h2>
+            <div className="cm-button-group">
+              <Link to="/manage-types" className="cm-card-link">
+                <Button variant="warning" className="cm-card-select-btn">
+                  Quản lý loại hàng
+                </Button>
+              </Link>
+              <Link to="/manage-brands" className="cm-card-link">
+                <Button variant="danger" className="cm-card-select-btn">
+                  Quản lý thương hiệu
+                </Button>
+              </Link>
+              <Link to="/manage-materials" className="cm-card-link">
+                <Button variant="secondary" className="cm-card-select-btn">
+                  Quản lý chất liệu
+                </Button>
+              </Link>
+            </div>
           </Col>
         </Row>
       </Container>
-      <Footer />
     </div>
   );
 }
