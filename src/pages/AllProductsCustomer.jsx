@@ -26,6 +26,8 @@ function AllProductsCustomer() {
   const [searchParams] = useSearchParams();
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [uniqueBrands, setUniqueBrands] = useState([]);
+  const [uniqueMaterials, setUniqueMaterials] = useState([]);
   const [uniqueTypes, setUniqueTypes] = useState([]);
   const location = useLocation();
 
@@ -57,6 +59,8 @@ function AllProductsCustomer() {
           allResponse,
           regularResponse,
           bestSellingResponse,
+          brandsResponse,
+          materialsResponse,
           typesResponse,
         ] = await Promise.all([
           axios.get(
@@ -72,6 +76,12 @@ function AllProductsCustomer() {
             }/rest/v1/best_selling_glasses?select=*`,
             { headers: publicHeaders }
           ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
+            headers: publicHeaders,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
+            headers: publicHeaders,
+          }),
           axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
             headers: publicHeaders,
           }),
@@ -89,6 +99,8 @@ function AllProductsCustomer() {
             table: "best_selling_glasses",
           }))
         );
+        setUniqueBrands(brandsResponse.data.map((b) => b.name));
+        setUniqueMaterials(materialsResponse.data.map((m) => m.name));
         setUniqueTypes(typesResponse.data.map((t) => t.name));
       } catch (error) {
         toast.error("Lỗi khi lấy dữ liệu: " + error.message);
@@ -250,13 +262,6 @@ function AllProductsCustomer() {
   const pageNumbers = [...Array(endPage - startPage + 1).keys()].map(
     (i) => startPage + i
   );
-
-  const uniqueBrands = [
-    ...new Set(allProductsList.map((p) => p.brand).filter(Boolean)),
-  ];
-  const uniqueMaterials = [
-    ...new Set(allProductsList.map((p) => p.material).filter(Boolean)),
-  ];
 
   return (
     <div className="ap-page-wrapper">
