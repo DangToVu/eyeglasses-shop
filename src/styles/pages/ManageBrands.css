@@ -5,10 +5,22 @@
 }
 
 .mb-manage-brands-container {
-  padding: 2rem 0;
+  padding: 1rem 0;
   max-width: 1200px;
   margin: 0 auto;
   flex: 1 0 auto;
+}
+
+.mb-button-group-top {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
+.mb-button-group-bottom {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 1rem;
 }
 
 .mb-manage-brands-title {
@@ -32,6 +44,11 @@
   border-radius: 2px;
 }
 
+.mb-table-container {
+  max-height: 370px; /* Increased to fit 5 items */
+  overflow-y: auto;
+}
+
 .mb-brands-table {
   width: 100%;
   border-collapse: separate;
@@ -40,20 +57,24 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #dee2e6;
 }
 
 .mb-brands-table th,
 .mb-brands-table td {
-  padding: 1rem;
+  padding: 0.8rem;
   text-align: left;
   border-bottom: 1px solid #dee2e6;
+  font-size: 0.95rem;
 }
 
 .mb-brands-table th {
-  background-color: #f8f9fa;
+  background-color: #007bff;
+  color: #fff;
   font-weight: 600;
-  color: #333;
-  font-size: 1.1rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .mb-brands-table tr:hover {
@@ -61,7 +82,6 @@
 }
 
 .mb-brands-table td {
-  font-size: 1rem;
   color: #555;
 }
 
@@ -70,54 +90,67 @@
 }
 
 .mb-brand-image {
-  max-width: 100px;
-  height: auto;
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
 }
 
 .mb-add-btn,
 .mb-edit-btn,
 .mb-delete-btn,
 .mb-back-btn {
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .mb-add-btn {
-  background-color: #007bff;
-  border: none;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  color: #fff;
 }
 
 .mb-add-btn:hover {
-  background-color: #0056b3;
+  background: linear-gradient(90deg, #0056b3, #003d80);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 .mb-edit-btn {
-  background-color: #ffc107;
-  border: none;
+  background: linear-gradient(90deg, #28a745, #218838);
+  color: #fff;
 }
 
 .mb-edit-btn:hover {
-  background-color: #e0a800;
+  background: linear-gradient(90deg, #218838, #1e7e34);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 .mb-delete-btn {
-  background-color: #dc3545;
-  border: none;
+  background: linear-gradient(90deg, #dc3545, #c82333);
+  color: #fff;
 }
 
 .mb-delete-btn:hover {
-  background-color: #c82333;
+  background: linear-gradient(90deg, #c82333, #bd2130);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 .mb-back-btn {
-  background-color: #6c757d;
-  border: none;
+  background: linear-gradient(90deg, #6c757d, #5a6268);
+  color: #fff;
 }
 
 .mb-back-btn:hover {
-  background-color: #5a6268;
+  background: linear-gradient(90deg, #5a6268, #4b5156);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 .mb-modal-overlay {
@@ -151,7 +184,6 @@
   align-items: center;
   background-color: #f7f7f7;
   padding: 16px 24px;
-  border-bottom: none;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
@@ -229,21 +261,95 @@
 }
 
 .mb-modal-btn-primary {
-  background-color: #007bff;
+  background: linear-gradient(90deg, #007bff, #0056b3);
   color: #fff;
 }
 
 .mb-modal-btn-primary:hover {
-  background-color: #0056b3;
+  background: linear-gradient(90deg, #0056b3, #003d80);
 }
 
 .mb-modal-btn-secondary {
-  background-color: #6c757d;
+  background: linear-gradient(90deg, #6c757d, #5a6268);
   color: #fff;
 }
 
 .mb-modal-btn-secondary:hover {
-  background-color: #5a6268;
+  background: linear-gradient(90deg, #5a6268, #4b5156);
+}
+
+.mb-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  gap: 0.5rem;
+}
+
+.mb-pagination button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mb-pagination button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mb-pagination button:not(:disabled):hover {
+  background: linear-gradient(90deg, #0056b3, #003d80);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.mb-pagination .btn-primary {
+  background: linear-gradient(90deg, #007bff, #0056b3) !important;
+  color: #fff !important;
+  font-weight: bold;
+  border: none !important;
+}
+
+.mb-pagination .btn-outline-primary {
+  background: linear-gradient(90deg, #e9ecef, #dee2e6) !important;
+  color: #007bff !important;
+  border: none !important;
+}
+
+.mb-pagination .mx-1 {
+  margin: 0 0.25rem;
+}
+
+.mb-items-per-page-selector {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.mb-items-per-page-selector .form-label {
+  margin-right: 0.5rem;
+  font-weight: 500;
+}
+
+.mb-items-per-page-selector .form-select {
+  padding: 0.4rem 1rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  transition: border-color 0.3s ease;
+}
+
+.mb-items-per-page-selector .form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 @media (max-width: 768px) {
@@ -264,7 +370,8 @@
   }
 
   .mb-brand-image {
-    max-width: 80px;
+    width: 40px;
+    height: 40px;
   }
 
   .mb-add-btn,
@@ -273,6 +380,18 @@
   .mb-back-btn {
     font-size: 0.9rem;
     padding: 0.4rem 0.8rem;
+  }
+
+  .mb-button-group-top,
+  .mb-button-group-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .mb-pagination button {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -292,7 +411,8 @@
   }
 
   .mb-brand-image {
-    max-width: 60px;
+    width: 30px;
+    height: 30px;
   }
 
   .mb-add-btn,
@@ -332,5 +452,23 @@
   .mb-modal-btn {
     font-size: 0.9rem;
     padding: 0.5rem 1.2rem;
+  }
+
+  .mb-button-group-top,
+  .mb-button-group-bottom {
+    align-items: stretch;
+  }
+
+  .mb-pagination button {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .mb-items-per-page-selector {
+    justify-content: center;
+  }
+
+  .mb-items-per-page-selector .form-select {
+    width: 100px;
   }
 }

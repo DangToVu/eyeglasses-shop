@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import ConfirmBox from "../components/ConfirmBox.jsx";
+import Header from "../components/Header.jsx";
 import "../styles/pages/ManageTypes.css";
 import LoadingScreen from "../components/LoadingScreen";
 
@@ -19,6 +20,8 @@ function ManageTypes() {
   const [formData, setFormData] = useState({ name: "" });
   const [showConfirm, setShowConfirm] = useState(false);
   const [typeToDelete, setTypeToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -35,12 +38,20 @@ function ManageTypes() {
         const headers = {
           apikey: import.meta.env.VITE_SUPABASE_KEY,
           Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+          Prefer: "return=representation",
         };
         const response = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`,
+          `${
+            import.meta.env.VITE_SUPABASE_URL
+          }/rest/v1/types?select=*,users!types_created_by_fkey(gmail)`,
           { headers }
         );
-        setTypes(response.data);
+        const formattedTypes = response.data.map((type) => ({
+          ...type,
+          created_by_email: type.users?.gmail || "N/A",
+        }));
+        setTypes(formattedTypes);
       } catch (error) {
         toast.error("Lỗi khi lấy danh sách loại hàng: " + error.message);
       } finally {
@@ -71,10 +82,17 @@ function ManageTypes() {
       setFormData({ name: "" });
       setShowModal(false);
       const response = await axios.get(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`,
+        `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/rest/v1/types?select=*,users!types_created_by_fkey(gmail)`,
         { headers }
       );
-      setTypes(response.data);
+      const formattedTypes = response.data.map((type) => ({
+        ...type,
+        created_by_email: type.users?.gmail || "N/A",
+      }));
+      setTypes(formattedTypes);
+      setCurrentPage(1);
     } catch (error) {
       toast.error("Lỗi khi thêm loại hàng: " + error.message);
     } finally {
@@ -114,10 +132,16 @@ function ManageTypes() {
       setShowModal(false);
       setCurrentType(null);
       const response = await axios.get(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`,
+        `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/rest/v1/types?select=*,users!types_created_by_fkey(gmail)`,
         { headers }
       );
-      setTypes(response.data);
+      const formattedTypes = response.data.map((type) => ({
+        ...type,
+        created_by_email: type.users?.gmail || "N/A",
+      }));
+      setTypes(formattedTypes);
     } catch (error) {
       toast.error("Lỗi khi cập nhật loại hàng: " + error.message);
     } finally {
@@ -153,6 +177,12 @@ function ManageTypes() {
       );
       toast.success("Xóa loại hàng thành công!");
       setTypes(types.filter((t) => t.id !== typeToDelete.id));
+      const totalPagesAfterDelete = Math.ceil(
+        (types.length - 1) / itemsPerPage
+      );
+      if (currentPage > totalPagesAfterDelete && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
     } catch (error) {
       toast.error("Lỗi khi xóa loại hàng: " + error.message);
     } finally {
@@ -189,63 +219,163 @@ function ManageTypes() {
     setShowConfirm(true);
   };
 
+  const handleItemsPerPageChange = (e) => {
+    const newItemsPerPage = parseInt(e.target.value, 10);
+    setItemsPerPage(newItemsPerPage);
+    const totalPages = Math.ceil(types.length / newItemsPerPage);
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages > 0 ? totalPages : 1);
+    }
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentTypes = types.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(types.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const nextPage = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const firstPage = () => setCurrentPage(1);
+  const lastPage = () => setCurrentPage(totalPages);
+
+  const maxPagesToShow = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+  let endPage = startPage + maxPagesToShow - 1;
+
+  if (endPage > totalPages) {
+    endPage = totalPages;
+    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+  }
+
+  const pageNumbers = [...Array(endPage - startPage + 1).keys()].map(
+    (i) => startPage + i
+  );
+
   if (authLoading) return <LoadingScreen />;
   if (userRole !== "admin") return null;
 
   return (
     <div className="mt-page-wrapper">
       {isLoading && <LoadingScreen />}
+      <Header />
       <Container className="mt-manage-types-container">
         <h2 className="mt-manage-types-title my-4">Quản lý loại hàng</h2>
-        <Button
-          variant="primary"
-          className="mt-add-btn mb-3"
-          onClick={() => openModal()}
-        >
-          Thêm loại hàng
-        </Button>
-        <Table className="mt-types-table">
-          <thead>
-            <tr>
-              <th>Tên loại hàng</th>
-              <th>Ngày tạo</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {types.map((type) => (
-              <tr key={type.id}>
-                <td>{type.name}</td>
-                <td>
-                  {new Date(type.create_date).toLocaleDateString("vi-VN")}
-                </td>
-                <td>
-                  <Button
-                    variant="warning"
-                    className="mt-edit-btn me-2"
-                    onClick={() => openModal(type)}
-                  >
-                    Sửa
-                  </Button>
-                  <Button
-                    variant="danger"
-                    className="mt-delete-btn"
-                    onClick={() => confirmDelete(type)}
-                  >
-                    Xóa
-                  </Button>
-                </td>
+        <div className="mt-button-group-top">
+          <Button
+            variant="secondary"
+            className="mt-back-btn"
+            onClick={() => navigate("/card-management")}
+          >
+            Quay lại
+          </Button>
+        </div>
+        <div className="mt-table-container">
+          <Table className="mt-types-table">
+            <thead>
+              <tr>
+                <th>Tên loại hàng</th>
+                <th>Ngày tạo</th>
+                <th>Email người tạo</th>
+                <th>Hành động</th>
               </tr>
+            </thead>
+            <tbody>
+              {currentTypes.map((type) => (
+                <tr key={type.id}>
+                  <td>{type.name}</td>
+                  <td>
+                    {new Date(type.create_date).toLocaleDateString("vi-VN")}
+                  </td>
+                  <td>{type.created_by_email}</td>
+                  <td>
+                    <Button
+                      variant="warning"
+                      className="mt-edit-btn me-2"
+                      onClick={() => openModal(type)}
+                    >
+                      Sửa
+                    </Button>
+                    <Button
+                      variant="danger"
+                      className="mt-delete-btn"
+                      onClick={() => confirmDelete(type)}
+                    >
+                      Xóa
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+        <div className="mt-button-group-bottom">
+          <Button
+            variant="primary"
+            className="mt-add-btn"
+            onClick={() => openModal()}
+          >
+            Thêm loại hàng
+          </Button>
+        </div>
+        {totalPages > 1 && (
+          <div className="mt-pagination">
+            <Button
+              variant="secondary"
+              onClick={firstPage}
+              disabled={currentPage === 1}
+            >
+              &lt;&lt;
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={prevPage}
+              disabled={currentPage === 1}
+            >
+              &lt;
+            </Button>
+            {pageNumbers.map((number) => (
+              <Button
+                key={number}
+                variant={currentPage === number ? "primary" : "outline-primary"}
+                onClick={() => paginate(number)}
+                className="mx-1"
+              >
+                {number}
+              </Button>
             ))}
-          </tbody>
-        </Table>
-        <Button
-          variant="secondary"
-          className="mt-back-btn mt-3"
-          onClick={() => navigate("/card-management")}
-        >
-          Quay lại
-        </Button>
+            <Button
+              variant="secondary"
+              onClick={nextPage}
+              disabled={currentPage === totalPages}
+            >
+              &gt;
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={lastPage}
+              disabled={currentPage === totalPages}
+            >
+              &gt;&gt;
+            </Button>
+          </div>
+        )}
+        <div className="mt-items-per-page-selector">
+          <Form.Label>Số dòng mỗi trang:</Form.Label>
+          <Form.Select
+            value={itemsPerPage}
+            onChange={handleItemsPerPageChange}
+            className="ms-2"
+            style={{ display: "inline-block", width: "auto" }}
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </Form.Select>
+        </div>
       </Container>
       {showModal &&
         createPortal(

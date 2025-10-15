@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import ConfirmBox from "../components/ConfirmBox.jsx";
+import Header from "../components/Header.jsx";
 import "../styles/pages/ManageMaterials.css";
 import LoadingScreen from "../components/LoadingScreen";
 
@@ -19,6 +20,8 @@ function ManageMaterials() {
   const [formData, setFormData] = useState({ name: "" });
   const [showConfirm, setShowConfirm] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -35,12 +38,20 @@ function ManageMaterials() {
         const headers = {
           apikey: import.meta.env.VITE_SUPABASE_KEY,
           Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+          Prefer: "return=representation",
         };
         const response = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`,
+          `${
+            import.meta.env.VITE_SUPABASE_URL
+          }/rest/v1/materials?select=*,users!materials_created_by_fkey(gmail)`,
           { headers }
         );
-        setMaterials(response.data);
+        const formattedMaterials = response.data.map((material) => ({
+          ...material,
+          created_by_email: material.users?.gmail || "N/A",
+        }));
+        setMaterials(formattedMaterials);
       } catch (error) {
         toast.error("Lỗi khi lấy danh sách chất liệu: " + error.message);
       } finally {
@@ -71,10 +82,17 @@ function ManageMaterials() {
       setFormData({ name: "" });
       setShowModal(false);
       const response = await axios.get(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`,
+        `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/rest/v1/materials?select=*,users!materials_created_by_fkey(gmail)`,
         { headers }
       );
-      setMaterials(response.data);
+      const formattedMaterials = response.data.map((material) => ({
+        ...material,
+        created_by_email: material.users?.gmail || "N/A",
+      }));
+      setMaterials(formattedMaterials);
+      setCurrentPage(1);
     } catch (error) {
       toast.error("Lỗi khi thêm chất liệu: " + error.message);
     } finally {
@@ -114,10 +132,16 @@ function ManageMaterials() {
       setShowModal(false);
       setCurrentMaterial(null);
       const response = await axios.get(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`,
+        `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/rest/v1/materials?select=*,users!materials_created_by_fkey(gmail)`,
         { headers }
       );
-      setMaterials(response.data);
+      const formattedMaterials = response.data.map((material) => ({
+        ...material,
+        created_by_email: material.users?.gmail || "N/A",
+      }));
+      setMaterials(formattedMaterials);
     } catch (error) {
       toast.error("Lỗi khi cập nhật chất liệu: " + error.message);
     } finally {
@@ -153,6 +177,12 @@ function ManageMaterials() {
       );
       toast.success("Xóa chất liệu thành công!");
       setMaterials(materials.filter((m) => m.id !== materialToDelete.id));
+      const totalPagesAfterDelete = Math.ceil(
+        (materials.length - 1) / itemsPerPage
+      );
+      if (currentPage > totalPagesAfterDelete && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
     } catch (error) {
       toast.error("Lỗi khi xóa chất liệu: " + error.message);
     } finally {
@@ -189,63 +219,163 @@ function ManageMaterials() {
     setShowConfirm(true);
   };
 
+  const handleItemsPerPageChange = (e) => {
+    const newItemsPerPage = parseInt(e.target.value, 10);
+    setItemsPerPage(newItemsPerPage);
+    const totalPages = Math.ceil(materials.length / newItemsPerPage);
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages > 0 ? totalPages : 1);
+    }
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentMaterials = materials.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(materials.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const nextPage = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const firstPage = () => setCurrentPage(1);
+  const lastPage = () => setCurrentPage(totalPages);
+
+  const maxPagesToShow = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+  let endPage = startPage + maxPagesToShow - 1;
+
+  if (endPage > totalPages) {
+    endPage = totalPages;
+    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+  }
+
+  const pageNumbers = [...Array(endPage - startPage + 1).keys()].map(
+    (i) => startPage + i
+  );
+
   if (authLoading) return <LoadingScreen />;
   if (userRole !== "admin") return null;
 
   return (
     <div className="mm-page-wrapper">
       {isLoading && <LoadingScreen />}
+      <Header />
       <Container className="mm-manage-materials-container">
         <h2 className="mm-manage-materials-title my-4">Quản lý chất liệu</h2>
-        <Button
-          variant="primary"
-          className="mm-add-btn mb-3"
-          onClick={() => openModal()}
-        >
-          Thêm chất liệu
-        </Button>
-        <Table className="mm-materials-table">
-          <thead>
-            <tr>
-              <th>Tên chất liệu</th>
-              <th>Ngày tạo</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {materials.map((material) => (
-              <tr key={material.id}>
-                <td>{material.name}</td>
-                <td>
-                  {new Date(material.create_date).toLocaleDateString("vi-VN")}
-                </td>
-                <td>
-                  <Button
-                    variant="warning"
-                    className="mm-edit-btn me-2"
-                    onClick={() => openModal(material)}
-                  >
-                    Sửa
-                  </Button>
-                  <Button
-                    variant="danger"
-                    className="mm-delete-btn"
-                    onClick={() => confirmDelete(material)}
-                  >
-                    Xóa
-                  </Button>
-                </td>
+        <div className="mm-button-group-top">
+          <Button
+            variant="secondary"
+            className="mm-back-btn"
+            onClick={() => navigate("/card-management")}
+          >
+            Quay lại
+          </Button>
+        </div>
+        <div className="mm-table-container">
+          <Table className="mm-materials-table">
+            <thead>
+              <tr>
+                <th>Tên chất liệu</th>
+                <th>Ngày tạo</th>
+                <th>Email người tạo</th>
+                <th>Hành động</th>
               </tr>
+            </thead>
+            <tbody>
+              {currentMaterials.map((material) => (
+                <tr key={material.id}>
+                  <td>{material.name}</td>
+                  <td>
+                    {new Date(material.create_date).toLocaleDateString("vi-VN")}
+                  </td>
+                  <td>{material.created_by_email}</td>
+                  <td>
+                    <Button
+                      variant="warning"
+                      className="mm-edit-btn me-2"
+                      onClick={() => openModal(material)}
+                    >
+                      Sửa
+                    </Button>
+                    <Button
+                      variant="danger"
+                      className="mm-delete-btn"
+                      onClick={() => confirmDelete(material)}
+                    >
+                      Xóa
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+        <div className="mm-button-group-bottom">
+          <Button
+            variant="primary"
+            className="mm-add-btn"
+            onClick={() => openModal()}
+          >
+            Thêm chất liệu
+          </Button>
+        </div>
+        {totalPages > 1 && (
+          <div className="mm-pagination">
+            <Button
+              variant="secondary"
+              onClick={firstPage}
+              disabled={currentPage === 1}
+            >
+              &lt;&lt;
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={prevPage}
+              disabled={currentPage === 1}
+            >
+              &lt;
+            </Button>
+            {pageNumbers.map((number) => (
+              <Button
+                key={number}
+                variant={currentPage === number ? "primary" : "outline-primary"}
+                onClick={() => paginate(number)}
+                className="mx-1"
+              >
+                {number}
+              </Button>
             ))}
-          </tbody>
-        </Table>
-        <Button
-          variant="secondary"
-          className="mm-back-btn mt-3"
-          onClick={() => navigate("/card-management")}
-        >
-          Quay lại
-        </Button>
+            <Button
+              variant="secondary"
+              onClick={nextPage}
+              disabled={currentPage === totalPages}
+            >
+              &gt;
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={lastPage}
+              disabled={currentPage === totalPages}
+            >
+              &gt;&gt;
+            </Button>
+          </div>
+        )}
+        <div className="mm-items-per-page-selector">
+          <Form.Label>Số dòng mỗi trang:</Form.Label>
+          <Form.Select
+            value={itemsPerPage}
+            onChange={handleItemsPerPageChange}
+            className="ms-2"
+            style={{ display: "inline-block", width: "auto" }}
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </Form.Select>
+        </div>
       </Container>
       {showModal &&
         createPortal(
