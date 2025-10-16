@@ -1,29 +1,29 @@
-.mb-page-wrapper {
+.mub-page-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.mb-manage-brands-container {
+.mub-manage-unique-brands-container {
   padding: 1rem 0;
   max-width: 1200px;
   margin: 0 auto;
   flex: 1 0 auto;
 }
 
-.mb-button-group-top {
+.mub-button-group-top {
   display: flex;
   justify-content: flex-start;
   margin-bottom: 1rem;
 }
 
-.mb-button-group-bottom {
+.mub-button-group-bottom {
   display: flex;
   justify-content: flex-start;
   margin-top: 1rem;
 }
 
-.mb-manage-brands-title {
+.mub-manage-unique-brands-title {
   font-size: 1.8rem;
   font-weight: 700;
   color: #333;
@@ -32,7 +32,7 @@
   position: relative;
 }
 
-.mb-manage-brands-title::after {
+.mub-manage-unique-brands-title::after {
   content: "";
   position: absolute;
   bottom: -10px;
@@ -44,12 +44,12 @@
   border-radius: 2px;
 }
 
-.mb-table-container {
+.mub-table-container {
   max-height: 370px;
   overflow-y: auto;
 }
 
-.mb-brands-table {
+.mub-unique-brands-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
@@ -60,15 +60,15 @@
   border: 1px solid #dee2e6;
 }
 
-.mb-brands-table th,
-.mb-brands-table td {
+.mub-unique-brands-table th,
+.mub-unique-brands-table td {
   padding: 0.8rem;
   text-align: left;
   border-bottom: 1px solid #dee2e6;
   font-size: 0.95rem;
 }
 
-.mb-brands-table th {
+.mub-unique-brands-table th {
   background-color: #007bff;
   color: #fff;
   font-weight: 600;
@@ -77,22 +77,29 @@
   z-index: 10;
 }
 
-.mb-brands-table tr:hover {
+.mub-unique-brands-table tr:hover {
   background-color: #f1f3f5;
 }
 
-.mb-brands-table td {
+.mub-unique-brands-table td {
   color: #555;
 }
 
-.mb-brands-table tr:last-child td {
+.mub-unique-brands-table tr:last-child td {
   border-bottom: none;
 }
 
-.mb-add-btn,
-.mb-edit-btn,
-.mb-delete-btn,
-.mb-back-btn {
+.mub-brand-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.mub-add-btn,
+.mub-edit-btn,
+.mub-delete-btn,
+.mub-back-btn {
   padding: 0.6rem 1.2rem;
   font-size: 0.95rem;
   border-radius: 8px;
@@ -102,51 +109,51 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.mb-add-btn {
+.mub-add-btn {
   background: linear-gradient(90deg, #007bff, #0056b3);
   color: #fff;
 }
 
-.mb-add-btn:hover {
+.mub-add-btn:hover {
   background: linear-gradient(90deg, #0056b3, #003d80);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
-.mb-edit-btn {
+.mub-edit-btn {
   background: linear-gradient(90deg, #28a745, #218838);
   color: #fff;
 }
 
-.mb-edit-btn:hover {
+.mub-edit-btn:hover {
   background: linear-gradient(90deg, #218838, #1e7e34);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
-.mb-delete-btn {
+.mub-delete-btn {
   background: linear-gradient(90deg, #dc3545, #c82333);
   color: #fff;
 }
 
-.mb-delete-btn:hover {
+.mub-delete-btn:hover {
   background: linear-gradient(90deg, #c82333, #bd2130);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
-.mb-back-btn {
+.mub-back-btn {
   background: linear-gradient(90deg, #6c757d, #5a6268);
   color: #fff;
 }
 
-.mb-back-btn:hover {
+.mub-back-btn:hover {
   background: linear-gradient(90deg, #5a6268, #4b5156);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
-.mb-modal-overlay {
+.mub-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -159,7 +166,7 @@
   z-index: 1000;
 }
 
-.mb-modal-content-wrapper {
+.mub-modal-content-wrapper {
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -171,7 +178,7 @@
   padding: 0;
 }
 
-.mb-modal-header {
+.mub-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -181,21 +188,21 @@
   border-top-right-radius: 8px;
 }
 
-.mb-modal-title-container {
+.mub-modal-title-container {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-grow: 1;
 }
 
-.mb-modal-title {
+.mub-modal-title {
   font-size: 24px;
   font-weight: 700;
   color: #333333;
   margin: 0;
 }
 
-.mb-modal-close-button {
+.mub-modal-close-button {
   font-size: 32px;
   font-weight: 700;
   color: #ff4444;
@@ -207,24 +214,24 @@
   transition: all 0.3s ease;
 }
 
-.mb-modal-close-button:hover {
+.mub-modal-close-button:hover {
   color: #cc0000;
   background-color: #ffebee;
   transform: scale(1.1);
 }
 
-.mb-modal-body {
+.mub-modal-body {
   padding: 24px;
 }
 
-.mb-modal-form-group {
+.mub-modal-form-group {
   margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
 }
 
-.mb-modal-input {
+.mub-modal-input {
   border-radius: 6px;
   padding: 0.8rem;
   font-size: 1rem;
@@ -234,18 +241,22 @@
   transition: border-color 0.2s ease;
 }
 
-.mb-modal-input:focus {
+.mub-modal-input:focus {
   border-color: #007bff;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-.mb-modal-btn-group {
+.mub-current-image-preview {
+  margin-top: 10px;
+}
+
+.mub-modal-btn-group {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
 }
 
-.mb-modal-btn {
+.mub-modal-btn {
   padding: 0.6rem 1.5rem;
   font-size: 1rem;
   border-radius: 6px;
@@ -253,25 +264,25 @@
   transition: background-color 0.2s ease;
 }
 
-.mb-modal-btn-primary {
+.mub-modal-btn-primary {
   background: linear-gradient(90deg, #007bff, #0056b3);
   color: #fff;
 }
 
-.mb-modal-btn-primary:hover {
+.mub-modal-btn-primary:hover {
   background: linear-gradient(90deg, #0056b3, #003d80);
 }
 
-.mb-modal-btn-secondary {
+.mub-modal-btn-secondary {
   background: linear-gradient(90deg, #6c757d, #5a6268);
   color: #fff;
 }
 
-.mb-modal-btn-secondary:hover {
+.mub-modal-btn-secondary:hover {
   background: linear-gradient(90deg, #5a6268, #4b5156);
 }
 
-.mb-pagination {
+.mub-pagination {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -279,7 +290,7 @@
   gap: 0.5rem;
 }
 
-.mb-pagination button {
+.mub-pagination button {
   padding: 0.6rem 1.2rem;
   font-size: 1rem;
   border-radius: 8px;
@@ -291,48 +302,48 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.mb-pagination button:disabled {
+.mub-pagination button:disabled {
   background: #ccc;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-.mb-pagination button:not(:disabled):hover {
+.mub-pagination button:not(:disabled):hover {
   background: linear-gradient(90deg, #0056b3, #003d80);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
-.mb-pagination .btn-primary {
+.mub-pagination .btn-primary {
   background: linear-gradient(90deg, #007bff, #0056b3) !important;
   color: #fff !important;
   font-weight: bold;
   border: none !important;
 }
 
-.mb-pagination .btn-outline-primary {
+.mub-pagination .btn-outline-primary {
   background: linear-gradient(90deg, #e9ecef, #dee2e6) !important;
   color: #007bff !important;
   border: none !important;
 }
 
-.mb-pagination .mx-1 {
+.mub-pagination .mx-1 {
   margin: 0 0.25rem;
 }
 
-.mb-items-per-page-selector {
+.mub-items-per-page-selector {
   margin-top: 1rem;
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
 
-.mb-items-per-page-selector .form-label {
+.mub-items-per-page-selector .form-label {
   margin-right: 0.5rem;
   font-weight: 500;
 }
 
-.mb-items-per-page-selector .form-select {
+.mub-items-per-page-selector .form-select {
   padding: 0.4rem 1rem;
   font-size: 0.95rem;
   border-radius: 6px;
@@ -340,118 +351,128 @@
   transition: border-color 0.3s ease;
 }
 
-.mb-items-per-page-selector .form-select:focus {
+.mub-items-per-page-selector .form-select:focus {
   border-color: #007bff;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 @media (max-width: 768px) {
-  .mb-manage-brands-title {
+  .mub-manage-unique-brands-title {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
   }
 
-  .mb-manage-brands-title::after {
+  .mub-manage-unique-brands-title::after {
     width: 100px;
     height: 3px;
   }
 
-  .mb-brands-table th,
-  .mb-brands-table td {
+  .mub-unique-brands-table th,
+  .mub-unique-brands-table td {
     font-size: 0.9rem;
     padding: 0.75rem;
   }
 
-  .mb-add-btn,
-  .mb-edit-btn,
-  .mb-delete-btn,
-  .mb-back-btn {
+  .mub-brand-image {
+    width: 40px;
+    height: 40px;
+  }
+
+  .mub-add-btn,
+  .mub-edit-btn,
+  .mub-delete-btn,
+  .mub-back-btn {
     font-size: 0.9rem;
     padding: 0.4rem 0.8rem;
   }
 
-  .mb-button-group-top,
-  .mb-button-group-bottom {
+  .mub-button-group-top,
+  .mub-button-group-bottom {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
 
-  .mb-pagination button {
+  .mub-pagination button {
     padding: 0.4rem 0.9rem;
     font-size: 0.9rem;
   }
 }
 
 @media (max-width: 576px) {
-  .mb-manage-brands-container {
+  .mub-manage-unique-brands-container {
     padding: 1rem 0;
   }
 
-  .mb-manage-brands-title {
+  .mub-manage-unique-brands-title {
     font-size: 1.2rem;
   }
 
-  .mb-brands-table th,
-  .mb-brands-table td {
+  .mub-unique-brands-table th,
+  .mub-unique-brands-table td {
     font-size: 0.85rem;
     padding: 0.5rem;
   }
 
-  .mb-add-btn,
-  .mb-edit-btn,
-  .mb-delete-btn,
-  .mb-back-btn {
+  .mub-brand-image {
+    width: 30px;
+    height: 30px;
+  }
+
+  .mub-add-btn,
+  .mub-edit-btn,
+  .mub-delete-btn,
+  .mub-back-btn {
     font-size: 0.85rem;
     padding: 0.3rem 0.6rem;
   }
 
-  .mb-modal-content-wrapper {
+  .mub-modal-content-wrapper {
     width: 95%;
     max-width: 400px;
   }
 
-  .mb-modal-header {
+  .mub-modal-header {
     padding: 12px 16px;
   }
 
-  .mb-modal-body {
+  .mub-modal-body {
     padding: 16px;
   }
 
-  .mb-modal-title {
+  .mub-modal-title {
     font-size: 20px;
   }
 
-  .mb-modal-close-button {
+  .mub-modal-close-button {
     font-size: 28px;
   }
 
-  .mb-modal-input {
+  .mub-modal-input {
     font-size: 0.95rem;
     padding: 0.7rem;
   }
 
-  .mb-modal-btn {
+  .mub-modal-btn {
     font-size: 0.9rem;
     padding: 0.5rem 1.2rem;
   }
 
-  .mb-button-group-top,
-  .mb-button-group-bottom {
+  .mub-button-group-top,
+  .mub-button-group-bottom {
     align-items: stretch;
   }
 
-  .mb-pagination button {
+  .mub-pagination button {
     padding: 0.3rem 0.7rem;
     font-size: 0.85rem;
   }
 
-  .mb-items-per-page-selector {
+  .mub-items-per-page-selector {
     justify-content: center;
   }
 
-  .mb-items-per-page-selector .form-select {
+  .mub-items-per-page-selector .form-select {
     width: 100px;
   }
 }

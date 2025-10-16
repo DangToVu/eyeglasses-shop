@@ -15,6 +15,7 @@ import ProductDetailModal from "../components/ProductDetailModal.jsx";
 function Home() {
   const [products, setProducts] = useState([]);
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
+  const [uniqueBrands, setUniqueBrands] = useState([]);
   const productsContainerRef = useRef(null);
   const bestSellingContainerRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -48,10 +49,11 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(
+        // Fetch products
+        const productsResponse = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
           {
             headers: {
@@ -60,15 +62,11 @@ function Home() {
           }
         );
         setProducts(
-          response.data.map((p) => ({ ...p, table: "products" })) || []
+          productsResponse.data.map((p) => ({ ...p, table: "products" })) || []
         );
-      } catch (error) {
-        console.error("Lỗi khi lấy sản phẩm:", error);
-        setProducts([]);
-      }
 
-      try {
-        const response = await axios.get(
+        // Fetch best selling products
+        const bestSellingResponse = await axios.get(
           `${
             import.meta.env.VITE_SUPABASE_URL
           }/rest/v1/best_selling_glasses?select=*`,
@@ -79,18 +77,40 @@ function Home() {
           }
         );
         setBestSellingProducts(
-          response.data.map((p) => ({ ...p, table: "best_selling_glasses" })) ||
-            []
+          bestSellingResponse.data.map((p) => ({
+            ...p,
+            table: "best_selling_glasses",
+          })) || []
+        );
+
+        // Fetch unique brands
+        const uniqueBrandsResponse = await axios.get(
+          `${
+            import.meta.env.VITE_SUPABASE_URL
+          }/rest/v1/unique_brands?select=*,brands(name)`,
+          {
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_KEY,
+            },
+          }
+        );
+        setUniqueBrands(
+          uniqueBrandsResponse.data.map((ub) => ({
+            ...ub,
+            brand_name: ub.brands?.name || "N/A",
+          })) || []
         );
       } catch (error) {
-        console.error("Lỗi khi fetch sản phẩm bán chạy:", error);
+        console.error("Lỗi khi lấy dữ liệu:", error);
+        setProducts([]);
         setBestSellingProducts([]);
+        setUniqueBrands([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -228,18 +248,6 @@ function Home() {
     visibleBestSelling.push(...bestSellingProducts.slice(0, remainingCount));
   }
 
-  const brands = [
-    "FEMINA",
-    "KIEINMONSTES",
-    "VE",
-    "WINNER",
-    "DIVEI",
-    "ROGERSON",
-    "G.M.Surne",
-    "AVALON",
-    "RUBERTY",
-  ];
-
   const handleMouseEnter = () => setIsHovered(true);
 
   const handleMouseLeave = () => {
@@ -349,19 +357,19 @@ function Home() {
                 }`}
                 ref={brandCarouselRef}
               >
-                {[...brands, ...brands].map((brand, index) => (
+                {[...uniqueBrands, ...uniqueBrands].map((ub, index) => (
                   <div key={index} className="ub-brand-item">
                     <img
-                      src={`/logos/${brand
-                        .toLowerCase()
-                        .replace(/\./g, "")}.jpg`}
-                      alt={`${brand} logo`}
+                      src={ub.image_url}
+                      alt={`${ub.brand_name} logo`}
                       className="ub-brand-logo"
                       loading="lazy"
                     />
                     <div className="ub-brand-view-more-btn">
                       <Link
-                        to={`/products/all?brand=${encodeURIComponent(brand)}`}
+                        to={`/products/all?brand=${encodeURIComponent(
+                          ub.brand_name
+                        )}`}
                         style={{ textDecoration: "none" }}
                       >
                         <Button className="ub-brand-view-more-text">

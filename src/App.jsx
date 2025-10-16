@@ -15,6 +15,7 @@ import FavoriteProduct from "./pages/FavoriteProduct.jsx";
 import ManageTypes from "./pages/ManageTypes.jsx";
 import ManageBrands from "./pages/ManageBrands.jsx";
 import ManageMaterials from "./pages/ManageMaterials.jsx";
+import ManageUniqueBrand from "./pages/ManageUniqueBrand.jsx";
 import { ToastContainer } from "react-toastify";
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
           <Route path="/manage-types" element={<ManageTypes />} />
           <Route path="/manage-brands" element={<ManageBrands />} />
           <Route path="/manage-materials" element={<ManageMaterials />} />
+          <Route path="/manage-unique-brands" element={<ManageUniqueBrand />} />
         </Route>
         <Route path="*" element={<NotFound404 />} />
       </Routes>

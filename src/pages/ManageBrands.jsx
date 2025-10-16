@@ -17,7 +17,7 @@ function ManageBrands() {
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [currentBrand, setCurrentBrand] = useState(null);
-  const [formData, setFormData] = useState({ name: "", image_url: "" });
+  const [formData, setFormData] = useState({ name: "" });
   const [showConfirm, setShowConfirm] = useState(false);
   const [brandToDelete, setBrandToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -77,13 +77,12 @@ function ManageBrands() {
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`,
         {
           name: formData.name,
-          image_url: formData.image_url || null,
           created_by: userId,
         },
         { headers }
       );
       toast.success("Thêm thương hiệu thành công!");
-      setFormData({ name: "", image_url: "" });
+      setFormData({ name: "" });
       setShowModal(false);
       const response = await axios.get(
         `${
@@ -116,7 +115,7 @@ function ManageBrands() {
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands?id=eq.${
           currentBrand.id
         }`,
-        { name: formData.name, image_url: formData.image_url || null },
+        { name: formData.name },
         { headers }
       );
       const tables = ["products", "best_selling_glasses", "all_product"];
@@ -132,7 +131,7 @@ function ManageBrands() {
         )
       );
       toast.success("Cập nhật thương hiệu thành công!");
-      setFormData({ name: "", image_url: "" });
+      setFormData({ name: "" });
       setShowModal(false);
       setCurrentBrand(null);
       const response = await axios.get(
@@ -200,13 +199,12 @@ function ManageBrands() {
     setCurrentBrand(brand);
     setFormData({
       name: brand ? brand.name : "",
-      image_url: brand ? brand.image_url || "" : "",
     });
     setShowModal(true);
   };
 
   const handleClose = () => {
-    setFormData({ name: "", image_url: "" });
+    setFormData({ name: "" });
     setCurrentBrand(null);
     setShowModal(false);
   };
@@ -283,7 +281,6 @@ function ManageBrands() {
             <thead>
               <tr>
                 <th>Tên thương hiệu</th>
-                <th>Ảnh</th>
                 <th>Ngày tạo</th>
                 <th>Email người tạo</th>
                 <th>Hành động</th>
@@ -293,17 +290,6 @@ function ManageBrands() {
               {currentBrands.map((brand) => (
                 <tr key={brand.id}>
                   <td>{brand.name}</td>
-                  <td>
-                    {brand.image_url ? (
-                      <img
-                        src={brand.image_url}
-                        alt={brand.name}
-                        className="mb-brand-image"
-                      />
-                    ) : (
-                      "Không có ảnh"
-                    )}
-                  </td>
                   <td>
                     {new Date(brand.create_date).toLocaleDateString("vi-VN")}
                   </td>
@@ -423,18 +409,6 @@ function ManageBrands() {
                       className="mb-modal-input"
                       required
                       placeholder="Nhập tên thương hiệu"
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-modal-form-group">
-                    <Form.Label>URL ảnh (tùy chọn)</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={formData.image_url}
-                      onChange={(e) =>
-                        setFormData({ ...formData, image_url: e.target.value })
-                      }
-                      className="mb-modal-input"
-                      placeholder="Nhập URL ảnh"
                     />
                   </Form.Group>
                   <div className="mb-modal-btn-group">
