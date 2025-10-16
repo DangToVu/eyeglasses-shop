@@ -26,7 +26,7 @@ function CardManagement() {
       <Header />
       <Container className="cm-card-management-container">
         <Row className="cm-card-selection g-4">
-          <Col md={6} className="cm-column">
+          <Col md={4} className="cm-column">
             <h2 className="cm-card-management-title my-4">Quản lý sản phẩm</h2>
             <div className="cm-button-group">
               <Link to="/products/regular" className="cm-card-link">
@@ -46,7 +46,7 @@ function CardManagement() {
               </Link>
             </div>
           </Col>
-          <Col md={6} className="cm-column">
+          <Col md={4} className="cm-column">
             <h2 className="cm-card-management-title my-4">Quản lý hàng hóa</h2>
             <div className="cm-button-group">
               <Link to="/manage-types" className="cm-card-link">
@@ -62,6 +62,18 @@ function CardManagement() {
               <Link to="/manage-materials" className="cm-card-link">
                 <Button variant="secondary" className="cm-card-select-btn">
                   Quản lý chất liệu
+                </Button>
+              </Link>
+            </div>
+          </Col>
+          <Col md={4} className="cm-column">
+            <h2 className="cm-card-management-title my-4">
+              Các mục quản lý khác
+            </h2>
+            <div className="cm-button-group">
+              <Link to="/manage-unique-brands" className="cm-card-link">
+                <Button variant="dark" className="cm-card-select-btn">
+                  Quản lý thẻ thương hiệu độc quyền
                 </Button>
               </Link>
             </div>
