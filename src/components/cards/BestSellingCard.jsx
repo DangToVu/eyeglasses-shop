@@ -4,7 +4,7 @@ import { BiHeart, BiSolidHeart } from "react-icons/bi";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
-import "../styles/components/BestSellingCard.css";
+import "../../styles/components/cards/BestSellingCard.css";
 
 function BestSellingCard({ product }) {
   const [isFavorite, setIsFavorite] = useState(false);

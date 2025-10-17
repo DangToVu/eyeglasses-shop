@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
-import ProductForm from "../components/ProductForm.jsx";
+import ProductForm from "../components/forms/ProductForm.jsx";
 import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import "../styles/pages/RegularProducts.css";
 import LoadingScreen from "../components/LoadingScreen";
