@@ -4,9 +4,9 @@ import { BiHeart, BiSolidHeart } from "react-icons/bi";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
-import "../styles/components/ProductCard.css";
+import "../../styles/components/cards/AllProductCard.css";
 
-function ProductCard({ product }) {
+function AllProductCard({ product }) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const checkFavorite = async () => {
@@ -48,7 +48,7 @@ function ProductCard({ product }) {
           import.meta.env.VITE_SUPABASE_URL
         }/rest/v1/favorites?user_id=eq.${userId}&product_id=eq.${
           product.id
-        }&table_name=eq.${product.table || "products"}&select=*`,
+        }&table_name=eq.${product.table || "all_product"}&select=*`,
         {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_KEY,
@@ -71,7 +71,7 @@ function ProductCard({ product }) {
       const { productId, tableName } = event.detail;
       if (
         productId === product.id &&
-        tableName === (product.table || "products")
+        tableName === (product.table || "all_product")
       ) {
         checkFavorite();
       }
@@ -155,7 +155,7 @@ function ProductCard({ product }) {
             import.meta.env.VITE_SUPABASE_URL
           }/rest/v1/favorites?user_id=eq.${userId}&product_id=eq.${
             product.id
-          }&table_name=eq.${product.table || "products"}`,
+          }&table_name=eq.${product.table || "all_product"}`,
           {
             headers: {
               apikey: import.meta.env.VITE_SUPABASE_KEY,
@@ -175,7 +175,7 @@ function ProductCard({ product }) {
             product_name: product.name,
             product_id: product.id,
             product_code: product.product_id || null,
-            table_name: product.table || "products",
+            table_name: product.table || "all_product",
           },
           {
             headers: {
@@ -194,7 +194,7 @@ function ProductCard({ product }) {
         new CustomEvent("favoriteToggled", {
           detail: {
             productId: product.id,
-            tableName: product.table || "products",
+            tableName: product.table || "all_product",
           },
         })
       );
@@ -212,26 +212,24 @@ function ProductCard({ product }) {
   };
 
   return (
-    <Card className="prod-card">
+    <Card className="all-prod-card-container">
       <Card.Img
         variant="top"
-        src={product.image_url}
+        src={product.image || product.image_url}
         alt={product.name}
-        className="prod-img"
+        className="all-prod-card-image"
         loading="lazy"
-        onError={(e) => {
-          e.target.src = "/path/to/fallback-image.jpg";
-          console.log("Lỗi tải ảnh:", product.image_url);
-        }}
       />
-      <Card.Body className="prod-body">
+      <Card.Body className="all-prod-card-body">
         <div className="title-with-heart">
-          <Card.Title className="prod-title">{product.name}</Card.Title>
+          <Card.Title className="all-prod-card-title">
+            {product.name}
+          </Card.Title>
           <div className="heart-icon" onClick={handleFavoriteToggle}>
             {isFavorite ? <BiSolidHeart /> : <BiHeart />}
           </div>
         </div>
-        <Card.Text className="prod-text">
+        <Card.Text className="all-prod-card-text">
           Thương hiệu: {product.brand || "-"}
           <br />
           Mã sản phẩm: {product.product_id || "-"}
@@ -249,4 +247,4 @@ function ProductCard({ product }) {
   );
 }
 
-export default ProductCard;
+export default AllProductCard;

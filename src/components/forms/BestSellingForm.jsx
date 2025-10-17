@@ -3,11 +3,11 @@ import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import "../styles/components/BestSellingForm.css";
-import LoadingScreen from "../components/LoadingScreen";
-import CreateBrandModal from "./CreateBrandModal";
-import CreateMaterialModal from "./CreateMaterialModal";
-import CreateTypeModal from "./CreateTypeModal";
+import "../../styles/components/forms/BestSellingForm.css";
+import LoadingScreen from "../LoadingScreen";
+import CreateBrandModal from "../CreateBrandModal";
+import CreateMaterialModal from "../CreateMaterialModal";
+import CreateTypeModal from "../CreateTypeModal";
 
 const formatCurrency = (value) => {
   const cleanValue = value.replace(/[^0-9]/g, "");

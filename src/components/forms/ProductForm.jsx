@@ -3,11 +3,11 @@ import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import "../styles/components/AllProductForm.css";
-import LoadingScreen from "../components/LoadingScreen";
-import CreateBrandModal from "./CreateBrandModal";
-import CreateMaterialModal from "./CreateMaterialModal";
-import CreateTypeModal from "./CreateTypeModal";
+import "../../styles/components/forms/ProductForm.css";
+import LoadingScreen from "../LoadingScreen";
+import CreateBrandModal from "../CreateBrandModal";
+import CreateMaterialModal from "../CreateMaterialModal";
+import CreateTypeModal from "../CreateTypeModal";
 
 const formatCurrency = (value) => {
   const cleanValue = value.replace(/[^0-9]/g, "");
@@ -55,7 +55,7 @@ const compressImage = (file) => {
   });
 };
 
-function AllProductForm({ product, onSave, table }) {
+function ProductForm({ product, onSave }) {
   const [name, setName] = useState(product ? product.name : "");
   const [productId, setProductId] = useState(product ? product.product_id : "");
   const [price, setPrice] = useState(
@@ -155,11 +155,6 @@ function AllProductForm({ product, onSave, table }) {
       if (product && product.image_url) {
         imageUrl = product.image_url;
       }
-      let bucket = "";
-      if (table === "products") bucket = "product-images";
-      else if (table === "best_selling_glasses") bucket = "best-selling-images";
-      else if (table === "all_product") bucket = "all-product-images";
-
       let deleteOldImagePromise = Promise.resolve();
       if (image) {
         if (product && product.image_url) {
@@ -170,7 +165,7 @@ function AllProductForm({ product, onSave, table }) {
             .delete(
               `${
                 import.meta.env.VITE_SUPABASE_URL
-              }/storage/v1/object/${bucket}/${oldImagePath}`,
+              }/storage/v1/object/product-images/${oldImagePath}`,
               {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -188,9 +183,9 @@ function AllProductForm({ product, onSave, table }) {
         await Promise.all([
           deleteOldImagePromise,
           axios.post(
-            `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/${bucket}/${
-              compressedImage.name
-            }`,
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/storage/v1/object/product-images/${compressedImage.name}`,
             formData,
             {
               headers: {
@@ -202,7 +197,7 @@ function AllProductForm({ product, onSave, table }) {
         ]);
         imageUrl = `${
           import.meta.env.VITE_SUPABASE_URL
-        }/storage/v1/object/public/${bucket}/${compressedImage.name}`;
+        }/storage/v1/object/public/product-images/${compressedImage.name}`;
       }
 
       const productData = {
@@ -218,6 +213,7 @@ function AllProductForm({ product, onSave, table }) {
         material,
       };
 
+      const table = "products";
       const idField = product ? `id=eq.${product.id}` : null;
       if (product) {
         await axios.patch(
@@ -327,27 +323,27 @@ function AllProductForm({ product, onSave, table }) {
   return (
     <>
       {isLoading && <LoadingScreen />}
-      <Form onSubmit={handleSubmit} className="apf-form">
-        <Form.Group className="apf-form-group">
+      <Form onSubmit={handleSubmit} className="pf-form">
+        <Form.Group className="pf-form-group">
           <Form.Label>Tên sản phẩm</Form.Label>
           <Form.Control
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="apf-form-input"
+            className="pf-form-input"
           />
         </Form.Group>
-        <Form.Group className="apf-form-group">
+        <Form.Group className="pf-form-group">
           <Form.Label>Mã sản phẩm</Form.Label>
           <Form.Control
             type="text"
             value={productId}
             onChange={(e) => setProductId(e.target.value)}
-            className="apf-form-input"
+            className="pf-form-input"
           />
         </Form.Group>
-        <Form.Group className="apf-form-group">
+        <Form.Group className="pf-form-group">
           <Form.Label>Giá</Form.Label>
           <Form.Control
             type="text"
@@ -355,7 +351,7 @@ function AllProductForm({ product, onSave, table }) {
             onChange={handlePriceChange}
             required={!skipPrice}
             disabled={skipPrice}
-            className="apf-form-input"
+            className="pf-form-input"
           />
         </Form.Group>
         <Button
@@ -363,34 +359,34 @@ function AllProductForm({ product, onSave, table }) {
           size="sm"
           onClick={() => setSkipPrice(!skipPrice)}
           disabled={false}
-          className="apf-form-btn apf-mt-2 skip-price-btn"
-          style={{ padding: "0.4rem 0.6rem", fontSize: "0.85rem" }}
+          className="pf-form-btn pf-mt-2 skip-price-btn"
+          style={{ padding: "0.4rem 0.5rem", fontSize: "0.85rem" }}
         >
           {skipPrice ? "Nhập giá" : "Không nhập giá"}
         </Button>
-        <Form.Group className="apf-form-group">
+        <Form.Group className="pf-form-group">
           <Form.Label>Mô tả</Form.Label>
           <Form.Control
             as="textarea"
             value={description}
             onChange={handleDescriptionChange}
-            className="apf-form-input apf-form-textarea"
+            className="pf-form-input pf-form-textarea"
             maxLength={50}
           />
-          <small className="apf-text-muted">
+          <small className="pf-text-muted">
             {charactersLeft}/50 ký tự còn lại
           </small>
         </Form.Group>
-        <Form.Group className="apf-form-group">
-          <div className="apf-form-group-label">
+        <Form.Group className="pf-form-group">
+          <div className="pf-form-group-label">
             <Form.Label>Loại hàng</Form.Label>
           </div>
-          <div className="apf-input-button-group">
+          <div className="pf-input-button-group">
             <Form.Control
               as="select"
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="apf-form-input"
+              className="pf-form-input"
               required
             >
               <option value="">Chọn loại hàng</option>
@@ -415,16 +411,16 @@ function AllProductForm({ product, onSave, table }) {
             />
           </div>
         </Form.Group>
-        <Form.Group className="apf-form-group">
-          <div className="apf-form-group-label">
+        <Form.Group className="pf-form-group">
+          <div className="pf-form-group-label">
             <Form.Label>Thương hiệu</Form.Label>
           </div>
-          <div className="apf-input-button-group">
+          <div className="pf-input-button-group">
             <Form.Control
               as="select"
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
-              className="apf-form-input"
+              className="pf-form-input"
               required
             >
               <option value="">Chọn thương hiệu</option>
@@ -449,16 +445,16 @@ function AllProductForm({ product, onSave, table }) {
             />
           </div>
         </Form.Group>
-        <Form.Group className="apf-form-group">
-          <div className="apf-form-group-label">
+        <Form.Group className="pf-form-group">
+          <div className="pf-form-group-label">
             <Form.Label>Chất liệu</Form.Label>
           </div>
-          <div className="apf-input-button-group">
+          <div className="pf-input-button-group">
             <Form.Control
               as="select"
               value={material}
               onChange={(e) => setMaterial(e.target.value)}
-              className="apf-form-input"
+              className="pf-form-input"
               required
             >
               <option value="">Chọn chất liệu</option>
@@ -483,7 +479,7 @@ function AllProductForm({ product, onSave, table }) {
             />
           </div>
         </Form.Group>
-        <Form.Group className="apf-form-group">
+        <Form.Group className="pf-form-group">
           <Form.Label>Ảnh sản phẩm</Form.Label>
           <Form.Control
             type="file"
@@ -495,17 +491,17 @@ function AllProductForm({ product, onSave, table }) {
                 setImage(compressedImage);
               }
             }}
-            className="apf-form-input"
+            className="pf-form-input"
             ref={fileInputRef}
           />
         </Form.Group>
-        <Button type="submit" variant="primary" className="apf-form-btn">
+        <Button type="submit" variant="primary" className="pf-form-btn">
           {product ? "Cập nhật" : "Thêm sản phẩm"}
         </Button>
         {product && (
           <Button
             variant="secondary"
-            className="apf-form-btn apf-mt-2"
+            className="pf-form-btn pf-mt-2"
             onClick={handleCancel}
           >
             Hủy
@@ -513,7 +509,7 @@ function AllProductForm({ product, onSave, table }) {
         )}
         <Button
           variant="secondary"
-          className="apf-form-btn apf-mt-2"
+          className="pf-form-btn pf-mt-2"
           onClick={() => navigate("/card-management")}
         >
           Quay lại
@@ -523,4 +519,4 @@ function AllProductForm({ product, onSave, table }) {
   );
 }
 
-export default AllProductForm;
+export default ProductForm;

@@ -5,7 +5,7 @@ import axios from "axios";
 import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import AllProductCard from "../components/AllProductCard";
+import AllProductCard from "../components/cards/AllProductCard";
 import ProductDetailModal from "../components/ProductDetailModal";
 import "../styles/pages/FavoriteProduct.css";
 
