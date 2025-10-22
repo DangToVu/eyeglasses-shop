@@ -100,7 +100,7 @@ function Header() {
   };
 
   const handleManage = () => {
-    navigate("/card-management");
+    navigate("/admin-management");
     setShowDropdown(false);
   };
 

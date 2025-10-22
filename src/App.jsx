@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home.jsx";
-import CardManagement from "./pages/CardManagement.jsx";
+import AdminManagement from "./pages/AdminManagement.jsx";
 import Login from "./pages/Login.jsx";
 import RegularProducts from "./pages/RegularProducts.jsx";
 import BestSellingProducts from "./pages/BestSellingProducts.jsx";
@@ -28,7 +28,7 @@ function App() {
         <Route path="/products/all" element={<AllProductsCustomer />} />
         <Route path="/favorite-products" element={<FavoriteProduct />} />
         <Route element={<AuthGuard />}>
-          <Route path="/card-management" element={<CardManagement />} />
+          <Route path="/admin-management" element={<AdminManagement />} />
           <Route path="/products/regular" element={<RegularProducts />} />
           <Route
             path="/products/best-selling"

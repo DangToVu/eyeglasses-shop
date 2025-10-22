@@ -1,11 +1,11 @@
-.cm-card-management-container {
+.am-card-management-container {
   padding: 2rem 0;
   max-width: 1200px;
   margin: 0 auto;
   flex: 1 0 auto;
 }
 
-.cm-card-management-title {
+.am-card-management-title {
   font-size: 1.8rem;
   font-weight: 700;
   color: #333;
@@ -14,7 +14,7 @@
   position: relative;
 }
 
-.cm-card-management-title::after {
+.am-card-management-title::after {
   content: "";
   position: absolute;
   bottom: -10px;
@@ -26,19 +26,19 @@
   border-radius: 2px;
 }
 
-.cm-card-selection {
+.am-card-selection {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
 }
 
-.cm-column {
+.am-column {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.cm-button-group {
+.am-button-group {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -46,14 +46,14 @@
   max-width: 300px;
 }
 
-.cm-card-link {
+.am-card-link {
   text-decoration: none;
   width: 100%;
   display: flex;
   justify-content: center;
 }
 
-.cm-card-select-btn {
+.am-card-select-btn {
   width: 100%;
   padding: 1rem;
   font-size: 1.1rem;
@@ -67,75 +67,75 @@
   justify-content: center;
 }
 
-.cm-card-select-btn:hover {
+.am-card-select-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   opacity: 0.9;
 }
 
 @media (max-width: 991px) {
-  .cm-card-selection {
+  .am-card-selection {
     flex-direction: column;
     align-items: center;
   }
 
-  .cm-card-management-title {
+  .am-card-management-title {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
   }
 
-  .cm-card-management-title::after {
+  .am-card-management-title::after {
     width: 100px;
     height: 3px;
   }
 
-  .cm-card-select-btn {
+  .am-card-select-btn {
     font-size: 1rem;
     padding: 0.8rem;
     width: 250px;
   }
 
-  .cm-button-group {
+  .am-button-group {
     max-width: 250px;
   }
 }
 
 @media (max-width: 576px) {
-  .cm-card-management-container {
+  .am-card-management-container {
     padding: 1rem 0;
   }
 
-  .cm-card-management-title {
+  .am-card-management-title {
     font-size: 1.2rem;
   }
 
-  .cm-card-select-btn {
+  .am-card-select-btn {
     font-size: 1.1rem;
     padding: 1rem;
     width: 100%;
   }
 
-  .cm-button-group {
+  .am-button-group {
     max-width: 100%;
   }
 
-  .cm-card-selection {
+  .am-card-selection {
     gap: 1rem;
   }
 }
 
 @media (max-width: 400px) {
-  .cm-card-management-title {
+  .am-card-management-title {
     font-size: 1rem;
   }
 
-  .cm-card-select-btn {
+  .am-card-select-btn {
     font-size: 1rem;
     padding: 0.9rem;
   }
 }
 
-.cm-page-wrapper {
+.am-page-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
