@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { BiHeart, BiSolidHeart } from "react-icons/bi";
 import axios from "axios";
 import { toast } from "react-toastify";
-import "../styles/components/ProductDetailModal.css";
+import "../../styles/components/modals/ProductDetailModal.css";
 
 const formatPrice = (price) =>
   price === Infinity

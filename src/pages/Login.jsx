@@ -192,12 +192,8 @@ function Login() {
   };
 
   const handleSignupRedirect = () => {
-    const isSignupPage = location.pathname === "/signup";
-    if (!isSignupPage) {
-      navigate("/signup");
-    } else {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    console.log("Navigating to /signup from", location.pathname);
+    navigate("/signup");
   };
 
   return (

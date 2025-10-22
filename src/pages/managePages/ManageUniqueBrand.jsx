@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import useAuthCheck from "../hooks/useAuthCheck.jsx";
-import ConfirmBox from "../components/ConfirmBox.jsx";
-import Header from "../components/Header.jsx";
-import "../styles/pages/ManageUniqueBrand.css";
-import LoadingScreen from "../components/LoadingScreen";
+import useAuthCheck from "../../hooks/useAuthCheck.jsx";
+import ConfirmBox from "../../components/ConfirmBox.jsx";
+import Header from "../../components/Header.jsx";
+import "../../styles/pages/managePages/ManageUniqueBrand.css";
+import LoadingScreen from "../../components/LoadingScreen.jsx";
 
 function ManageUniqueBrand() {
   const { userRole, isLoading: authLoading } = useAuthCheck();

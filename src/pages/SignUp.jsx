@@ -21,12 +21,17 @@ function SignUp() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleToggleConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   const handleSubmit = async (e) => {
@@ -167,7 +172,7 @@ function SignUp() {
               <Lock className="lf-icon lf-lock-icon" />
               <div className="lf-password-wrapper">
                 <Form.Control
-                  type={showPassword ? "text" : "password"}
+                  type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -176,9 +181,9 @@ function SignUp() {
                 />
                 <span
                   className="lf-password-toggle"
-                  onClick={handleTogglePassword}
+                  onClick={handleToggleConfirmPassword}
                 >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                 </span>
               </div>
             </div>

@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Button, Form } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
-import "../styles/components/CreateBrandModal.css";
+import "../../styles/components/modals/CreateBrandModal.css";
 
 function CreateBrandModal({ show, onHide, onSave }) {
   const [brandName, setBrandName] = useState("");

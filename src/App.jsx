@@ -2,9 +2,9 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import AdminManagement from "./pages/AdminManagement.jsx";
 import Login from "./pages/Login.jsx";
-import RegularProducts from "./pages/RegularProducts.jsx";
-import BestSellingProducts from "./pages/BestSellingProducts.jsx";
-import AllProducts from "./pages/AllProducts.jsx";
+import RegularProducts from "./pages/productManageLists/RegularProducts.jsx";
+import BestSellingProducts from "./pages/productManageLists/BestSellingProducts.jsx";
+import AllProducts from "./pages/productManageLists/AllProducts.jsx";
 import AllProductsCustomer from "./pages/AllProductsCustomer.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import NotFound404 from "./pages/NotFound404.jsx";
@@ -12,10 +12,10 @@ import AuthGuard from "./guards/AuthGuard.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 import AdminProfile from "./pages/AdminProfile.jsx";
 import FavoriteProduct from "./pages/FavoriteProduct.jsx";
-import ManageTypes from "./pages/ManageTypes.jsx";
-import ManageBrands from "./pages/ManageBrands.jsx";
-import ManageMaterials from "./pages/ManageMaterials.jsx";
-import ManageUniqueBrand from "./pages/ManageUniqueBrand.jsx";
+import ManageTypes from "./pages/managePages/ManageTypes.jsx";
+import ManageBrands from "./pages/managePages/ManageBrands.jsx";
+import ManageMaterials from "./pages/managePages/ManageMaterials.jsx";
+import ManageUniqueBrand from "./pages/managePages/ManageUniqueBrand.jsx";
 import { ToastContainer } from "react-toastify";
 
 function App() {
