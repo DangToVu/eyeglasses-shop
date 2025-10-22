@@ -6,7 +6,7 @@ import useAuthCheck from "../hooks/useAuthCheck.jsx";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AllProductCard from "../components/cards/AllProductCard";
-import ProductDetailModal from "../components/ProductDetailModal";
+import ProductDetailModal from "../components/modals/ProductDetailModal.jsx";
 import "../styles/pages/FavoriteProduct.css";
 
 function FavoriteProduct() {

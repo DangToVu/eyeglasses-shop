@@ -5,9 +5,9 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "../../styles/components/forms/BestSellingForm.css";
 import LoadingScreen from "../LoadingScreen";
-import CreateBrandModal from "../CreateBrandModal";
-import CreateMaterialModal from "../CreateMaterialModal";
-import CreateTypeModal from "../CreateTypeModal";
+import CreateBrandModal from "../modals/CreateBrandModal";
+import CreateMaterialModal from "../modals/CreateMaterialModal";
+import CreateTypeModal from "../modals/CreateTypeModal";
 
 const formatCurrency = (value) => {
   const cleanValue = value.replace(/[^0-9]/g, "");

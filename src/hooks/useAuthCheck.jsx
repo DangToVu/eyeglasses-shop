@@ -9,7 +9,7 @@ const useAuthCheck = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const publicRoutes = ["/", "/products/all", "/login", "/register"];
+  const publicRoutes = ["/", "/products/all", "/login", "/signup"];
 
   const checkUserRole = async () => {
     setIsLoading(true);

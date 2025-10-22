@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import AllProductCard from "../components/cards/AllProductCard.jsx";
-import ProductDetailModal from "../components/ProductDetailModal.jsx";
+import ProductDetailModal from "../components/modals/ProductDetailModal.jsx";
 import "../styles/pages/AllProductsCustomer.css";
 import LoadingScreen from "../components/LoadingScreen";
 

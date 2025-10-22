@@ -3,17 +3,19 @@ import { Container, Button, Table, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import Header from "../components/Header.jsx";
-import Footer from "../components/Footer.jsx";
-import BestSellingForm from "../components/forms/BestSellingForm.jsx";
-import useAuthCheck from "../hooks/useAuthCheck.jsx";
-import "../styles/pages/BestSellingProducts.css";
-import LoadingScreen from "../components/LoadingScreen";
-import ConfirmBox from "../components/ConfirmBox";
+import Header from "../../components/Header.jsx";
+import Footer from "../../components/Footer.jsx";
+import AllProductForm from "../../components/forms/AllProductForm.jsx";
+import useAuthCheck from "../../hooks/useAuthCheck.jsx";
+import "../../styles/pages/productManageLists/AllProducts.css";
+import LoadingScreen from "../../components/LoadingScreen.jsx";
+import ConfirmBox from "../../components/ConfirmBox.jsx";
 
-function BestSellingProducts() {
+function AllProducts() {
   const { userRole, isLoading: authLoading } = useAuthCheck();
   const navigate = useNavigate();
+  const [allProducts, setAllProducts] = useState([]);
+  const [regularProducts, setRegularProducts] = useState([]);
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -41,10 +43,10 @@ function BestSellingProducts() {
 
   useEffect(() => {
     if (!authLoading && userRole !== "admin") {
-      toast.error("Bạn không có quyền truy cập trang này!");
+      toast.error("Bạn không có quyền truy cập trang quản lý này!");
       navigate("/");
     }
-  }, [authLoading, userRole, navigate]);
+  }, [userRole, authLoading, navigate]);
 
   useEffect(() => {
     if (userRole !== "admin") return;
@@ -52,35 +54,60 @@ function BestSellingProducts() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const headers = {
+        const adminHeaders = {
           apikey: import.meta.env.VITE_SUPABASE_KEY,
           Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         };
+
         const [
-          productsResponse,
+          allResponse,
+          regularResponse,
+          bestSellingResponse,
           brandsResponse,
           materialsResponse,
           typesResponse,
         ] = await Promise.all([
           axios.get(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
-            { headers }
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
+            { headers: adminHeaders }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
+            headers: adminHeaders,
+          }),
+          axios.get(
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/rest/v1/best_selling_glasses?select=*`,
+            { headers: adminHeaders }
           ),
           axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
-            headers,
+            headers: adminHeaders,
           }),
           axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
-            headers,
+            headers: adminHeaders,
           }),
           axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
-            headers,
+            headers: adminHeaders,
           }),
         ]);
-        setBestSellingProducts(productsResponse.data);
-        setFilteredProducts(productsResponse.data);
+
+        setAllProducts(allResponse.data);
+        setRegularProducts(regularResponse.data);
+        setBestSellingProducts(bestSellingResponse.data);
         setBrands(brandsResponse.data.map((b) => b.name));
         setMaterials(materialsResponse.data.map((m) => m.name));
         setTypes(typesResponse.data.map((t) => t.name));
+
+        const allProductsList = [
+          ...regularResponse.data.map((p) => ({ ...p, table: "products" })),
+          ...bestSellingResponse.data.map((p) => ({
+            ...p,
+            table: "best_selling_glasses",
+          })),
+          ...allResponse.data.map((p) => ({ ...p, table: "all_product" })),
+        ];
+        setFilteredProducts(allProductsList);
       } catch (error) {
         toast.error("Lỗi khi lấy dữ liệu: " + error.message);
       } finally {
@@ -91,7 +118,16 @@ function BestSellingProducts() {
   }, [userRole]);
 
   useEffect(() => {
-    const filtered = bestSellingProducts.filter((product) => {
+    const allProductsList = [
+      ...regularProducts.map((p) => ({ ...p, table: "products" })),
+      ...bestSellingProducts.map((p) => ({
+        ...p,
+        table: "best_selling_glasses",
+      })),
+      ...allProducts.map((p) => ({ ...p, table: "all_product" })),
+    ];
+
+    const filtered = allProductsList.filter((product) => {
       const searchMatch =
         !filters.searchTerm ||
         (product.name &&
@@ -122,7 +158,7 @@ function BestSellingProducts() {
     });
     setFilteredProducts(filtered);
     setCurrentPage(1);
-  }, [filters, bestSellingProducts]);
+  }, [filters, allProducts, regularProducts, bestSellingProducts]);
 
   const handleSave = () => {
     setSelectedProduct(null);
@@ -132,15 +168,28 @@ function BestSellingProducts() {
         const headers = {
           apikey: import.meta.env.VITE_SUPABASE_KEY,
           Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         };
+
         const [
-          productsResponse,
+          allResponse,
+          regularResponse,
+          bestSellingResponse,
           brandsResponse,
           materialsResponse,
           typesResponse,
         ] = await Promise.all([
           axios.get(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/all_product`,
+            { headers }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
+            headers,
+          }),
+          axios.get(
+            `${
+              import.meta.env.VITE_SUPABASE_URL
+            }/rest/v1/best_selling_glasses?select=*`,
             { headers }
           ),
           axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
@@ -153,9 +202,25 @@ function BestSellingProducts() {
             headers,
           }),
         ]);
-        setBestSellingProducts(productsResponse.data);
+
+        setAllProducts(allResponse.data);
+        setRegularProducts(regularResponse.data);
+        setBestSellingProducts(bestSellingResponse.data);
+        setBrands(brandsResponse.data.map((b) => b.name));
+        setMaterials(materialsResponse.data.map((m) => m.name));
+        setTypes(typesResponse.data.map((t) => t.name));
+
+        const allProductsList = [
+          ...regularResponse.data.map((p) => ({ ...p, table: "products" })),
+          ...bestSellingResponse.data.map((p) => ({
+            ...p,
+            table: "best_selling_glasses",
+          })),
+          ...allResponse.data.map((p) => ({ ...p, table: "all_product" })),
+        ];
+
         setFilteredProducts(
-          productsResponse.data.filter((product) => {
+          allProductsList.filter((product) => {
             const searchMatch =
               !filters.searchTerm ||
               (product.name &&
@@ -186,12 +251,10 @@ function BestSellingProducts() {
             return searchMatch && brandMatch && materialMatch && typeMatch;
           })
         );
-        setBrands(brandsResponse.data.map((b) => b.name));
-        setMaterials(materialsResponse.data.map((m) => m.name));
-        setTypes(typesResponse.data.map((t) => t.name));
+
         if (
-          bestSellingProducts.length === 0 ||
-          productsResponse.data.length < bestSellingProducts.length
+          allProductsList.length === 0 ||
+          allProductsList.length < filteredProducts.length
         ) {
           setCurrentPage(1);
         }
@@ -205,15 +268,17 @@ function BestSellingProducts() {
   };
 
   const handleDelete = (id, table) => {
-    setDeleteData({ ids: [id], table });
-    setShowConfirm(true);
+    if (userRole === "admin") {
+      setDeleteData({ ids: [id], table });
+      setShowConfirm(true);
+    }
   };
 
   const handleMultiDelete = () => {
-    if (selectedProducts.size > 0) {
+    if (userRole === "admin" && selectedProducts.size > 0) {
       setDeleteData({
         ids: Array.from(selectedProducts),
-        table: "best_selling_glasses",
+        table: null,
       });
       setShowConfirm(true);
     } else {
@@ -222,21 +287,53 @@ function BestSellingProducts() {
   };
 
   const confirmDelete = async () => {
+    if (userRole !== "admin") return;
     setIsLoading(true);
     setShowConfirm(false);
 
     setTimeout(async () => {
       try {
         const deleteImagePromises = deleteData.ids.map((id) => {
-          const productToDelete = bestSellingProducts.find((p) => p.id === id);
+          let productToDelete = null;
+          let bucket = "";
+          let table = deleteData.table;
+
+          if (!table) {
+            if (regularProducts.some((p) => p.id === id)) {
+              productToDelete = regularProducts.find((p) => p.id === id);
+              table = "products";
+              bucket = "product-images";
+            } else if (bestSellingProducts.some((p) => p.id === id)) {
+              productToDelete = bestSellingProducts.find((p) => p.id === id);
+              table = "best_selling_glasses";
+              bucket = "best-selling-images";
+            } else if (allProducts.some((p) => p.id === id)) {
+              productToDelete = allProducts.find((p) => p.id === id);
+              table = "all_product";
+              bucket = "all-product-images";
+            }
+          } else {
+            if (table === "products") {
+              productToDelete = regularProducts.find((p) => p.id === id);
+              bucket = "product-images";
+            } else if (table === "best_selling_glasses") {
+              productToDelete = bestSellingProducts.find((p) => p.id === id);
+              bucket = "best-selling-images";
+            } else if (table === "all_product") {
+              productToDelete = allProducts.find((p) => p.id === id);
+              bucket = "all-product-images";
+            }
+          }
+
           if (productToDelete && productToDelete.image_url) {
-            const imageUrl = productToDelete.image_url;
-            const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+            const imagePath = productToDelete.image_url.substring(
+              productToDelete.image_url.lastIndexOf("/") + 1
+            );
             return axios
               .delete(
                 `${
                   import.meta.env.VITE_SUPABASE_URL
-                }/storage/v1/object/best-selling-images/${imagePath}`,
+                }/storage/v1/object/${bucket}/${imagePath}`,
                 {
                   headers: {
                     apikey: import.meta.env.VITE_SUPABASE_KEY,
@@ -251,15 +348,24 @@ function BestSellingProducts() {
           return Promise.resolve();
         });
 
-        const deleteFavoritesPromise =
-          deleteData.ids.length > 0
-            ? axios
+        const deleteFavoritesPromises = deleteData.ids.reduce((acc, id) => {
+          let table = deleteData.table;
+          if (!table) {
+            if (regularProducts.some((p) => p.id === id)) {
+              table = "products";
+            } else if (bestSellingProducts.some((p) => p.id === id)) {
+              table = "best_selling_glasses";
+            } else if (allProducts.some((p) => p.id === id)) {
+              table = "all_product";
+            }
+          }
+          if (table) {
+            acc.push(
+              axios
                 .delete(
                   `${
                     import.meta.env.VITE_SUPABASE_URL
-                  }/rest/v1/favorites?product_id=in.(${deleteData.ids.join(
-                    ","
-                  )})&table_name=eq.best_selling_glasses`,
+                  }/rest/v1/favorites?product_id=in.(${id})&table_name=eq.${table}`,
                   {
                     headers: {
                       apikey: import.meta.env.VITE_SUPABASE_KEY,
@@ -269,43 +375,82 @@ function BestSellingProducts() {
                   }
                 )
                 .then((response) => {
-                  console.log("Favorites deleted:", response.data);
+                  console.log(`Favorites deleted for ${table}:`, response.data);
                   return response;
                 })
                 .catch((err) => {
                   console.error(
-                    "Failed to delete favorites:",
+                    `Failed to delete favorites for ${table}:`,
                     err.response?.data || err.message
                   );
                   throw err;
                 })
-            : Promise.resolve();
-
-        const deleteProductsPromise = axios.delete(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${
-            deleteData.table
-          }?id=in.(${deleteData.ids.join(",")})`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-              Prefer: "return=representation",
-            },
+            );
           }
-        );
+          return acc;
+        }, []);
+
+        const deleteProductsPromises = deleteData.ids.reduce((acc, id) => {
+          let table = deleteData.table;
+          if (!table) {
+            if (regularProducts.some((p) => p.id === id)) {
+              table = "products";
+            } else if (bestSellingProducts.some((p) => p.id === id)) {
+              table = "best_selling_glasses";
+            } else if (allProducts.some((p) => p.id === id)) {
+              table = "all_product";
+            }
+          }
+          if (table) {
+            acc.push(
+              axios.delete(
+                `${
+                  import.meta.env.VITE_SUPABASE_URL
+                }/rest/v1/${table}?id=in.(${id})`,
+                {
+                  headers: {
+                    apikey: import.meta.env.VITE_SUPABASE_KEY,
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    Prefer: "return=representation",
+                  },
+                }
+              )
+            );
+          }
+          return acc;
+        }, []);
 
         await Promise.all([
           ...deleteImagePromises,
-          deleteFavoritesPromise,
-          deleteProductsPromise,
+          ...deleteFavoritesPromises,
+          ...deleteProductsPromises,
         ]);
 
-        const updatedProducts = bestSellingProducts.filter(
+        const updatedAllProducts = allProducts.filter(
           (p) => !deleteData.ids.includes(p.id)
         );
-        setBestSellingProducts(updatedProducts);
+        const updatedRegularProducts = regularProducts.filter(
+          (p) => !deleteData.ids.includes(p.id)
+        );
+        const updatedBestSellingProducts = bestSellingProducts.filter(
+          (p) => !deleteData.ids.includes(p.id)
+        );
+
+        setAllProducts(updatedAllProducts);
+        setRegularProducts(updatedRegularProducts);
+        setBestSellingProducts(updatedBestSellingProducts);
+
+        const updatedAllProductsList = [
+          ...updatedRegularProducts.map((p) => ({ ...p, table: "products" })),
+          ...updatedBestSellingProducts.map((p) => ({
+            ...p,
+            table: "best_selling_glasses",
+          })),
+          ...updatedAllProducts.map((p) => ({ ...p, table: "all_product" })),
+        ];
+
         setFilteredProducts(
-          updatedProducts.filter((product) => {
+          updatedAllProductsList.filter((product) => {
             const searchMatch =
               !filters.searchTerm ||
               (product.name &&
@@ -336,10 +481,11 @@ function BestSellingProducts() {
             return searchMatch && brandMatch && materialMatch && typeMatch;
           })
         );
+
         setSelectedProducts(new Set());
 
         const totalPagesAfterDelete = Math.ceil(
-          updatedProducts.length / itemsPerPage
+          updatedAllProductsList.length / itemsPerPage
         );
         if (currentPage > totalPagesAfterDelete && currentPage > 1) {
           setCurrentPage(currentPage - 1);
@@ -450,7 +596,7 @@ function BestSellingProducts() {
 
   return (
     <div className="regular-page-wrapper">
-      {isLoading && <LoadingScreen />}
+      {(isLoading || authLoading) && <LoadingScreen />}
       {showConfirm && (
         <ConfirmBox
           message="Bạn có chắc chắn muốn xóa sản phẩm này không? Các mục yêu thích liên quan cũng sẽ bị xóa."
@@ -460,10 +606,14 @@ function BestSellingProducts() {
       )}
       <Header />
       <Container className="regular-container">
-        <h2 className="regular-title my-4">Quản lý Sản phẩm Bán chạy</h2>
+        <h2 className="regular-title my-4">Quản lý tất cả sản phẩm</h2>
         <div className="regular-product-layout">
           <div className="regular-product-form-container">
-            <BestSellingForm product={selectedProduct} onSave={handleSave} />
+            <AllProductForm
+              product={selectedProduct}
+              onSave={handleSave}
+              table={selectedProduct ? selectedProduct.table : "all_product"}
+            />
           </div>
           <div className="regular-product-list-container">
             <div className="summary-labels">
@@ -615,9 +765,7 @@ function BestSellingProducts() {
                       <Button
                         variant="danger"
                         className="regular-btn delete-btn"
-                        onClick={() =>
-                          handleDelete(product.id, "best_selling_glasses")
-                        }
+                        onClick={() => handleDelete(product.id, product.table)}
                       >
                         Xóa
                       </Button>
@@ -692,4 +840,4 @@ function BestSellingProducts() {
   );
 }
 
-export default BestSellingProducts;
+export default AllProducts;

@@ -4,22 +4,22 @@ import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import useAuthCheck from "../hooks/useAuthCheck.jsx";
-import ConfirmBox from "../components/ConfirmBox.jsx";
-import Header from "../components/Header.jsx";
-import "../styles/pages/ManageBrands.css";
-import LoadingScreen from "../components/LoadingScreen";
+import useAuthCheck from "../../hooks/useAuthCheck.jsx";
+import ConfirmBox from "../../components/ConfirmBox.jsx";
+import Header from "../../components/Header.jsx";
+import "../../styles/pages/managePages/ManageTypes.css";
+import LoadingScreen from "../../components/LoadingScreen.jsx";
 
-function ManageBrands() {
+function ManageTypes() {
   const { userRole, isLoading: authLoading } = useAuthCheck();
   const navigate = useNavigate();
-  const [brands, setBrands] = useState([]);
+  const [types, setTypes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [currentBrand, setCurrentBrand] = useState(null);
+  const [currentType, setCurrentType] = useState(null);
   const [formData, setFormData] = useState({ name: "" });
   const [showConfirm, setShowConfirm] = useState(false);
-  const [brandToDelete, setBrandToDelete] = useState(null);
+  const [typeToDelete, setTypeToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
@@ -32,7 +32,7 @@ function ManageBrands() {
   }, [authLoading, userRole, navigate]);
 
   useEffect(() => {
-    const fetchBrands = async () => {
+    const fetchTypes = async () => {
       setIsLoading(true);
       try {
         const headers = {
@@ -44,22 +44,22 @@ function ManageBrands() {
         const response = await axios.get(
           `${
             import.meta.env.VITE_SUPABASE_URL
-          }/rest/v1/brands?select=*,users!brands_created_by_fkey(gmail)`,
+          }/rest/v1/types?select=*,users!types_created_by_fkey(gmail)`,
           { headers }
         );
-        const formattedBrands = response.data.map((brand) => ({
-          ...brand,
-          created_by_email: brand.users?.gmail || "N/A",
+        const formattedTypes = response.data.map((type) => ({
+          ...type,
+          created_by_email: type.users?.gmail || "N/A",
         }));
-        setBrands(formattedBrands);
+        setTypes(formattedTypes);
       } catch (error) {
-        toast.error("Lỗi khi lấy danh sách thương hiệu: " + error.message);
+        toast.error("Lỗi khi lấy danh sách loại hàng: " + error.message);
       } finally {
         setIsLoading(false);
       }
     };
     if (userRole === "admin") {
-      fetchBrands();
+      fetchTypes();
     }
   }, [userRole]);
 
@@ -74,30 +74,27 @@ function ManageBrands() {
       const token = localStorage.getItem("token");
       const userId = JSON.parse(atob(token.split(".")[1])).sub;
       await axios.post(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`,
-        {
-          name: formData.name,
-          created_by: userId,
-        },
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`,
+        { name: formData.name, created_by: userId },
         { headers }
       );
-      toast.success("Thêm thương hiệu thành công!");
+      toast.success("Thêm loại hàng thành công!");
       setFormData({ name: "" });
       setShowModal(false);
       const response = await axios.get(
         `${
           import.meta.env.VITE_SUPABASE_URL
-        }/rest/v1/brands?select=*,users!brands_created_by_fkey(gmail)`,
+        }/rest/v1/types?select=*,users!types_created_by_fkey(gmail)`,
         { headers }
       );
-      const formattedBrands = response.data.map((brand) => ({
-        ...brand,
-        created_by_email: brand.users?.gmail || "N/A",
+      const formattedTypes = response.data.map((type) => ({
+        ...type,
+        created_by_email: type.users?.gmail || "N/A",
       }));
-      setBrands(formattedBrands);
+      setTypes(formattedTypes);
       setCurrentPage(1);
     } catch (error) {
-      toast.error("Lỗi khi thêm thương hiệu: " + error.message);
+      toast.error("Lỗi khi thêm loại hàng: " + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -112,8 +109,8 @@ function ManageBrands() {
         "Content-Type": "application/json",
       };
       await axios.patch(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands?id=eq.${
-          currentBrand.id
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types?id=eq.${
+          currentType.id
         }`,
         { name: formData.name },
         { headers }
@@ -122,31 +119,31 @@ function ManageBrands() {
       await Promise.all(
         tables.map((table) =>
           axios.patch(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?brand=eq.${
-              currentBrand.name
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?type=eq.${
+              currentType.name
             }`,
-            { brand: formData.name },
+            { type: formData.name },
             { headers }
           )
         )
       );
-      toast.success("Cập nhật thương hiệu thành công!");
+      toast.success("Cập nhật loại hàng thành công!");
       setFormData({ name: "" });
       setShowModal(false);
-      setCurrentBrand(null);
+      setCurrentType(null);
       const response = await axios.get(
         `${
           import.meta.env.VITE_SUPABASE_URL
-        }/rest/v1/brands?select=*,users!brands_created_by_fkey(gmail)`,
+        }/rest/v1/types?select=*,users!types_created_by_fkey(gmail)`,
         { headers }
       );
-      const formattedBrands = response.data.map((brand) => ({
-        ...brand,
-        created_by_email: brand.users?.gmail || "N/A",
+      const formattedTypes = response.data.map((type) => ({
+        ...type,
+        created_by_email: type.users?.gmail || "N/A",
       }));
-      setBrands(formattedBrands);
+      setTypes(formattedTypes);
     } catch (error) {
-      toast.error("Lỗi khi cập nhật thương hiệu: " + error.message);
+      toast.error("Lỗi khi cập nhật loại hàng: " + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -164,70 +161,68 @@ function ManageBrands() {
       await Promise.all(
         tables.map((table) =>
           axios.patch(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?brand=eq.${
-              brandToDelete.name
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?type=eq.${
+              typeToDelete.name
             }`,
-            { brand: null },
+            { type: null },
             { headers }
           )
         )
       );
       await axios.delete(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands?id=eq.${
-          brandToDelete.id
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types?id=eq.${
+          typeToDelete.id
         }`,
         { headers }
       );
-      toast.success("Xóa thương hiệu thành công!");
-      setBrands(brands.filter((b) => b.id !== brandToDelete.id));
+      toast.success("Xóa loại hàng thành công!");
+      setTypes(types.filter((t) => t.id !== typeToDelete.id));
       const totalPagesAfterDelete = Math.ceil(
-        (brands.length - 1) / itemsPerPage
+        (types.length - 1) / itemsPerPage
       );
       if (currentPage > totalPagesAfterDelete && currentPage > 1) {
         setCurrentPage(currentPage - 1);
       }
     } catch (error) {
-      toast.error("Lỗi khi xóa thương hiệu: " + error.message);
+      toast.error("Lỗi khi xóa loại hàng: " + error.message);
     } finally {
       setIsLoading(false);
       setShowConfirm(false);
-      setBrandToDelete(null);
+      setTypeToDelete(null);
     }
   };
 
-  const openModal = (brand = null) => {
-    setCurrentBrand(brand);
-    setFormData({
-      name: brand ? brand.name : "",
-    });
+  const openModal = (type = null) => {
+    setCurrentType(type);
+    setFormData({ name: type ? type.name : "" });
     setShowModal(true);
   };
 
   const handleClose = () => {
     setFormData({ name: "" });
-    setCurrentBrand(null);
+    setCurrentType(null);
     setShowModal(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (currentBrand) {
+    if (currentType) {
       await handleEdit();
     } else {
       await handleAdd();
     }
   };
 
-  const confirmDelete = (brand) => {
-    setBrandToDelete(brand);
+  const confirmDelete = (type) => {
+    setTypeToDelete(type);
     setShowConfirm(true);
   };
 
   const handleItemsPerPageChange = (e) => {
     const newItemsPerPage = parseInt(e.target.value, 10);
     setItemsPerPage(newItemsPerPage);
-    const totalPages = Math.ceil(brands.length / newItemsPerPage);
+    const totalPages = Math.ceil(types.length / newItemsPerPage);
     if (currentPage > totalPages) {
       setCurrentPage(totalPages > 0 ? totalPages : 1);
     }
@@ -235,8 +230,8 @@ function ManageBrands() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentBrands = brands.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(brands.length / itemsPerPage);
+  const currentTypes = types.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(types.length / itemsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const nextPage = () =>
@@ -262,50 +257,50 @@ function ManageBrands() {
   if (userRole !== "admin") return null;
 
   return (
-    <div className="mb-page-wrapper">
+    <div className="mt-page-wrapper">
       {isLoading && <LoadingScreen />}
       <Header />
-      <Container className="mb-manage-brands-container">
-        <h2 className="mb-manage-brands-title my-4">Quản lý thương hiệu</h2>
-        <div className="mb-button-group-top">
+      <Container className="mt-manage-types-container">
+        <h2 className="mt-manage-types-title my-4">Quản lý loại hàng</h2>
+        <div className="mt-button-group-top">
           <Button
             variant="secondary"
-            className="mb-back-btn"
+            className="mt-back-btn"
             onClick={() => navigate("/card-management")}
           >
             Quay lại
           </Button>
         </div>
-        <div className="mb-table-container">
-          <Table className="mb-brands-table">
+        <div className="mt-table-container">
+          <Table className="mt-types-table">
             <thead>
               <tr>
-                <th>Tên thương hiệu</th>
+                <th>Tên loại hàng</th>
                 <th>Ngày tạo</th>
                 <th>Email người tạo</th>
                 <th>Hành động</th>
               </tr>
             </thead>
             <tbody>
-              {currentBrands.map((brand) => (
-                <tr key={brand.id}>
-                  <td>{brand.name}</td>
+              {currentTypes.map((type) => (
+                <tr key={type.id}>
+                  <td>{type.name}</td>
                   <td>
-                    {new Date(brand.create_date).toLocaleDateString("vi-VN")}
+                    {new Date(type.create_date).toLocaleDateString("vi-VN")}
                   </td>
-                  <td>{brand.created_by_email}</td>
+                  <td>{type.created_by_email}</td>
                   <td>
                     <Button
                       variant="warning"
-                      className="mb-edit-btn me-2"
-                      onClick={() => openModal(brand)}
+                      className="mt-edit-btn me-2"
+                      onClick={() => openModal(type)}
                     >
                       Sửa
                     </Button>
                     <Button
                       variant="danger"
-                      className="mb-delete-btn"
-                      onClick={() => confirmDelete(brand)}
+                      className="mt-delete-btn"
+                      onClick={() => confirmDelete(type)}
                     >
                       Xóa
                     </Button>
@@ -315,17 +310,17 @@ function ManageBrands() {
             </tbody>
           </Table>
         </div>
-        <div className="mb-button-group-bottom">
+        <div className="mt-button-group-bottom">
           <Button
             variant="primary"
-            className="mb-add-btn"
+            className="mt-add-btn"
             onClick={() => openModal()}
           >
-            Thêm thương hiệu
+            Thêm loại hàng
           </Button>
         </div>
         {totalPages > 1 && (
-          <div className="mb-pagination">
+          <div className="mt-pagination">
             <Button
               variant="secondary"
               onClick={firstPage}
@@ -366,7 +361,7 @@ function ManageBrands() {
             </Button>
           </div>
         )}
-        <div className="mb-items-per-page-selector">
+        <div className="mt-items-per-page-selector">
           <Form.Label>Số dòng mỗi trang:</Form.Label>
           <Form.Select
             value={itemsPerPage}
@@ -384,49 +379,49 @@ function ManageBrands() {
       </Container>
       {showModal &&
         createPortal(
-          <div className="mb-modal-overlay">
-            <div className="mb-modal-content-wrapper">
-              <div className="mb-modal-header">
-                <div className="mb-modal-title-container">
-                  <h2 className="mb-modal-title">
-                    {currentBrand ? "Sửa thương hiệu" : "Thêm thương hiệu"}
+          <div className="mt-modal-overlay">
+            <div className="mt-modal-content-wrapper">
+              <div className="mt-modal-header">
+                <div className="mt-modal-title-container">
+                  <h2 className="mt-modal-title">
+                    {currentType ? "Sửa loại hàng" : "Thêm loại hàng"}
                   </h2>
                 </div>
-                <button className="mb-modal-close-button" onClick={handleClose}>
+                <button className="mt-modal-close-button" onClick={handleClose}>
                   &times;
                 </button>
               </div>
-              <div className="mb-modal-body">
+              <div className="mt-modal-body">
                 <Form onSubmit={handleSubmit}>
-                  <Form.Group className="mb-modal-form-group">
-                    <Form.Label>Tên thương hiệu</Form.Label>
+                  <Form.Group className="mt-modal-form-group">
+                    <Form.Label>Tên loại hàng</Form.Label>
                     <Form.Control
                       type="text"
                       value={formData.name}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                       }
-                      className="mb-modal-input"
+                      className="mt-modal-input"
                       required
-                      placeholder="Nhập tên thương hiệu"
+                      placeholder="Nhập tên loại hàng"
                     />
                   </Form.Group>
-                  <div className="mb-modal-btn-group">
+                  <div className="mt-modal-btn-group">
                     <Button
                       variant="primary"
                       type="submit"
-                      className="mb-modal-btn mb-modal-btn-primary"
+                      className="mt-modal-btn mt-modal-btn-primary"
                       disabled={isLoading}
                     >
                       {isLoading
                         ? "Đang lưu..."
-                        : currentBrand
+                        : currentType
                         ? "Cập nhật"
                         : "Lưu"}
                     </Button>
                     <Button
                       variant="secondary"
-                      className="mb-modal-btn mb-modal-btn-secondary"
+                      className="mt-modal-btn mt-modal-btn-secondary"
                       onClick={handleClose}
                       disabled={isLoading}
                     >
@@ -442,7 +437,7 @@ function ManageBrands() {
       {showConfirm &&
         createPortal(
           <ConfirmBox
-            message={`Bạn có chắc muốn xóa thương hiệu "${brandToDelete.name}" không?`}
+            message={`Bạn có chắc muốn xóa loại hàng "${typeToDelete.name}" không?`}
             onConfirm={handleDelete}
             onCancel={() => setShowConfirm(false)}
           />,
@@ -452,4 +447,4 @@ function ManageBrands() {
   );
 }
 
-export default ManageBrands;
+export default ManageTypes;

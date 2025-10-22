@@ -10,7 +10,7 @@ import BestSellingCard from "../components/cards/BestSellingCard.jsx";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "../styles/pages/Home.css";
 import LoadingScreen from "../components/LoadingScreen";
-import ProductDetailModal from "../components/ProductDetailModal.jsx";
+import ProductDetailModal from "../components/modals/ProductDetailModal.jsx";
 
 function Home() {
   const [products, setProducts] = useState([]);

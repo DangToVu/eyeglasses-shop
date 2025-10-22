@@ -3,18 +3,18 @@ import { Container, Button, Table, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import Header from "../components/Header.jsx";
-import Footer from "../components/Footer.jsx";
-import ProductForm from "../components/forms/ProductForm.jsx";
-import useAuthCheck from "../hooks/useAuthCheck.jsx";
-import "../styles/pages/RegularProducts.css";
-import LoadingScreen from "../components/LoadingScreen";
-import ConfirmBox from "../components/ConfirmBox";
+import Header from "../../components/Header.jsx";
+import Footer from "../../components/Footer.jsx";
+import BestSellingForm from "../../components/forms/BestSellingForm";
+import useAuthCheck from "../../hooks/useAuthCheck.jsx";
+import "../../styles/pages/productManageLists/BestSellingProducts.css";
+import LoadingScreen from "../../components/LoadingScreen.jsx";
+import ConfirmBox from "../../components/ConfirmBox.jsx";
 
-function RegularProducts() {
+function BestSellingProducts() {
   const { userRole, isLoading: authLoading } = useAuthCheck();
   const navigate = useNavigate();
-  const [products, setProducts] = useState([]);
+  const [bestSellingProducts, setBestSellingProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,51 +46,52 @@ function RegularProducts() {
     }
   }, [authLoading, userRole, navigate]);
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const headers = {
-        apikey: import.meta.env.VITE_SUPABASE_KEY,
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      };
-      const [
-        productsResponse,
-        brandsResponse,
-        materialsResponse,
-        typesResponse,
-      ] = await Promise.all([
-        axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`, {
-          headers,
-        }),
-        axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
-          headers,
-        }),
-        axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
-          headers,
-        }),
-        axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
-          headers,
-        }),
-      ]);
-      setProducts(productsResponse.data);
-      setFilteredProducts(productsResponse.data);
-      setBrands(brandsResponse.data.map((b) => b.name));
-      setMaterials(materialsResponse.data.map((m) => m.name));
-      setTypes(typesResponse.data.map((t) => t.name));
-    } catch (error) {
-      toast.error("Lỗi khi lấy dữ liệu: " + error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (userRole !== "admin") return;
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const headers = {
+          apikey: import.meta.env.VITE_SUPABASE_KEY,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        };
+        const [
+          productsResponse,
+          brandsResponse,
+          materialsResponse,
+          typesResponse,
+        ] = await Promise.all([
+          axios.get(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
+            { headers }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
+            headers,
+          }),
+        ]);
+        setBestSellingProducts(productsResponse.data);
+        setFilteredProducts(productsResponse.data);
+        setBrands(brandsResponse.data.map((b) => b.name));
+        setMaterials(materialsResponse.data.map((m) => m.name));
+        setTypes(typesResponse.data.map((t) => t.name));
+      } catch (error) {
+        toast.error("Lỗi khi lấy dữ liệu: " + error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchData();
   }, [userRole]);
 
   useEffect(() => {
-    const filtered = products.filter((product) => {
+    const filtered = bestSellingProducts.filter((product) => {
       const searchMatch =
         !filters.searchTerm ||
         (product.name &&
@@ -121,33 +122,7 @@ function RegularProducts() {
     });
     setFilteredProducts(filtered);
     setCurrentPage(1);
-  }, [filters, products]);
-
-  const handleOptionsUpdate = async () => {
-    try {
-      const headers = {
-        apikey: import.meta.env.VITE_SUPABASE_KEY,
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      };
-      const [brandsResponse, materialsResponse, typesResponse] =
-        await Promise.all([
-          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
-            headers,
-          }),
-          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
-            headers,
-          }),
-          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
-            headers,
-          }),
-        ]);
-      setBrands(brandsResponse.data.map((b) => b.name));
-      setMaterials(materialsResponse.data.map((m) => m.name));
-      setTypes(typesResponse.data.map((t) => t.name));
-    } catch (error) {
-      toast.error("Lỗi khi cập nhật danh sách bộ lọc: " + error.message);
-    }
-  };
+  }, [filters, bestSellingProducts]);
 
   const handleSave = () => {
     setSelectedProduct(null);
@@ -158,11 +133,27 @@ function RegularProducts() {
           apikey: import.meta.env.VITE_SUPABASE_KEY,
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         };
-        const productsResponse = await axios.get(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
-          { headers }
-        );
-        setProducts(productsResponse.data);
+        const [
+          productsResponse,
+          brandsResponse,
+          materialsResponse,
+          typesResponse,
+        ] = await Promise.all([
+          axios.get(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/best_selling_glasses`,
+            { headers }
+          ),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/brands`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/materials`, {
+            headers,
+          }),
+          axios.get(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/types`, {
+            headers,
+          }),
+        ]);
+        setBestSellingProducts(productsResponse.data);
         setFilteredProducts(
           productsResponse.data.filter((product) => {
             const searchMatch =
@@ -195,9 +186,12 @@ function RegularProducts() {
             return searchMatch && brandMatch && materialMatch && typeMatch;
           })
         );
+        setBrands(brandsResponse.data.map((b) => b.name));
+        setMaterials(materialsResponse.data.map((m) => m.name));
+        setTypes(typesResponse.data.map((t) => t.name));
         if (
-          products.length === 0 ||
-          productsResponse.data.length < products.length
+          bestSellingProducts.length === 0 ||
+          productsResponse.data.length < bestSellingProducts.length
         ) {
           setCurrentPage(1);
         }
@@ -208,7 +202,6 @@ function RegularProducts() {
       }
     };
     fetchProducts();
-    handleOptionsUpdate();
   };
 
   const handleDelete = (id, table) => {
@@ -220,7 +213,7 @@ function RegularProducts() {
     if (selectedProducts.size > 0) {
       setDeleteData({
         ids: Array.from(selectedProducts),
-        table: "products",
+        table: "best_selling_glasses",
       });
       setShowConfirm(true);
     } else {
@@ -235,7 +228,7 @@ function RegularProducts() {
     setTimeout(async () => {
       try {
         const deleteImagePromises = deleteData.ids.map((id) => {
-          const productToDelete = products.find((p) => p.id === id);
+          const productToDelete = bestSellingProducts.find((p) => p.id === id);
           if (productToDelete && productToDelete.image_url) {
             const imageUrl = productToDelete.image_url;
             const imagePath = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
@@ -243,7 +236,7 @@ function RegularProducts() {
               .delete(
                 `${
                   import.meta.env.VITE_SUPABASE_URL
-                }/storage/v1/object/product-images/${imagePath}`,
+                }/storage/v1/object/best-selling-images/${imagePath}`,
                 {
                   headers: {
                     apikey: import.meta.env.VITE_SUPABASE_KEY,
@@ -266,7 +259,7 @@ function RegularProducts() {
                     import.meta.env.VITE_SUPABASE_URL
                   }/rest/v1/favorites?product_id=in.(${deleteData.ids.join(
                     ","
-                  )})&table_name=eq.products`,
+                  )})&table_name=eq.best_selling_glasses`,
                   {
                     headers: {
                       apikey: import.meta.env.VITE_SUPABASE_KEY,
@@ -307,10 +300,10 @@ function RegularProducts() {
           deleteProductsPromise,
         ]);
 
-        const updatedProducts = products.filter(
+        const updatedProducts = bestSellingProducts.filter(
           (p) => !deleteData.ids.includes(p.id)
         );
-        setProducts(updatedProducts);
+        setBestSellingProducts(updatedProducts);
         setFilteredProducts(
           updatedProducts.filter((product) => {
             const searchMatch =
@@ -467,10 +460,10 @@ function RegularProducts() {
       )}
       <Header />
       <Container className="regular-container">
-        <h2 className="regular-title my-4">Quản lý Sản phẩm Thường</h2>
+        <h2 className="regular-title my-4">Quản lý Sản phẩm Bán chạy</h2>
         <div className="regular-product-layout">
           <div className="regular-product-form-container">
-            <ProductForm product={selectedProduct} onSave={handleSave} />
+            <BestSellingForm product={selectedProduct} onSave={handleSave} />
           </div>
           <div className="regular-product-list-container">
             <div className="summary-labels">
@@ -622,7 +615,9 @@ function RegularProducts() {
                       <Button
                         variant="danger"
                         className="regular-btn delete-btn"
-                        onClick={() => handleDelete(product.id, "products")}
+                        onClick={() =>
+                          handleDelete(product.id, "best_selling_glasses")
+                        }
                       >
                         Xóa
                       </Button>
@@ -697,4 +692,4 @@ function RegularProducts() {
   );
 }
 
-export default RegularProducts;
+export default BestSellingProducts;
