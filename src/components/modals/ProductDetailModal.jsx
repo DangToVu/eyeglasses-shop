@@ -13,7 +13,7 @@ const formatPrice = (price) =>
 
 function ProductDetailModal({ show, onHide, product }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(1);
+  const [zoomLevel, setZoomLevel] = useState(1); // UI: 1 hoặc 2
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
@@ -22,16 +22,72 @@ function ProductDetailModal({ show, onHide, product }) {
   const fullScreenImageRef = useRef(null);
   const containerRef = useRef(null);
 
+  // === CHUYỂN Đ, HIỂN THỊ x2 NHƯNG THỰC TẾ x2.5 ===
+  const ACTUAL_ZOOM_LEVEL = zoomLevel === 1 ? 1 : 2.5;
+
+  // === ZOOM VÀO GIỮA ẢNH ===
+  useEffect(() => {
+    if (!isFullScreen || !containerRef.current || !fullScreenImageRef.current)
+      return;
+
+    const container = containerRef.current;
+    const img = fullScreenImageRef.current;
+
+    const updateCenteredZoom = () => {
+      const containerRect = container.getBoundingClientRect();
+      const imgRect = img.getBoundingClientRect();
+
+      const centerX = containerRect.width / 2;
+      const centerY = containerRect.height / 2;
+
+      const currentCenterX = imgRect.width / 2 + position.x * ACTUAL_ZOOM_LEVEL;
+      const currentCenterY =
+        imgRect.height / 2 + position.y * ACTUAL_ZOOM_LEVEL;
+
+      const offsetX = centerX - currentCenterX;
+      const offsetY = centerY - currentCenterY;
+
+      setPosition((prev) => ({
+        x: prev.x + offsetX / ACTUAL_ZOOM_LEVEL,
+        y: prev.y + offsetY / ACTUAL_ZOOM_LEVEL,
+      }));
+    };
+
+    updateCenteredZoom();
+  }, [zoomLevel, isFullScreen, ACTUAL_ZOOM_LEVEL]);
+
+  // Reset khi zoom về 1
+  useEffect(() => {
+    if (zoomLevel === 1) {
+      setPosition({ x: 0, y: 0 });
+    }
+  }, [zoomLevel]);
+
+  // === CHẶN SCROLL / VUỐT TRANG KHI FULLSCREEN ===
+  useEffect(() => {
+    if (!isFullScreen) return;
+
+    const preventScroll = (e) => e.preventDefault();
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("wheel", preventScroll, { passive: false });
+    window.addEventListener("touchmove", preventScroll, { passive: false });
+    window.addEventListener("keydown", preventScroll, { passive: false });
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("wheel", preventScroll);
+      window.removeEventListener("touchmove", preventScroll);
+      window.removeEventListener("keydown", preventScroll);
+    };
+  }, [isFullScreen]);
+
   const checkFavorite = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        console.log("No token found in localStorage");
-        return;
-      }
+      if (!token) return;
       const expiresAt = parseInt(localStorage.getItem("token_expires_at"));
       if (expiresAt && Date.now() > expiresAt) {
-        console.log("Token expired at:", new Date(expiresAt));
         localStorage.removeItem("token");
         localStorage.removeItem("token_expires_at");
         localStorage.removeItem("refresh_token");
@@ -48,10 +104,8 @@ function ProductDetailModal({ show, onHide, product }) {
         }
       );
       const userId = userResponse.data.id;
-      if (!userId) {
-        console.log("No user found in session");
-        return;
-      }
+      if (!userId) return;
+
       const favoriteResponse = await axios.get(
         `${
           import.meta.env.VITE_SUPABASE_URL
@@ -219,31 +273,31 @@ function ProductDetailModal({ show, onHide, product }) {
   };
 
   const handleZoomIn = () => {
-    setZoomLevel((prev) => Math.min(prev + 1, 4));
+    if (zoomLevel < 2) {
+      setZoomLevel(2); // UI: x2
+    }
   };
 
   const handleZoomOut = () => {
-    setZoomLevel((prev) => Math.max(prev - 1, 1));
+    if (zoomLevel > 1) {
+      setZoomLevel(1); // UI: x1
+    }
   };
 
   const handleMouseDown = (e) => {
     if (zoomLevel > 1 && isFullScreen) {
       e.preventDefault();
       setIsDragging(true);
-      setStartPos({ x: e.clientX, y: e.clientY });
+      setStartPos({ x: e.clientX - position.x, y: e.clientY - position.y });
     }
   };
 
   const handleMouseMove = (e) => {
-    if (isDragging && zoomLevel > 1 && isFullScreen && containerRef.current) {
+    if (isDragging && zoomLevel > 1 && isFullScreen) {
       e.preventDefault();
-      const dx = (e.clientX - startPos.x) / zoomLevel;
-      const dy = (e.clientY - startPos.y) / zoomLevel;
-      setPosition((prev) => ({
-        x: prev.x + dx,
-        y: prev.y + dy,
-      }));
-      setStartPos({ x: e.clientX, y: e.clientY });
+      const x = e.clientX - startPos.x;
+      const y = e.clientY - startPos.y;
+      setPosition({ x, y });
     }
   };
 
@@ -255,25 +309,33 @@ function ProductDetailModal({ show, onHide, product }) {
     if (zoomLevel > 1 && isFullScreen) {
       e.preventDefault();
       setIsDragging(true);
-      setStartPos({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+      setStartPos({
+        x: e.touches[0].clientX - position.x,
+        y: e.touches[0].clientY - position.y,
+      });
     }
   };
 
   const handleTouchMove = (e) => {
-    if (isDragging && zoomLevel > 1 && isFullScreen && containerRef.current) {
+    if (isDragging && zoomLevel > 1 && isFullScreen) {
       e.preventDefault();
-      const dx = (e.touches[0].clientX - startPos.x) / zoomLevel;
-      const dy = (e.touches[0].clientY - startPos.y) / zoomLevel;
-      setPosition((prev) => ({
-        x: prev.x + dx,
-        y: prev.y + dy,
-      }));
-      setStartPos({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+      const x = e.touches[0].clientX - startPos.x;
+      const y = e.touches[0].clientY - startPos.y;
+      setPosition({ x, y });
     }
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
+  };
+
+  const productType = product.type || product.product_type || "N/A";
+
+  const transformStyle = {
+    transform: `scale(${ACTUAL_ZOOM_LEVEL}) translate(${position.x}px, ${position.y}px)`,
+    transformOrigin: "center center",
+    transition: isDragging ? "none" : "transform 0.25s ease-out",
+    cursor: zoomLevel > 1 ? (isDragging ? "grabbing" : "grab") : "zoom-in",
   };
 
   return createPortal(
@@ -290,7 +352,7 @@ function ProductDetailModal({ show, onHide, product }) {
             </div>
           </div>
           <button className="pdm-modal-close-button" onClick={onHide}>
-            &times;
+            ×
           </button>
         </div>
         <div className="pdm-modal-body">
@@ -315,6 +377,10 @@ function ProductDetailModal({ show, onHide, product }) {
                 <p className="pdm-detail-text">{formatPrice(product.price)}</p>
               </div>
               <div className="pdm-detail-item">
+                <h3 className="pdm-detail-title">Loại hàng</h3>
+                <p className="pdm-detail-text">{productType}</p>
+              </div>
+              <div className="pdm-detail-item">
                 <h3 className="pdm-detail-title">Mô tả</h3>
                 <p className="pdm-detail-text">
                   {product.description || "Không có mô tả"}
@@ -332,6 +398,8 @@ function ProductDetailModal({ show, onHide, product }) {
           </div>
         </div>
       </div>
+
+      {/* FULLSCREEN ZOOM - HIỂN THỊ x2, THỰC TẾ x2.5 */}
       {isFullScreen && (
         <div
           className="pdm-full-screen-overlay"
@@ -340,6 +408,7 @@ function ProductDetailModal({ show, onHide, product }) {
           <div
             ref={containerRef}
             className="pdm-full-screen-image-container"
+            onClick={(e) => e.stopPropagation()}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -352,15 +421,7 @@ function ProductDetailModal({ show, onHide, product }) {
               ref={fullScreenImageRef}
               src={product.image_url || "/placeholder-image.jpg"}
               alt={product.name}
-              style={{
-                transform: `scale(${zoomLevel}) translate(${position.x}px, ${position.y}px)`,
-                transformOrigin: "0 0",
-                cursor: isFullScreen
-                  ? zoomLevel > 1
-                    ? "url(/minus-cursor.png), auto"
-                    : "url(/plus-cursor.png), auto"
-                  : "zoom-in",
-              }}
+              style={transformStyle}
             />
             <div className="pdm-zoom-controls">
               <button
@@ -369,8 +430,9 @@ function ProductDetailModal({ show, onHide, product }) {
                   e.stopPropagation();
                   handleZoomOut();
                 }}
+                disabled={zoomLevel === 1}
               >
-                -
+                −
               </button>
               <span className="pdm-zoom-label">Zoom x{zoomLevel}</span>
               <button
@@ -379,6 +441,7 @@ function ProductDetailModal({ show, onHide, product }) {
                   e.stopPropagation();
                   handleZoomIn();
                 }}
+                disabled={zoomLevel === 2}
               >
                 +
               </button>
