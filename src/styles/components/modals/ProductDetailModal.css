@@ -71,7 +71,7 @@
   font-size: 32px;
   font-weight: 700;
   color: #ff4444;
-  background: none;
+  background: none, none;
   border: none;
   cursor: pointer;
   padding: 4px 8px;
@@ -138,21 +138,6 @@
   margin: 0;
 }
 
-@media (min-width: 768px) {
-  .pdm-modal-content-container {
-    flex-direction: row;
-  }
-  .pdm-modal-image-section {
-    width: 50%;
-  }
-  .pdm-modal-details-section {
-    width: 50%;
-  }
-  .pdm-modal-heart-icon {
-    font-size: 2rem;
-  }
-}
-
 .pdm-full-screen-overlay {
   position: fixed;
   top: 0;
@@ -180,6 +165,7 @@
   height: auto;
   max-height: 90vh;
   object-fit: contain;
+  transition: transform 0.25s ease-out;
   user-select: none;
 }
 
@@ -218,9 +204,90 @@
   color: #ffffff;
 }
 
+/* === NÚT ZOOM KHI KHÔNG THỂ NHẤN (DISABLED) === */
+.pdm-zoom-button:disabled,
+.pdm-zoom-button.disabled {
+  background-color: #e0e0e0 !important;
+  border-color: #bdbdbd !important;
+  color: #9e9e9e !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.pdm-zoom-button:disabled:hover,
+.pdm-zoom-button.disabled:hover {
+  background-color: #e0e0e0 !important;
+  color: #9e9e9e !important;
+  transform: none !important;
+}
+
 .pdm-zoom-label {
   font-size: 1.2rem;
   font-weight: 600;
   color: #ffffff;
   margin: 0 10px;
+}
+
+@media (min-width: 768px) {
+  .pdm-modal-content-container {
+    flex-direction: row;
+  }
+  .pdm-modal-image-section {
+    width: 50%;
+  }
+  .pdm-modal-details-section {
+    width: 50%;
+  }
+  .pdm-modal-heart-icon {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pdm-zoom-controls {
+    bottom: 16px;
+    padding: 4px 7px;
+    gap: 8px;
+  }
+
+  .pdm-zoom-button {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    font-size: 1.1rem;
+    border-width: 1.5px;
+  }
+
+  .pdm-zoom-label {
+    font-size: 1rem;
+    margin: 0 8px;
+  }
+
+  /* Đảm bảo nút vẫn dễ bấm */
+  .pdm-zoom-button,
+  .pdm-zoom-button:disabled {
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+
+/* Tablet nhỏ (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  .pdm-zoom-controls {
+    bottom: 18px;
+    padding: 7px 11px;
+    gap: 9px;
+  }
+
+  .pdm-zoom-button {
+    width: 38px;
+    height: 38px;
+    font-size: 1.15rem;
+  }
+
+  .pdm-zoom-label {
+    font-size: 1.1rem;
+  }
 }
