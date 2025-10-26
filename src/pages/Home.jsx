@@ -22,8 +22,6 @@ function Home() {
   const [bestSellingIndex, setBestSellingIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [underlineStep, setUnderlineStep] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchMove, setTouchMove] = useState(0);
   const brandCarouselRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -35,9 +33,14 @@ function Home() {
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
+  // LƯU VỊ TRÍ CUỘN
+  const scrollPosition = useRef(0);
+
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768 && window.innerWidth <= 1199) {
+      if (window.innerWidth < 768) {
+        setItemsPerView(2);
+      } else if (window.innerWidth <= 1199) {
         setItemsPerView(2);
       } else {
         setItemsPerView(4);
@@ -52,29 +55,19 @@ function Home() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch products
         const productsResponse = await axios.get(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/products`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-            },
-          }
+          { headers: { apikey: import.meta.env.VITE_SUPABASE_KEY } }
         );
         setProducts(
           productsResponse.data.map((p) => ({ ...p, table: "products" })) || []
         );
 
-        // Fetch best selling products
         const bestSellingResponse = await axios.get(
           `${
             import.meta.env.VITE_SUPABASE_URL
           }/rest/v1/best_selling_glasses?select=*`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-            },
-          }
+          { headers: { apikey: import.meta.env.VITE_SUPABASE_KEY } }
         );
         setBestSellingProducts(
           bestSellingResponse.data.map((p) => ({
@@ -83,16 +76,11 @@ function Home() {
           })) || []
         );
 
-        // Fetch unique brands
         const uniqueBrandsResponse = await axios.get(
           `${
             import.meta.env.VITE_SUPABASE_URL
           }/rest/v1/unique_brands?select=*,brands(name)`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_KEY,
-            },
-          }
+          { headers: { apikey: import.meta.env.VITE_SUPABASE_KEY } }
         );
         setUniqueBrands(
           uniqueBrandsResponse.data.map((ub) => ({
@@ -202,54 +190,7 @@ function Home() {
     }
   };
 
-  const handleTouchStart = (e) => {
-    setTouchStart(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e) => {
-    setTouchMove(e.touches[0].clientX);
-  };
-
-  const handleTouchEnd = (isBestSelling) => {
-    const touchDiff = touchStart - touchMove;
-    const threshold = 50;
-
-    if (Math.abs(touchDiff) > threshold) {
-      if (isBestSelling) {
-        if (touchDiff > 0) scrollBestSellingRight();
-        else scrollBestSellingLeft();
-      } else {
-        if (touchDiff > 0) scrollRight();
-        else scrollLeft();
-      }
-    }
-    setTouchStart(0);
-    setTouchMove(0);
-  };
-
-  const visibleProducts = products.slice(
-    currentIndex,
-    currentIndex + itemsPerView
-  );
-  if (visibleProducts.length < itemsPerView && products.length > 0) {
-    const remainingCount = itemsPerView - visibleProducts.length;
-    visibleProducts.push(...products.slice(0, remainingCount));
-  }
-
-  const visibleBestSelling = bestSellingProducts.slice(
-    bestSellingIndex,
-    bestSellingIndex + itemsPerView
-  );
-  if (
-    visibleBestSelling.length < itemsPerView &&
-    bestSellingProducts.length > 0
-  ) {
-    const remainingCount = itemsPerView - visibleBestSelling.length;
-    visibleBestSelling.push(...bestSellingProducts.slice(0, remainingCount));
-  }
-
   const handleMouseEnter = () => setIsHovered(true);
-
   const handleMouseLeave = () => {
     setIsHovered(false);
     setIsDragging(false);
@@ -285,21 +226,11 @@ function Home() {
   useEffect(() => {
     const element = brandWrapperRef.current;
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsInView(entry.isIntersecting);
-      },
+      ([entry]) => setIsInView(entry.isIntersecting),
       { threshold: 0.2 }
     );
-
-    if (element) {
-      observer.observe(element);
-    }
-
-    return () => {
-      if (element) {
-        observer.unobserve(element);
-      }
-    };
+    if (element) observer.observe(element);
+    return () => element && observer.unobserve(element);
   }, []);
 
   useEffect(() => {
@@ -323,9 +254,67 @@ function Home() {
   }, [isHovered, isDragging, isInView]);
 
   const handleProductClick = (product) => {
+    // LƯU VỊ TRÍ CUỘN
+    scrollPosition.current = window.scrollY;
     setSelectedProduct(product);
     setShowModal(true);
   };
+
+  // CHẶN SCROLL KHI MỞ MODAL + GIỮ VỊ TRÍ
+  useEffect(() => {
+    if (showModal) {
+      document.body.classList.add("modal-open");
+      document.body.style.top = `-${scrollPosition.current}px`;
+    } else {
+      document.body.classList.remove("modal-open");
+      document.body.style.top = "";
+      // KHÔI PHỤC VỊ TRÍ
+      window.scrollTo(0, scrollPosition.current);
+    }
+
+    return () => {
+      document.body.classList.remove("modal-open");
+      document.body.style.top = "";
+    };
+  }, [showModal]);
+
+  // CHẶN SCROLL TRÊN MOBILE
+  useEffect(() => {
+    const preventScroll = (e) => {
+      if (
+        productsContainerRef.current?.contains(e.target) ||
+        bestSellingContainerRef.current?.contains(e.target)
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    const options = { passive: false };
+    document.addEventListener("touchmove", preventScroll, options);
+    return () =>
+      document.removeEventListener("touchmove", preventScroll, options);
+  }, []);
+
+  const visibleProducts = products.slice(
+    currentIndex,
+    currentIndex + itemsPerView
+  );
+  if (visibleProducts.length < itemsPerView && products.length > 0) {
+    const remainingCount = itemsPerView - visibleProducts.length;
+    visibleProducts.push(...products.slice(0, remainingCount));
+  }
+
+  const visibleBestSelling = bestSellingProducts.slice(
+    bestSellingIndex,
+    bestSellingIndex + itemsPerView
+  );
+  if (
+    visibleBestSelling.length < itemsPerView &&
+    bestSellingProducts.length > 0
+  ) {
+    const remainingCount = itemsPerView - visibleBestSelling.length;
+    visibleBestSelling.push(...bestSellingProducts.slice(0, remainingCount));
+  }
 
   return (
     <div className="page-wrapper">
@@ -340,6 +329,7 @@ function Home() {
             loading="lazy"
           />
         </div>
+
         <div
           className="ub-unique-brands-section"
           onMouseEnter={handleMouseEnter}
@@ -396,16 +386,13 @@ function Home() {
             <FaChevronLeft />
           </button>
           <div
-            className="products-container"
+            className="products-container no-scroll"
             ref={productsContainerRef}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={() => handleTouchEnd(false)}
           >
             {visibleProducts.map((product) => (
               <div
                 key={product.id}
-                className="product-item"
+                className="product-item clickable"
                 onClick={() => handleProductClick(product)}
               >
                 <ProductCard product={product} />
@@ -454,16 +441,13 @@ function Home() {
             <FaChevronLeft />
           </button>
           <div
-            className="products-container"
+            className="products-container no-scroll"
             ref={bestSellingContainerRef}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={() => handleTouchEnd(true)}
           >
             {visibleBestSelling.map((product) => (
               <div
                 key={product.id}
-                className="product-item"
+                className="product-item clickable"
                 onClick={() => handleProductClick(product)}
               >
                 <BestSellingCard product={product} />

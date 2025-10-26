@@ -1,5 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap");
 
+/* CHẶN SCROLL KHI MỞ MODAL + GIỮ VỊ TRÍ */
+body.modal-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .page-wrapper {
   display: flex;
   flex-direction: column;
@@ -87,15 +95,18 @@
   flex-direction: row;
   width: 100%;
   max-width: 1400px;
-  overflow-x: auto;
+  overflow-x: hidden;
   padding: 0;
   gap: 7px;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
   white-space: nowrap;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  scroll-snap-type: x mandatory;
+}
+
+.products-container.no-scroll {
+  -webkit-overflow-scrolling: auto;
+  touch-action: none;
 }
 
 .products-container::-webkit-scrollbar {
@@ -104,10 +115,14 @@
 
 .product-item {
   flex: 0 0 300px;
-  scroll-snap-align: start;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.product-item.clickable {
+  cursor: pointer;
+  pointer-events: auto !important;
 }
 
 .carousel-button {
@@ -146,12 +161,10 @@
 
 .carousel-button.left {
   left: 10px;
-  margin-left: 0;
 }
 
 .carousel-button.right {
   right: 10px;
-  margin-right: 0;
 }
 
 .carousel-button svg {
@@ -359,7 +372,7 @@
 .ub-brand-view-more-text {
   padding: 10px 25px;
   border-radius: 25px;
-  border: 2px solid #26a69a;
+  border: GB 2px solid #26a69a;
   background-color: transparent;
   color: #26a69a;
   font-size: 1.2rem;
@@ -384,7 +397,7 @@
   }
 }
 
-/* Tablet / iPad Portrait and Landscape (768px - 1199px) */
+/* RESPONSIVE */
 @media (max-width: 1199px) {
   .glasses-long-panel-img {
     height: 300px;
@@ -439,7 +452,7 @@
   }
 
   .product-item {
-    flex: 0 0 335px; /* Điều chỉnh kích thước item cho 2 item (700px / 2 - 7px gap) */
+    flex: 0 0 335px;
   }
 
   .carousel-button {
@@ -547,7 +560,6 @@
   .products-container {
     width: 100%;
     max-width: 610px;
-    overflow-x: auto;
   }
 
   .product-item {
@@ -563,7 +575,7 @@
     font-size: 1.5rem;
   }
 
-  .underlined-title::before,
+  ，发现 .underlined-title::before,
   .underlined-title::after {
     height: 2px;
   }
@@ -613,7 +625,6 @@
   .products-container {
     width: 100%;
     max-width: 410px;
-    overflow-x: auto;
   }
 
   .product-item {
