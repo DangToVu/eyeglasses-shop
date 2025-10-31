@@ -46,6 +46,9 @@ function AllProductsCustomer() {
 
   const cardsSectionRef = useRef(null);
 
+  // LƯU VỊ TRÍ CUỘN
+  const scrollPosition = useRef(0);
+
   useEffect(() => {
     const fetchProductsAndOptions = async () => {
       setIsLoading(true);
@@ -194,9 +197,29 @@ function AllProductsCustomer() {
   };
 
   const handleProductClick = (product) => {
+    // LƯU VỊ TRÍ CUỘN
+    scrollPosition.current = window.scrollY;
     setSelectedProduct(product);
     setShowModal(true);
   };
+
+  // CHẶN SCROLL KHI MỞ MODAL + GIỮ VỊ TRÍ
+  useEffect(() => {
+    if (showModal) {
+      document.body.classList.add("modal-open");
+      document.body.style.top = `-${scrollPosition.current}px`;
+    } else {
+      document.body.classList.remove("modal-open");
+      document.body.style.top = "";
+      // KHÔI PHỤC VỊ TRÍ
+      window.scrollTo(0, scrollPosition.current);
+    }
+
+    return () => {
+      document.body.classList.remove("modal-open");
+      document.body.style.top = "";
+    };
+  }, [showModal]);
 
   const allProductsList = [
     ...regularProducts,
@@ -394,9 +417,7 @@ function AllProductsCustomer() {
           <div className="ap-cards-section" ref={cardsSectionRef}>
             <div className="ap-cards">
               {currentProducts.length === 0 ? (
-                <div className="ap-no-results">
-                  Không thấy kết quả tìm kiếm 😢
-                </div>
+                <div className="ap-no-results">Không thấy kết quả tìm kiếm</div>
               ) : (
                 currentProducts.map((product) => (
                   <div

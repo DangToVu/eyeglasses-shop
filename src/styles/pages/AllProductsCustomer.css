@@ -1,3 +1,11 @@
+/* CHẶN SCROLL KHI MỞ MODAL + GIỮ VỊ TRÍ */
+body.modal-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .ap-main-container {
   padding: 0rem 0;
 }
@@ -193,7 +201,7 @@
 }
 
 .ap-no-results::before {
-  content: "😢";
+  content: "Không thấy kết quả tìm kiếm";
   font-size: 2.5rem;
 }
 
