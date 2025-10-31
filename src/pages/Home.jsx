@@ -278,21 +278,33 @@ function Home() {
     };
   }, [showModal]);
 
-  // CHẶN SCROLL TRÊN MOBILE
+  // CHỈ CHẶN VUỐT NGANG CAROUSEL, VẪN VUỐT ĐƯỢC TRANG
   useEffect(() => {
-    const preventScroll = (e) => {
+    const preventHorizontalScroll = (e) => {
       if (
         productsContainerRef.current?.contains(e.target) ||
         bestSellingContainerRef.current?.contains(e.target)
       ) {
-        e.preventDefault();
+        // Chỉ chặn vuốt ngang
+        const deltaX = Math.abs(e.deltaX);
+        const deltaY = Math.abs(e.deltaY);
+        if (deltaX > deltaY) {
+          e.preventDefault();
+        }
       }
     };
 
     const options = { passive: false };
-    document.addEventListener("touchmove", preventScroll, options);
-    return () =>
-      document.removeEventListener("touchmove", preventScroll, options);
+    document.addEventListener("wheel", preventHorizontalScroll, options);
+    document.addEventListener("touchmove", preventHorizontalScroll, options);
+    return () => {
+      document.removeEventListener("wheel", preventHorizontalScroll, options);
+      document.removeEventListener(
+        "touchmove",
+        preventHorizontalScroll,
+        options
+      );
+    };
   }, []);
 
   const visibleProducts = products.slice(

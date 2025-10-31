@@ -106,7 +106,7 @@ body.modal-open {
 
 .products-container.no-scroll {
   -webkit-overflow-scrolling: auto;
-  touch-action: none;
+  touch-action: pan-y; /* CHỈ CHO PHÉP VUỐT DỌC */
 }
 
 .products-container::-webkit-scrollbar {
@@ -372,9 +372,9 @@ body.modal-open {
 .ub-brand-view-more-text {
   padding: 10px 25px;
   border-radius: 25px;
-  border: GB 2px solid #26a69a;
+  border: 2px solid #26a599;
   background-color: transparent;
-  color: #26a69a;
+  color: #26a599;
   font-size: 1.2rem;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -383,9 +383,9 @@ body.modal-open {
 }
 
 .ub-brand-view-more-text:hover {
-  background-color: #26a69a;
-  color: aliceblue;
-  border: 2px solid #54f5e4;
+  background-color: #26a599;
+  color: #f0f0f0;
+  border: 2px solid #3dd5c6;
 }
 
 @keyframes scrollBrands {
@@ -575,7 +575,7 @@ body.modal-open {
     font-size: 1.5rem;
   }
 
-  ，发现 .underlined-title::before,
+  .underlined-title::before,
   .underlined-title::after {
     height: 2px;
   }
